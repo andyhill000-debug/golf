@@ -7,388 +7,155 @@
 <title>Hillfred Golf · Live Leaderboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --teal: #00e8bb;
-    --gold: #e2b84a;
-    --red:  #ff5a5a;
-    --bg:   #0a0a0a;
-    --card: #141414;
-    --border: #222;
-    --text: #f0f0f0;
-    --muted: #666;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
+  :root{--teal:#00e8bb;--gold:#e2b84a;--red:#ff5a5a;--bg:#0a0a0a;--card:#141414;--border:#222;--text:#f0f0f0;--muted:#555;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
-  /* ── Header ── */
-  .header {
-    background: #0f0f0f;
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-brand {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-  }
-  .header-brand span { color: var(--teal); }
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: var(--teal);
-  }
-  .live-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--teal);
-    animation: pulse 2s infinite;
-  }
-  .live-dot.offline { background: var(--red); animation: none; }
-  @keyframes pulse {
-    0%,100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
+  /* Header */
+  .header{background:#0f0f0f;border-bottom:1px solid var(--border);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-left{display:flex;align-items:center;gap:12px;}
+  .back-btn{display:flex;align-items:center;gap:6px;background:rgba(0,232,187,.08);border:1.5px solid rgba(0,232,187,.25);border-radius:8px;color:var(--teal);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:7px 12px;cursor:pointer;text-decoration:none;transition:all .15s;}
+  .back-btn:hover{background:rgba(0,232,187,.14);}
+  .header-brand{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;}
+  .header-brand span{color:var(--teal);}
+  .live-badge{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--teal);}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;}
+  .live-dot.offline{background:var(--red);animation:none;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
 
-  /* ── Tournament selector ── */
-  .selector-wrap {
-    padding: 20px 24px 0;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .selector-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-  }
-  .selector-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  select.t-select {
-    flex: 1;
-    min-width: 200px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 16px;
-    appearance: none;
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e8bb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 36px;
-  }
-  .mode-tabs {
-    display: flex;
-    gap: 6px;
-  }
-  .mode-tab {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--card);
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: .5px;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .mode-tab.active {
-    border-color: var(--teal);
-    background: rgba(0,232,187,.1);
-    color: var(--teal);
-  }
+  /* Selector */
+  .selector-wrap{padding:16px 20px 0;max-width:960px;margin:0 auto;}
+  .selector-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;}
+  select.t-select{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px 36px 11px 13px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e8bb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;}
+  .view-tabs{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;}
+  .view-tab{padding:8px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .15s;}
+  .view-tab.active{border-color:var(--teal);background:rgba(0,232,187,.1);color:var(--teal);}
 
-  /* ── Main content ── */
-  .main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px 24px 40px;
-  }
+  /* Main */
+  .main{max-width:960px;margin:0 auto;padding:16px 20px 48px;}
+  .t-title{margin-bottom:16px;}
+  .t-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;letter-spacing:-.5px;line-height:1.1;}
+  .t-meta{font-size:12px;color:var(--muted);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;}
 
-  /* ── Tournament title ── */
-  .t-title {
-    margin-bottom: 20px;
-  }
-  .t-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    line-height: 1.1;
-  }
-  .t-meta {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 4px;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .t-meta span { display: flex; align-items: center; gap: 4px; }
+  /* Live leaderboard table */
+  .lb-table{width:100%;border-collapse:collapse;font-size:14px;}
+  .lb-table thead th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);border-bottom:1px solid var(--border);text-transform:uppercase;}
+  .lb-table thead th.r{text-align:center;}
+  .lb-table tbody tr{border-bottom:1px solid #161616;transition:background .12s;cursor:default;}
+  .lb-table tbody tr:hover{background:#131313;}
+  .lb-table tbody tr.leader{background:rgba(0,232,187,.03);}
+  .lb-table td{padding:13px 11px;vertical-align:middle;}
+  .lb-table td.r{text-align:center;}
+  .rank-num{font-size:17px;font-weight:900;font-family:'Playfair Display',serif;}
+  .r1{color:var(--gold);} .r2{color:#aaa;} .r3{color:#cd7f32;} .rn{color:#333;}
+  .p-name{font-weight:700;font-size:15px;}
+  .p-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .p-team{font-size:11px;font-weight:700;margin-top:2px;}
+  .team-1{color:var(--teal);} .team-2{color:var(--red);}
+  .score-big{font-size:21px;font-weight:900;font-family:'Playfair Display',serif;text-align:center;}
+  .score-lbl{font-size:10px;color:var(--muted);text-align:center;margin-top:1px;letter-spacing:.5px;}
+  .col-teal{color:var(--teal);} .col-red{color:var(--red);} .col-grey{color:#888;}
+  .holes-wrap{text-align:center;}
+  .holes-num{font-size:13px;color:var(--muted);}
+  .holes-num.done{color:var(--gold);font-weight:700;}
+  .holes-bar{width:50px;height:4px;background:#1e1e1e;border-radius:2px;margin:5px auto 0;overflow:hidden;}
+  .holes-fill{height:100%;border-radius:2px;background:var(--teal);transition:width .5s;}
+  .badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.5px;}
+  .badge-live{background:rgba(0,232,187,.1);color:var(--teal);border:1px solid rgba(0,232,187,.3);}
+  .badge-finished{background:rgba(226,184,74,.1);color:var(--gold);border:1px solid rgba(226,184,74,.3);}
 
-  /* ── Leaderboard table ── */
-  .lb-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  .lb-table thead th {
-    padding: 10px 12px;
-    text-align: left;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    text-transform: uppercase;
-  }
-  .lb-table thead th.num { text-align: center; }
-  .lb-table tbody tr {
-    border-bottom: 1px solid #1a1a1a;
-    transition: background .15s;
-    cursor: default;
-  }
-  .lb-table tbody tr:hover { background: #161616; }
-  .lb-table tbody tr.leader { background: rgba(0,232,187,.04); }
-  .lb-table tbody tr.leader:hover { background: rgba(0,232,187,.07); }
-  .lb-table td {
-    padding: 14px 12px;
-    vertical-align: middle;
-  }
-  .lb-table td.num { text-align: center; }
+  /* Hole detail */
+  .hole-detail{display:none;padding:10px 12px;background:#0d0d0d;border-top:1px solid var(--border);}
+  .hole-detail.open{display:block;}
+  .hole-pips{display:flex;flex-wrap:wrap;gap:4px;}
+  .pip{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#1a1a1a;color:#444;position:relative;}
+  .pip.scored{background:#132820;color:var(--teal);}
+  .pip.next{border:1.5px solid rgba(0,232,187,.4);}
+  .pip-n{position:absolute;top:2px;left:3px;font-size:7px;color:#333;font-weight:600;}
 
-  /* Rank */
-  .rank-cell {
-    font-size: 18px;
-    font-weight: 900;
-    font-family: 'Playfair Display', serif;
-    width: 40px;
-  }
-  .rank-1 { color: var(--gold); }
-  .rank-2 { color: #aaa; }
-  .rank-3 { color: #cd7f32; }
-  .rank-other { color: #444; }
+  /* Results — singles */
+  .standings-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+  .standings-header{background:linear-gradient(135deg,rgba(226,184,74,.12),rgba(0,232,187,.06));border-bottom:1px solid var(--border);padding:14px 16px;text-align:center;}
+  .standings-header h2{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--gold);}
+  .standings-header p{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.5px;}
+  .standings-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #1a1a1a;gap:12px;}
+  .standings-row:last-child{border-bottom:none;}
+  .standings-rank{font-size:20px;min-width:28px;font-family:'Playfair Display',serif;font-weight:900;}
+  .standings-info{flex:1;}
+  .standings-name{font-weight:700;font-size:15px;}
+  .standings-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .standings-score{text-align:right;}
+  .standings-pts{font-size:22px;font-weight:900;font-family:'Playfair Display',serif;}
+  .standings-pts-lbl{font-size:10px;color:var(--muted);letter-spacing:.5px;}
 
-  /* Player name */
-  .player-name {
-    font-weight: 700;
-    font-size: 15px;
-  }
-  .player-team {
-    font-size: 11px;
-    font-weight: 600;
-    margin-top: 2px;
-  }
-  .team-1 { color: var(--teal); }
-  .team-2 { color: var(--red); }
+  /* Results — teams */
+  .teams-scoreboard{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+  .teams-banner{background:linear-gradient(135deg,rgba(226,184,74,.1),rgba(0,232,187,.04));border-bottom:1px solid var(--border);padding:16px;text-align:center;}
+  .teams-winner{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);}
+  .teams-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px;gap:8px;}
+  .team-col{text-align:center;}
+  .team-name-lbl{font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:4px;}
+  .team-pts-big{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;}
+  .team-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+  .vs-divider{font-size:13px;color:var(--muted);font-weight:700;}
+  .match-log-title{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);padding:10px 16px 6px;border-top:1px solid var(--border);text-transform:uppercase;}
+  .match-log-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 16px;border-bottom:1px solid #1a1a1a;gap:10px;}
+  .match-log-row:last-child{border-bottom:none;}
+  .match-date{font-size:11px;color:var(--muted);min-width:58px;}
+  .match-players{font-size:12px;color:#aaa;flex:1;}
+  .match-result{font-size:12px;font-weight:700;text-align:right;white-space:nowrap;}
+  .res-t1{color:var(--teal);} .res-t2{color:var(--red);} .res-halved{color:var(--gold);}
 
-  /* Score */
-  .score-main {
-    font-size: 22px;
-    font-weight: 900;
-    font-family: 'Playfair Display', serif;
-    text-align: center;
-  }
-  .score-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-align: center;
-    margin-top: 1px;
-    letter-spacing: .5px;
-  }
-  .score-positive { color: var(--teal); }
-  .score-negative { color: var(--red); }
-  .score-even { color: #aaa; }
+  /* Empty / loading */
+  .state-msg{text-align:center;padding:60px 20px;color:var(--muted);}
+  .state-msg .icon{font-size:44px;margin-bottom:12px;}
+  .state-msg h3{font-size:17px;font-weight:700;color:#555;margin-bottom:6px;}
+  .state-msg p{font-size:13px;line-height:1.6;}
+  .last-updated{text-align:center;font-size:11px;color:#2a2a2a;margin-top:20px;letter-spacing:.5px;}
 
-  /* Holes */
-  .holes-cell { font-size: 13px; color: var(--muted); text-align: center; }
-  .holes-done { color: var(--gold); font-weight: 700; }
-  .holes-bar {
-    width: 50px;
-    height: 4px;
-    background: #222;
-    border-radius: 2px;
-    margin: 4px auto 0;
-    overflow: hidden;
-  }
-  .holes-fill {
-    height: 100%;
-    border-radius: 2px;
-    background: var(--teal);
-    transition: width .5s ease;
-  }
+  @keyframes rowIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+  .row-in{animation:rowIn .3s ease forwards;}
 
-  /* Status badge */
-  .status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .5px;
-  }
-  .status-active { background: rgba(0,232,187,.1); color: var(--teal); border: 1px solid rgba(0,232,187,.3); }
-  .status-finished { background: rgba(226,184,74,.1); color: var(--gold); border: 1px solid rgba(226,184,74,.3); }
-
-  /* Matchplay specific */
-  .mp-status {
-    font-size: 13px;
-    font-weight: 700;
-    text-align: center;
-  }
-  .mp-p1 { color: var(--teal); }
-  .mp-p2 { color: var(--red); }
-  .mp-as { color: var(--muted); }
-
-  /* ── Hole-by-hole mini grid ── */
-  .hole-grid {
-    display: none;
-    padding: 12px;
-    background: #0f0f0f;
-    border-top: 1px solid var(--border);
-  }
-  .hole-grid.open { display: block; }
-  .hole-grid-inner {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-  .hole-pip {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    background: #1a1a1a;
-    color: #555;
-    position: relative;
-  }
-  .hole-pip.scored { background: #1e2e2a; color: var(--teal); }
-  .hole-pip.active { border: 1.5px solid var(--teal); }
-  .hole-pip-num {
-    position: absolute;
-    top: 2px; left: 3px;
-    font-size: 7px;
-    color: #444;
-    font-weight: 600;
-  }
-
-  /* ── Empty / loading states ── */
-  .state-msg {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-  }
-  .state-msg .icon { font-size: 48px; margin-bottom: 12px; }
-  .state-msg h3 { font-size: 18px; font-weight: 700; color: #666; margin-bottom: 6px; }
-  .state-msg p { font-size: 13px; line-height: 1.6; }
-
-  /* ── Last updated ── */
-  .last-updated {
-    text-align: center;
-    font-size: 11px;
-    color: #333;
-    margin-top: 24px;
-    letter-spacing: .5px;
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 600px) {
-    .header { padding: 12px 16px; }
-    .selector-wrap { padding: 16px 16px 0; }
-    .main { padding: 16px 16px 40px; }
-    .t-name { font-size: 22px; }
-    .lb-table font-size { font-size: 13px; }
-    .score-main { font-size: 18px; }
-    .mode-tab { padding: 8px 10px; font-size: 11px; }
-  }
-
-  /* ── Animations ── */
-  .row-in {
-    animation: rowIn .3s ease forwards;
-  }
-  @keyframes rowIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .score-flash {
-    animation: flash .6s ease;
-  }
-  @keyframes flash {
-    0%,100% { background: transparent; }
-    30% { background: rgba(0,232,187,.15); }
+  @media(max-width:600px){
+    .header,.selector-wrap,.main{padding-left:14px;padding-right:14px;}
+    .t-name{font-size:20px;} .score-big{font-size:18px;} .team-pts-big{font-size:28px;}
   }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
-  <div class="header-brand">Hill<span>fred</span> Golf</div>
-  <div style="display:flex;align-items:center;gap:16px">
-    <div class="live-badge">
-      <div class="live-dot" id="live-dot"></div>
-      <span id="live-lbl">CONNECTING</span>
-    </div>
+  <div class="header-left">
+    <a class="back-btn" id="back-btn" href="index.html">← Scorecard</a>
+    <div class="header-brand">Hill<span>fred</span></div>
+  </div>
+  <div class="live-badge">
+    <div class="live-dot" id="live-dot"></div>
+    <span id="live-lbl">CONNECTING</span>
   </div>
 </div>
 
-<!-- Tournament selector -->
 <div class="selector-wrap">
   <div class="selector-label">Tournament</div>
-  <div class="selector-row">
-    <select class="t-select" id="t-select" onchange="onTournamentChange(this.value)">
-      <option value="">— Select tournament —</option>
-    </select>
-    <div class="mode-tabs">
-      <div class="mode-tab active" id="tab-all" onclick="setView('all')">All</div>
-      <div class="mode-tab" id="tab-stab" onclick="setView('stableford')">Stab</div>
-      <div class="mode-tab" id="tab-stroke" onclick="setView('stroke')">Stroke</div>
-      <div class="mode-tab" id="tab-match" onclick="setView('matchplay')">Match</div>
-    </div>
+  <select class="t-select" id="t-select" onchange="onTournamentChange(this.value)">
+    <option value="">— Select tournament —</option>
+  </select>
+  <div class="view-tabs">
+    <div class="view-tab active" id="vtab-live"    onclick="setView('live')">📡 Live Scores</div>
+    <div class="view-tab"       id="vtab-results"  onclick="setView('results')">🏆 Results</div>
+    <div class="view-tab"       id="vtab-stab"     onclick="setView('stableford')">⭐ Stableford</div>
+    <div class="view-tab"       id="vtab-stroke"   onclick="setView('stroke')">✏️ Stroke</div>
+    <div class="view-tab"       id="vtab-match"    onclick="setView('matchplay')">🏆 Matchplay</div>
   </div>
 </div>
 
-<!-- Main leaderboard -->
 <div class="main" id="main-content">
   <div class="state-msg">
     <div class="icon">🏆</div>
     <h3>Live Leaderboard</h3>
-    <p>Select a tournament above to see live scores.<br>Scores update automatically as players complete each hole.</p>
+    <p>Select a tournament above to see live scores and final results.</p>
   </div>
 </div>
-
 <div class="last-updated" id="last-updated"></div>
 
 <script type="module">
@@ -408,201 +175,174 @@
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
-  let currentView = 'all';
-  let currentTournament = '';
-  let liveData = {};
-  let unsubscribe = null;
+  let currentView = 'live';
+  let currentKey  = '';
+  let liveScores  = {};
+  let liveResults = null;
+  let unsubScores = null;
+  let unsubResults = null;
 
-  // ── Connection status ──────────────────────────────────────────────────────
+  // Connection status
   onValue(ref(db, '.info/connected'), snap => {
-    const online = snap.val() === true;
-    const dot = document.getElementById('live-dot');
-    const lbl = document.getElementById('live-lbl');
-    if (dot) { dot.className = 'live-dot' + (online ? '' : ' offline'); }
-    if (lbl) lbl.textContent = online ? 'LIVE' : 'OFFLINE';
+    const on = snap.val() === true;
+    document.getElementById('live-dot').className = 'live-dot' + (on ? '' : ' offline');
+    document.getElementById('live-lbl').textContent = on ? 'LIVE' : 'OFFLINE';
   });
 
-  // ── Load tournament list ───────────────────────────────────────────────────
+  // Populate tournament dropdown from Firebase
   onValue(ref(db, 'tournaments'), snap => {
     const data = snap.val() || {};
-    const sel = document.getElementById('t-select');
-    const current = sel.value;
-    // Keep existing options, add new ones
-    const existing = new Set(Array.from(sel.options).map(o => o.value).filter(Boolean));
+    const sel  = document.getElementById('t-select');
+    const cur  = sel.value;
+    const seen = new Set(Array.from(sel.options).map(o => o.value).filter(Boolean));
     Object.entries(data).forEach(([key, val]) => {
-      if (!existing.has(key)) {
-        const meta = val.scores ? Object.values(val.scores).find(g => g._meta) : null;
-        const label = meta && meta._meta ? meta._meta.tournamentLabel : key;
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = label || key;
-        sel.appendChild(opt);
-      }
+      if (seen.has(key)) return;
+      const scores = val.scores || {};
+      const meta   = Object.values(scores).map(g => g && g._meta).find(Boolean) || {};
+      const lbl    = (val.results && val.results.label) || meta.tournamentLabel || key;
+      const opt    = document.createElement('option');
+      opt.value = key; opt.textContent = lbl;
+      sel.appendChild(opt);
     });
-    if (current && data[current]) sel.value = current;
+    if (cur && data[cur]) sel.value = cur;
   });
 
-  // ── Tournament change ──────────────────────────────────────────────────────
+  // Tournament change
   window.onTournamentChange = function(key) {
-    currentTournament = key;
-    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    currentKey = key;
+    if (unsubScores)  { unsubScores();  unsubScores  = null; }
+    if (unsubResults) { unsubResults(); unsubResults = null; }
+    liveScores = {}; liveResults = null;
+
+    // Update back link
+    const base = window.location.href.replace(/[^/]*(\?.*)?$/, '');
+    document.getElementById('back-btn').href = base + 'index.html';
+
     if (!key) {
-      document.getElementById('main-content').innerHTML = `
-        <div class="state-msg">
-          <div class="icon">🏆</div>
-          <h3>Live Leaderboard</h3>
-          <p>Select a tournament above to see live scores.</p>
-        </div>`;
+      document.getElementById('main-content').innerHTML =
+        `<div class="state-msg"><div class="icon">🏆</div><h3>Live Leaderboard</h3><p>Select a tournament above.</p></div>`;
       return;
     }
-    document.getElementById('main-content').innerHTML = `
-      <div class="state-msg"><div class="icon" style="font-size:32px;animation:pulse 1s infinite">⏳</div><h3>Loading scores…</h3></div>`;
 
-    unsubscribe = onValue(ref(db, `tournaments/${key}/scores`), snap => {
-      liveData = snap.val() || {};
-      renderLeaderboard();
+    document.getElementById('main-content').innerHTML =
+      `<div class="state-msg"><div class="icon">⏳</div><h3>Loading…</h3></div>`;
+
+    unsubScores = onValue(ref(db, `tournaments/${key}/scores`), snap => {
+      liveScores = snap.val() || {};
+      render();
+    });
+    unsubResults = onValue(ref(db, `tournaments/${key}/results`), snap => {
+      liveResults = snap.val() || null;
+      render();
     });
   };
 
-  // ── View toggle ────────────────────────────────────────────────────────────
+  // View toggle
   window.setView = function(v) {
     currentView = v;
-    ['all','stableford','stroke','matchplay'].forEach(id => {
-      document.getElementById('tab-'+id).classList.toggle('active', id === v);
-    });
-    renderLeaderboard();
+    ['live','results','stableford','stroke','matchplay'].forEach(id =>
+      document.getElementById('vtab-' + id).classList.toggle('active', id === v)
+    );
+    render();
   };
 
-  // ── Core render ───────────────────────────────────────────────────────────
-  function renderLeaderboard() {
-    const main = document.getElementById('main-content');
-    if (!Object.keys(liveData).length) {
-      main.innerHTML = `<div class="state-msg"><div class="icon">📭</div><h3>No scores yet</h3><p>Scores will appear here once players start completing holes.</p></div>`;
-      return;
-    }
+  // Master render
+  function render() {
+    if (currentView === 'results') renderResults();
+    else renderLive(currentView === 'live' ? 'all' : currentView);
+    const ts = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('last-updated').textContent = `Last updated ${ts}`;
+  }
 
-    // Flatten all player-round entries
+  // ── Live scores ────────────────────────────────────────────────────────────
+  function renderLive(modeFilter) {
+    const main = document.getElementById('main-content');
     const entries = [];
-    Object.entries(liveData).forEach(([gameId, gameData]) => {
-      if (!gameData) return;
-      const meta = gameData._meta || {};
-      Object.entries(gameData).forEach(([playerKey, pData]) => {
-        if (playerKey === '_meta' || !pData) return;
-        // Filter by view
-        if (currentView !== 'all' && meta.mode !== currentView) return;
-        const holesPlayed = pData.holesPlayed || 0;
-        const lastHole = pData[`h${holesPlayed}`] || {};
+
+    Object.entries(liveScores).forEach(([gameId, gd]) => {
+      if (!gd) return;
+      const meta = gd._meta || {};
+      Object.entries(gd).forEach(([pKey, pData]) => {
+        if (pKey === '_meta' || !pData) return;
+        if (modeFilter !== 'all' && meta.mode !== modeFilter) return;
+        const hp   = pData.holesPlayed || 0;
+        const last = hp > 0 ? (pData[`h${hp}`] || {}) : {};
         entries.push({
-          gameId,
-          playerName: playerKey.replace(/_/g, ' '),
-          holesPlayed,
-          grossTotal: lastHole.grossTotal || 0,
-          netTotal: lastHole.netTotal || 0,
-          stabTotal: lastHole.stabTotal || 0,
-          par: lastHole.par || 0,
-          mode: meta.mode || lastHole.mode || '—',
-          team: lastHole.team || false,
-          teamName: lastHole.teamName || null,
-          mpStatus: lastHole.mpStatus || null,
-          status: meta.status || 'active',
-          course: meta.course || '—',
-          tournamentLabel: meta.tournamentLabel || currentTournament,
-          team1name: meta.team1name || 'Team 1',
-          team2name: meta.team2name || 'Team 2',
+          gameId, name: pKey.replace(/_/g,' '), holesPlayed: hp,
+          grossTotal: last.grossTotal||0, netTotal: last.netTotal||0,
+          stabTotal: last.stabTotal||0, par: last.par||0,
+          mode: meta.mode||last.mode||'—', team: last.team||false,
+          teamName: last.teamName||null, mpStatus: last.mpStatus||null,
+          status: meta.status||'active', course: meta.course||'—',
+          tLabel: meta.tournamentLabel||currentKey,
+          t1name: meta.team1name||'Team 1', t2name: meta.team2name||'Team 2',
           holeData: pData,
         });
       });
     });
 
     if (!entries.length) {
-      main.innerHTML = `<div class="state-msg"><div class="icon">📭</div><h3>No scores yet</h3><p>No rounds match the selected filter.</p></div>`;
+      main.innerHTML = `<div class="state-msg"><div class="icon">📭</div><h3>No scores yet</h3><p>Scores appear here once players complete holes.</p></div>`;
       return;
     }
 
-    // Sort: stableford = most pts, others = lowest net
-    entries.sort((a, b) => {
-      if (a.mode === 'stableford') return b.stabTotal - a.stabTotal;
-      return a.netTotal - b.netTotal;
-    });
+    entries.sort((a,b) => a.mode==='stableford' ? b.stabTotal-a.stabTotal : a.netTotal-b.netTotal);
 
-    // Build tournament info from first entry
-    const tLabel = entries[0].tournamentLabel;
-    const activeCnt = entries.filter(e => e.status === 'active').length;
-    const finCnt = entries.filter(e => e.status === 'finished').length;
+    const tLabel    = entries[0].tLabel;
+    const activeCnt = entries.filter(e=>e.status==='active').length;
+    const finCnt    = entries.filter(e=>e.status==='finished').length;
 
-    // Group by game for matchplay
-    const mpGames = {};
-    entries.filter(e => e.mode === 'matchplay').forEach(e => {
-      if (!mpGames[e.gameId]) mpGames[e.gameId] = [];
-      mpGames[e.gameId].push(e);
-    });
-
-    let rows = '';
-    let rank = 1;
+    let rows = '', rank = 1;
     entries.forEach((e, i) => {
-      const isLeader = i === 0;
-      const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
-      const teamCls = e.teamName === e.team1name ? 'team-1' : e.teamName === e.team2name ? 'team-2' : '';
-      const pct = Math.round((e.holesPlayed / 18) * 100);
+      const rCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+      const tCls = e.teamName===e.t1name?'team-1':e.teamName===e.t2name?'team-2':'';
+      const pct  = Math.round((e.holesPlayed/18)*100);
 
-      // Score display
-      let scoreHtml = '';
-      if (e.mode === 'stableford') {
-        scoreHtml = `<div class="score-main score-positive">${e.stabTotal}</div><div class="score-label">PTS</div>`;
-      } else if (e.mode === 'matchplay') {
-        const st = e.mpStatus || (e.holesPlayed === 0 ? 'AS' : '—');
-        const cl = st.includes('UP') ? 'mp-p1' : st === 'AS' ? 'mp-as' : 'mp-p2';
-        scoreHtml = `<div class="mp-status ${cl}">${st}</div>`;
+      let sh;
+      if (e.mode==='stableford') {
+        sh = `<div class="score-big col-teal">${e.stabTotal}</div><div class="score-lbl">PTS</div>`;
+      } else if (e.mode==='matchplay') {
+        const st=e.mpStatus||(e.holesPlayed===0?'AS':'—');
+        const sc=st.includes('UP')?'col-teal':st==='AS'?'col-grey':'col-red';
+        sh = `<div class="score-big ${sc}">${st}</div>`;
       } else {
-        const diff = e.netTotal - e.par;
-        const cl = diff < 0 ? 'score-positive' : diff > 0 ? 'score-negative' : 'score-even';
-        const label = diff === 0 ? 'E' : (diff > 0 ? '+' : '') + diff;
-        scoreHtml = `<div class="score-main ${cl}">${label}</div><div class="score-label">NET ${e.netTotal}</div>`;
+        const d=e.netTotal-e.par;
+        const sc=d<0?'col-teal':d>0?'col-red':'col-grey';
+        sh = `<div class="score-big ${sc}">${d===0?'E':(d>0?'+':'')+d}</div><div class="score-lbl">NET ${e.netTotal}</div>`;
       }
 
-      // Hole pips
-      let pips = '';
-      for (let h = 1; h <= 18; h++) {
-        const hd = e.holeData[`h${h}`];
-        const scored = !!hd;
-        const active = h === e.holesPlayed + 1 && e.status === 'active';
-        pips += `<div class="hole-pip ${scored?'scored':''} ${active?'active':''}">
-          <span class="hole-pip-num">${h}</span>
-          ${scored ? hd.grossTotal - (e.holeData[`h${h-1}`]?.grossTotal||0) || '' : ''}
-        </div>`;
+      let pips='';
+      for (let h=1;h<=18;h++){
+        const hd=e.holeData[`h${h}`];
+        const prv=h>1?e.holeData[`h${h-1}`]:null;
+        const g=hd&&prv?hd.grossTotal-prv.grossTotal:(hd&&h===1?hd.grossTotal:null);
+        const nxt=h===e.holesPlayed+1&&e.status==='active';
+        pips+=`<div class="pip ${hd?'scored':''} ${nxt?'next':''}"><span class="pip-n">${h}</span>${g!=null?g:''}</div>`;
       }
 
       rows += `
-        <tr class="${isLeader?'leader':''} row-in" style="animation-delay:${i*0.04}s" onclick="toggleHoles(${i})">
-          <td class="rank-cell ${rankCls}">${rank}</td>
+        <tr class="${i===0?'leader':''} row-in" style="animation-delay:${i*.03}s" onclick="toggleDetail(${i})">
+          <td><span class="rank-num ${rCls}">${rank}</span></td>
           <td>
-            <div class="player-name">${e.playerName}</div>
-            ${e.teamName ? `<div class="player-team ${teamCls}">${e.teamName}</div>` : ''}
-            <div style="font-size:11px;color:#444;margin-top:2px">${e.course} · ${e.mode}</div>
+            <div class="p-name">${e.name}</div>
+            ${e.teamName?`<div class="p-team ${tCls}">${e.teamName}</div>`:''}
+            <div class="p-sub">${e.course} · ${e.mode}</div>
           </td>
-          <td class="num">${scoreHtml}</td>
-          <td>
-            <div class="holes-cell ${e.holesPlayed===18?'holes-done':''}">${e.holesPlayed}/18</div>
-            <div class="holes-bar"><div class="holes-fill" style="width:${pct}%"></div></div>
-          </td>
-          <td class="num"><span class="status-badge ${e.status==='finished'?'status-finished':'status-active'}">${e.status==='finished'?'✓ Done':'● Live'}</span></td>
+          <td class="r">${sh}</td>
+          <td><div class="holes-wrap"><div class="holes-num ${e.holesPlayed===18?'done':''}">${e.holesPlayed}/18</div><div class="holes-bar"><div class="holes-fill" style="width:${pct}%"></div></div></div></td>
+          <td class="r"><span class="badge ${e.status==='finished'?'badge-finished':'badge-live'}">${e.status==='finished'?'✓ Done':'● Live'}</span></td>
         </tr>
-        <tr>
-          <td colspan="5" style="padding:0">
-            <div class="hole-grid" id="holes-${i}">
-              <div style="font-size:10px;color:#555;margin-bottom:8px;letter-spacing:1px;font-weight:700">HOLE BY HOLE</div>
-              <div class="hole-grid-inner">${pips}</div>
-            </div>
-          </td>
-        </tr>`;
+        <tr><td colspan="5" style="padding:0">
+          <div class="hole-detail" id="detail-${i}">
+            <div style="font-size:10px;color:#444;margin-bottom:8px;letter-spacing:1px;font-weight:700">HOLE BY HOLE</div>
+            <div class="hole-pips">${pips}</div>
+          </div>
+        </td></tr>`;
 
-      // Increment rank (same rank for ties)
-      if (i < entries.length - 1) {
-        const next = entries[i + 1];
-        const sameScore = e.mode === 'stableford'
-          ? e.stabTotal === next.stabTotal
-          : e.netTotal === next.netTotal;
-        if (!sameScore) rank = i + 2;
+      if (i<entries.length-1){
+        const nxt=entries[i+1];
+        const tied=e.mode==='stableford'?e.stabTotal===nxt.stabTotal:e.netTotal===nxt.netTotal;
+        if(!tied) rank=i+2;
       }
     });
 
@@ -611,42 +351,121 @@
         <div class="t-name">${tLabel}</div>
         <div class="t-meta">
           <span>⛳ ${entries.length} player${entries.length!==1?'s':''}</span>
-          <span style="color:var(--teal)">● ${activeCnt} active</span>
-          ${finCnt ? `<span style="color:var(--gold)">✓ ${finCnt} finished</span>` : ''}
+          ${activeCnt?`<span style="color:var(--teal)">● ${activeCnt} active</span>`:''}
+          ${finCnt?`<span style="color:var(--gold)">✓ ${finCnt} finished</span>`:''}
         </div>
       </div>
       <table class="lb-table">
         <thead><tr>
-          <th style="width:40px">#</th>
-          <th>Player</th>
-          <th class="num">Score</th>
-          <th class="num" style="width:80px">Holes</th>
-          <th class="num" style="width:80px">Status</th>
+          <th style="width:34px">#</th><th>Player</th>
+          <th class="r">Score</th><th class="r" style="width:74px">Holes</th>
+          <th class="r" style="width:78px">Status</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
-
-    const ts = new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    document.getElementById('last-updated').textContent = `Last updated ${ts}`;
   }
 
-  window.toggleHoles = function(idx) {
-    const el = document.getElementById('holes-' + idx);
+  // ── Results ────────────────────────────────────────────────────────────────
+  function renderResults() {
+    const main = document.getElementById('main-content');
+    if (!liveResults) {
+      main.innerHTML = `<div class="state-msg"><div class="icon">📋</div><h3>No results yet</h3><p>Final results are stored here once rounds are saved in the scoring app.</p></div>`;
+      return;
+    }
+    const r = liveResults;
+    if (r.type==='singles') renderSinglesResults(main, r);
+    else if (r.type==='teams') renderTeamsResults(main, r);
+  }
+
+  function renderSinglesResults(main, r) {
+    const isStab = r.dominantMode==='stableford';
+    const colLbl = isStab ? 'PTS' : 'NET';
+    const lb = r.leaderboard || [];
+    const rankEmoji = ['🥇','🥈','🥉'];
+    const rankColors = ['var(--gold)','#aaa','#cd7f32'];
+
+    const rows = lb.map((p,i) => {
+      const em  = rankEmoji[i]||(i+1)+'th';
+      const col = rankColors[i]||'#555';
+      const sc  = isStab ? p.stabTotal : p.netTotal;
+      const avg = isStab ? p.avgStab   : p.avgNet;
+      return `<div class="standings-row">
+        <div class="standings-rank">${em}</div>
+        <div class="standings-info">
+          <div class="standings-name" style="color:${col}">${p.name}</div>
+          <div class="standings-sub">${p.rounds} round${p.rounds!==1?'s':''} · Avg ${avg}</div>
+        </div>
+        <div class="standings-score">
+          <div class="standings-pts" style="color:${col}">${sc}</div>
+          <div class="standings-pts-lbl">${colLbl}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    main.innerHTML = `
+      <div class="standings-card">
+        <div class="standings-header">
+          <h2>${r.label}</h2>
+          <p>${r.roundCount} round${r.roundCount!==1?'s':''} · ${r.dominantMode}</p>
+        </div>
+        ${rows}
+      </div>`;
+  }
+
+  function renderTeamsResults(main, r) {
+    const winner = r.overallWinner;
+    const winHtml = winner
+      ? `<div class="teams-winner">🏆 ${winner}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Overall Winner</div>`
+      : `<div class="teams-winner" style="color:var(--gold)">All Square — ${r.t1pts} all</div>`;
+
+    const log = (r.matchResults||[]).map(m => {
+      const rc = m.winner===1?'res-t1':m.winner===2?'res-t2':'res-halved';
+      return `<div class="match-log-row">
+        <div class="match-date">${m.date}</div>
+        <div class="match-players">${m.t1players} vs ${m.t2players}<br>
+          <span style="font-size:10px;color:#444">${m.mode} · ${m.format} · ${m.course}</span>
+        </div>
+        <div class="match-result ${rc}">${m.resultLabel}</div>
+      </div>`;
+    }).join('');
+
+    main.innerHTML = `
+      <div class="teams-scoreboard">
+        <div class="teams-banner">${winHtml}</div>
+        <div class="teams-grid">
+          <div class="team-col">
+            <div class="team-name-lbl" style="color:var(--teal)">${r.team1name}</div>
+            <div class="team-pts-big" style="color:var(--teal)">${r.t1pts}</div>
+            <div class="team-sub">${r.t1wins}W · ${r.halved}H</div>
+          </div>
+          <div class="vs-divider">VS</div>
+          <div class="team-col">
+            <div class="team-name-lbl" style="color:var(--red)">${r.team2name}</div>
+            <div class="team-pts-big" style="color:var(--red)">${r.t2pts}</div>
+            <div class="team-sub">${r.t2wins}W · ${r.halved}H</div>
+          </div>
+        </div>
+        <div class="match-log-title">Match Results · ${r.totalMatches} played</div>
+        ${log}
+      </div>`;
+  }
+
+  // Hole detail toggle
+  window.toggleDetail = function(i) {
+    const el = document.getElementById('detail-'+i);
     if (el) el.classList.toggle('open');
   };
 
-  // ── Auto-select tournament from URL param ──────────────────────────────────
-  const urlParams = new URLSearchParams(window.location.search);
-  const tParam = urlParams.get('t');
-  if (tParam) {
-    const sel = document.getElementById('t-select');
-    // Wait for options to load then select
+  // Auto-select from URL param
+  const urlP = new URLSearchParams(window.location.search);
+  const tP = urlP.get('t');
+  if (tP) {
     setTimeout(() => {
-      sel.value = tParam;
-      if (sel.value === tParam) window.onTournamentChange(tParam);
-    }, 2000);
+      const sel = document.getElementById('t-select');
+      sel.value = tP;
+      if (sel.value === tP) window.onTournamentChange(tP);
+    }, 1500);
   }
 </script>
-
 </body>
 </html>

@@ -231,6 +231,14 @@
       }).catch(()=>{});
     };
 
+    window._fbStoreResults = function(tournamentKey, resultsPayload) {
+      // Store full tournament results snapshot under tournaments/{key}/results
+      set(ref(db, `tournaments/${tournamentKey}/results`), {
+        ...resultsPayload,
+        updatedAt: Date.now()
+      }).catch(()=>{});
+    };
+
     window._fbSetOnline = function(val) {
       const dot = document.getElementById('fb-status-dot');
       const lbl = document.getElementById('fb-status-lbl');
@@ -2317,6 +2325,137 @@ function _startFirebaseGame() {
   });
 }
 
+
+function _buildAndStoreResults(tournamentKey) {
+  if (!window._fbStoreResults) return;
+  const t = TOURNAMENT[tournamentKey];
+  if (!t) return;
+  const rounds = history.filter(g => g.tournament && g.tournament.key === tournamentKey);
+  if (!rounds.length) return;
+
+  if (t.type === 'singles') {
+    // ── Singles leaderboard ──────────────────────────────────────────────────
+    const playerMap = {};
+    rounds.forEach(g => {
+      const pCount = g.playerCount || 2;
+      const participants = [
+        { name: g.players.p1.name, hcp: g.players.p1.hcp, field: 'p1' },
+        { name: g.players.p2.name, hcp: g.players.p2.hcp, field: 'p2' },
+        ...(pCount >= 3 && g.players.p3.name !== 'P3' ? [{ name: g.players.p3.name, hcp: g.players.p3.hcp, field: 'p3' }] : []),
+        ...(pCount >= 4 && g.players.p4.name !== 'P4' ? [{ name: g.players.p4.name, hcp: g.players.p4.hcp, field: 'p4' }] : []),
+      ];
+      participants.forEach(p => {
+        if (!playerMap[p.name]) playerMap[p.name] = { name: p.name, rounds: 0, grossTotal: 0, netTotal: 0, stabTotal: 0 };
+        const e = playerMap[p.name];
+        e.rounds++;
+        g.holes.forEach(h => {
+          const gross = h[p.field];
+          if (gross == null) return;
+          e.grossTotal += gross;
+          e.netTotal   += gross - strokesOnHole(p.hcp, 0, gsi1(h), gsi2(h), gsi3(h));
+          const sb = stablefordCalc(gross, h.par, p.hcp, gsi1(h), gsi2(h), gsi3(h));
+          if (sb) e.stabTotal += sb.points;
+        });
+      });
+    });
+
+    const modeCounts = {};
+    rounds.forEach(g => { modeCounts[g.mode] = (modeCounts[g.mode]||0)+1; });
+    const dominantMode = Object.entries(modeCounts).sort((a,b)=>b[1]-a[1])[0][0];
+    const isStab = dominantMode === 'stableford';
+
+    const leaderboard = Object.values(playerMap)
+      .sort((a,b) => isStab ? b.stabTotal - a.stabTotal : a.netTotal - b.netTotal)
+      .map((p, i) => ({
+        rank: i + 1,
+        name: p.name,
+        rounds: p.rounds,
+        grossTotal: p.grossTotal,
+        netTotal: p.netTotal,
+        stabTotal: p.stabTotal,
+        avgNet: +(p.netTotal / p.rounds).toFixed(1),
+        avgStab: +(p.stabTotal / p.rounds).toFixed(1),
+      }));
+
+    window._fbStoreResults(tournamentKey, {
+      type: 'singles',
+      label: t.label,
+      dominantMode,
+      roundCount: rounds.length,
+      leaderboard,
+      lastGameId: String(rounds[0].id),
+    });
+
+  } else {
+    // ── Teams standings ───────────────────────────────────────────────────────
+    let t1wins = 0, t2wins = 0, halved = 0;
+    const matchResults = [];
+
+    rounds.forEach(g => {
+      const isMatch = g.mode === 'matchplay', isStab = g.mode === 'stableford';
+      const {p1,p2,p3,p4} = g.players;
+      const t1n = (g.tournament && g.tournament.team1name) || t.team1.name;
+      const t2n = (g.tournament && g.tournament.team2name) || t.team2.name;
+      let winner = null, resultLabel = '';
+
+      if (isMatch && g.status) {
+        const st = g.status;
+        if (st.winner === 1)      { t1wins++; winner = 1; resultLabel = `${t1n} wins ${st.label}`; }
+        else if (st.winner === 2) { t2wins++; winner = 2; resultLabel = `${t2n} wins ${st.label}`; }
+        else                      { halved++;  winner = 0; resultLabel = 'Halved'; }
+      } else {
+        let a = 0, b = 0;
+        g.holes.forEach(h => {
+          if (isStab) {
+            const s1=stablefordCalc(h.p1,h.par,p1.hcp,gsi1(h),gsi2(h),gsi3(h));
+            const s2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
+            const s3=g.team?stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h)):null;
+            const s4=g.team?stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h)):null;
+            a += Math.max(s1?s1.points:0, s3?s3.points:0);
+            b += Math.max(s2?s2.points:0, s4?s4.points:0);
+          } else {
+            const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n3=g.team&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n4=g.team&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            a += Math.min(n1, n3); b += Math.min(n2, n4);
+          }
+          if (isStab ? a>b : a<b)       { t1wins++; winner=1; resultLabel=`${t1n} wins`; }
+          else if (isStab ? b>a : b<a)  { t2wins++; winner=2; resultLabel=`${t2n} wins`; }
+          else                           { halved++;  winner=0; resultLabel='Halved'; }
+        });
+      }
+
+      matchResults.push({
+        date: new Date(g.startTime).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}),
+        mode: g.mode,
+        format: g.team ? '4BBB' : 'Singles',
+        course: g.courseName || '—',
+        t1players: g.team ? `${p1.name} & ${p3.name}` : p1.name,
+        t2players: g.team ? `${p2.name} & ${p4.name}` : p2.name,
+        winner,
+        resultLabel,
+      });
+    });
+
+    const t1pts = t1wins + halved * 0.5;
+    const t2pts = t2wins + halved * 0.5;
+    const overallWinner = t1pts > t2pts ? t.team1.name : t2pts > t1pts ? t.team2.name : null;
+
+    window._fbStoreResults(tournamentKey, {
+      type: 'teams',
+      label: t.label,
+      team1name: t.team1.name,
+      team2name: t.team2.name,
+      t1wins, t2wins, halved,
+      t1pts, t2pts,
+      totalMatches: rounds.length,
+      overallWinner,
+      matchResults,
+    });
+  }
+}
+
 // ═══════════════════════════════════════════
 // RENDER PLAY
 // ═══════════════════════════════════════════
@@ -3214,8 +3353,10 @@ function finishGame(){
   const status=game.mode==='matchplay'?matchStatus(results):null;
   const standings=game.mode!=='matchplay'&&!game.skins?computeStandings():null;
   if(game.tournament && window._fbFinishGame) _fbFinishGame(game.tournament.key, String(game.id));
+  const _tKeyForResults = game.tournament ? game.tournament.key : null;
   history.unshift({...game,endTime:new Date().toISOString(),status,standings});
   try{localStorage.setItem(LS_HISTORY,JSON.stringify(history));}catch(e){}
+  if(_tKeyForResults) setTimeout(()=>_buildAndStoreResults(_tKeyForResults), 200);
   clearAutosave(); // game is complete — remove the in-progress backup
   game=null; showTab('history');
 }
