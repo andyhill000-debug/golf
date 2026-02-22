@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#0a0a0a"/>
+<title>Hillfred Golf · Live Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal: #00e8bb;
+    --gold: #e2b84a;
+    --red:  #ff5a5a;
+    --bg:   #0a0a0a;
+    --card: #141414;
+    --border: #222;
+    --text: #f0f0f0;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #0f0f0f;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .header-brand span { color: var(--teal); }
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--teal);
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 2s infinite;
+  }
+  .live-dot.offline { background: var(--red); animation: none; }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* ── Tournament selector ── */
+  .selector-wrap {
+    padding: 20px 24px 0;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .selector-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .selector-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  select.t-select {
+    flex: 1;
+    min-width: 200px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 16px;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e8bb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .mode-tabs {
+    display: flex;
+    gap: 6px;
+  }
+  .mode-tab {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .mode-tab.active {
+    border-color: var(--teal);
+    background: rgba(0,232,187,.1);
+    color: var(--teal);
+  }
+
+  /* ── Main content ── */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+  }
+
+  /* ── Tournament title ── */
+  .t-title {
+    margin-bottom: 20px;
+  }
+  .t-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .t-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .t-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ── Leaderboard table ── */
+  .lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .lb-table thead th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+  .lb-table thead th.num { text-align: center; }
+  .lb-table tbody tr {
+    border-bottom: 1px solid #1a1a1a;
+    transition: background .15s;
+    cursor: default;
+  }
+  .lb-table tbody tr:hover { background: #161616; }
+  .lb-table tbody tr.leader { background: rgba(0,232,187,.04); }
+  .lb-table tbody tr.leader:hover { background: rgba(0,232,187,.07); }
+  .lb-table td {
+    padding: 14px 12px;
+    vertical-align: middle;
+  }
+  .lb-table td.num { text-align: center; }
+
+  /* Rank */
+  .rank-cell {
+    font-size: 18px;
+    font-weight: 900;
+    font-family: 'Playfair Display', serif;
+    width: 40px;
+  }
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: #aaa; }
+  .rank-3 { color: #cd7f32; }
+  .rank-other { color: #444; }
+
+  /* Player name */
+  .player-name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .player-team {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .team-1 { color: var(--teal); }
+  .team-2 { color: var(--red); }
+
+  /* Score */
+  .score-main {
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+  }
+  .score-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 1px;
+    letter-spacing: .5px;
+  }
+  .score-positive { color: var(--teal); }
+  .score-negative { color: var(--red); }
+  .score-even { color: #aaa; }
+
+  /* Holes */
+  .holes-cell { font-size: 13px; color: var(--muted); text-align: center; }
+  .holes-done { color: var(--gold); font-weight: 700; }
+  .holes-bar {
+    width: 50px;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    margin: 4px auto 0;
+    overflow: hidden;
+  }
+  .holes-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--teal);
+    transition: width .5s ease;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .status-active { background: rgba(0,232,187,.1); color: var(--teal); border: 1px solid rgba(0,232,187,.3); }
+  .status-finished { background: rgba(226,184,74,.1); color: var(--gold); border: 1px solid rgba(226,184,74,.3); }
+
+  /* Matchplay specific */
+  .mp-status {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .mp-p1 { color: var(--teal); }
+  .mp-p2 { color: var(--red); }
+  .mp-as { color: var(--muted); }
+
+  /* ── Hole-by-hole mini grid ── */
+  .hole-grid {
+    display: none;
+    padding: 12px;
+    background: #0f0f0f;
+    border-top: 1px solid var(--border);
+  }
+  .hole-grid.open { display: block; }
+  .hole-grid-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .hole-pip {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    background: #1a1a1a;
+    color: #555;
+    position: relative;
+  }
+  .hole-pip.scored { background: #1e2e2a; color: var(--teal); }
+  .hole-pip.active { border: 1.5px solid var(--teal); }
+  .hole-pip-num {
+    position: absolute;
+    top: 2px; left: 3px;
+    font-size: 7px;
+    color: #444;
+    font-weight: 600;
+  }
+
+  /* ── Empty / loading states ── */
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .state-msg .icon { font-size: 48px; margin-bottom: 12px; }
+  .state-msg h3 { font-size: 18px; font-weight: 700; color: #666; margin-bottom: 6px; }
+  .state-msg p { font-size: 13px; line-height: 1.6; }
+
+  /* ── Last updated ── */
+  .last-updated {
+    text-align: center;
+    font-size: 11px;
+    color: #333;
+    margin-top: 24px;
+    letter-spacing: .5px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .header { padding: 12px 16px; }
+    .selector-wrap { padding: 16px 16px 0; }
+    .main { padding: 16px 16px 40px; }
+    .t-name { font-size: 22px; }
+    .lb-table font-size { font-size: 13px; }
+    .score-main { font-size: 18px; }
+    .mode-tab { padding: 8px 10px; font-size: 11px; }
+  }
+
+  /* ── Animations ── */
+  .row-in {
+    animation: rowIn .3s ease forwards;
+  }
+  @keyframes rowIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .score-flash {
+    animation: flash .6s ease;
+  }
+  @keyframes flash {
+    0%,100% { background: transparent; }
+    30% { background: rgba(0,232,187,.15); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-brand">Hill<span>fred</span> Golf</div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="live-badge">
+      <div class="live-dot" id="live-dot"></div>
+      <span id="live-lbl">CONNECTING</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tournament selector -->
+<div class="selector-wrap">
+  <div class="selector-label">Tournament</div>
+  <div class="selector-row">
+    <select class="t-select" id="t-select" onchange="onTournamentChange(this.value)">
+      <option value="">— Select tournament —</option>
+    </select>
+    <div class="mode-tabs">
+      <div class="mode-tab active" id="tab-all" onclick="setView('all')">All</div>
+      <div class="mode-tab" id="tab-stab" onclick="setView('stableford')">Stab</div>
+      <div class="mode-tab" id="tab-stroke" onclick="setView('stroke')">Stroke</div>
+      <div class="mode-tab" id="tab-match" onclick="setView('matchplay')">Match</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main leaderboard -->
+<div class="main" id="main-content">
+  <div class="state-msg">
+    <div class="icon">🏆</div>
+    <h3>Live Leaderboard</h3>
+    <p>Select a tournament above to see live scores.<br>Scores update automatically as players complete each hole.</p>
+  </div>
+</div>
+
+<div class="last-updated" id="last-updated"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBg_tfMOtzhcpMlTl-2o_2bfs0Dos8EHPM",
+    authDomain: "hillfred-golf.firebaseapp.com",
+    databaseURL: "https://hillfred-golf-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hillfred-golf",
+    storageBucket: "hillfred-golf.firebasestorage.app",
+    messagingSenderId: "1047089194868",
+    appId: "1:1047089194868:web:3f5fab20d2bc15154f2e21"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  let currentView = 'all';
+  let currentTournament = '';
+  let liveData = {};
+  let unsubscribe = null;
+
+  // ── Connection status ──────────────────────────────────────────────────────
+  onValue(ref(db, '.info/connected'), snap => {
+    const online = snap.val() === true;
+    const dot = document.getElementById('live-dot');
+    const lbl = document.getElementById('live-lbl');
+    if (dot) { dot.className = 'live-dot' + (online ? '' : ' offline'); }
+    if (lbl) lbl.textContent = online ? 'LIVE' : 'OFFLINE';
+  });
+
+  // ── Load tournament list ───────────────────────────────────────────────────
+  onValue(ref(db, 'tournaments'), snap => {
+    const data = snap.val() || {};
+    const sel = document.getElementById('t-select');
+    const current = sel.value;
+    // Keep existing options, add new ones
+    const existing = new Set(Array.from(sel.options).map(o => o.value).filter(Boolean));
+    Object.entries(data).forEach(([key, val]) => {
+      if (!existing.has(key)) {
+        const meta = val.scores ? Object.values(val.scores).find(g => g._meta) : null;
+        const label = meta && meta._meta ? meta._meta.tournamentLabel : key;
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = label || key;
+        sel.appendChild(opt);
+      }
+    });
+    if (current && data[current]) sel.value = current;
+  });
+
+  // ── Tournament change ──────────────────────────────────────────────────────
+  window.onTournamentChange = function(key) {
+    currentTournament = key;
+    if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+    if (!key) {
+      document.getElementById('main-content').innerHTML = `
+        <div class="state-msg">
+          <div class="icon">🏆</div>
+          <h3>Live Leaderboard</h3>
+          <p>Select a tournament above to see live scores.</p>
+        </div>`;
+      return;
+    }
+    document.getElementById('main-content').innerHTML = `
+      <div class="state-msg"><div class="icon" style="font-size:32px;animation:pulse 1s infinite">⏳</div><h3>Loading scores…</h3></div>`;
+
+    unsubscribe = onValue(ref(db, `tournaments/${key}/scores`), snap => {
+      liveData = snap.val() || {};
+      renderLeaderboard();
+    });
+  };
+
+  // ── View toggle ────────────────────────────────────────────────────────────
+  window.setView = function(v) {
+    currentView = v;
+    ['all','stableford','stroke','matchplay'].forEach(id => {
+      document.getElementById('tab-'+id).classList.toggle('active', id === v);
+    });
+    renderLeaderboard();
+  };
+
+  // ── Core render ───────────────────────────────────────────────────────────
+  function renderLeaderboard() {
+    const main = document.getElementById('main-content');
+    if (!Object.keys(liveData).length) {
+      main.innerHTML = `<div class="state-msg"><div class="icon">📭</div><h3>No scores yet</h3><p>Scores will appear here once players start completing holes.</p></div>`;
+      return;
+    }
+
+    // Flatten all player-round entries
+    const entries = [];
+    Object.entries(liveData).forEach(([gameId, gameData]) => {
+      if (!gameData) return;
+      const meta = gameData._meta || {};
+      Object.entries(gameData).forEach(([playerKey, pData]) => {
+        if (playerKey === '_meta' || !pData) return;
+        // Filter by view
+        if (currentView !== 'all' && meta.mode !== currentView) return;
+        const holesPlayed = pData.holesPlayed || 0;
+        const lastHole = pData[`h${holesPlayed}`] || {};
+        entries.push({
+          gameId,
+          playerName: playerKey.replace(/_/g, ' '),
+          holesPlayed,
+          grossTotal: lastHole.grossTotal || 0,
+          netTotal: lastHole.netTotal || 0,
+          stabTotal: lastHole.stabTotal || 0,
+          par: lastHole.par || 0,
+          mode: meta.mode || lastHole.mode || '—',
+          team: lastHole.team || false,
+          teamName: lastHole.teamName || null,
+          mpStatus: lastHole.mpStatus || null,
+          status: meta.status || 'active',
+          course: meta.course || '—',
+          tournamentLabel: meta.tournamentLabel || currentTournament,
+          team1name: meta.team1name || 'Team 1',
+          team2name: meta.team2name || 'Team 2',
+          holeData: pData,
+        });
+      });
+    });
+
+    if (!entries.length) {
+      main.innerHTML = `<div class="state-msg"><div class="icon">📭</div><h3>No scores yet</h3><p>No rounds match the selected filter.</p></div>`;
+      return;
+    }
+
+    // Sort: stableford = most pts, others = lowest net
+    entries.sort((a, b) => {
+      if (a.mode === 'stableford') return b.stabTotal - a.stabTotal;
+      return a.netTotal - b.netTotal;
+    });
+
+    // Build tournament info from first entry
+    const tLabel = entries[0].tournamentLabel;
+    const activeCnt = entries.filter(e => e.status === 'active').length;
+    const finCnt = entries.filter(e => e.status === 'finished').length;
+
+    // Group by game for matchplay
+    const mpGames = {};
+    entries.filter(e => e.mode === 'matchplay').forEach(e => {
+      if (!mpGames[e.gameId]) mpGames[e.gameId] = [];
+      mpGames[e.gameId].push(e);
+    });
+
+    let rows = '';
+    let rank = 1;
+    entries.forEach((e, i) => {
+      const isLeader = i === 0;
+      const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+      const teamCls = e.teamName === e.team1name ? 'team-1' : e.teamName === e.team2name ? 'team-2' : '';
+      const pct = Math.round((e.holesPlayed / 18) * 100);
+
+      // Score display
+      let scoreHtml = '';
+      if (e.mode === 'stableford') {
+        scoreHtml = `<div class="score-main score-positive">${e.stabTotal}</div><div class="score-label">PTS</div>`;
+      } else if (e.mode === 'matchplay') {
+        const st = e.mpStatus || (e.holesPlayed === 0 ? 'AS' : '—');
+        const cl = st.includes('UP') ? 'mp-p1' : st === 'AS' ? 'mp-as' : 'mp-p2';
+        scoreHtml = `<div class="mp-status ${cl}">${st}</div>`;
+      } else {
+        const diff = e.netTotal - e.par;
+        const cl = diff < 0 ? 'score-positive' : diff > 0 ? 'score-negative' : 'score-even';
+        const label = diff === 0 ? 'E' : (diff > 0 ? '+' : '') + diff;
+        scoreHtml = `<div class="score-main ${cl}">${label}</div><div class="score-label">NET ${e.netTotal}</div>`;
+      }
+
+      // Hole pips
+      let pips = '';
+      for (let h = 1; h <= 18; h++) {
+        const hd = e.holeData[`h${h}`];
+        const scored = !!hd;
+        const active = h === e.holesPlayed + 1 && e.status === 'active';
+        pips += `<div class="hole-pip ${scored?'scored':''} ${active?'active':''}">
+          <span class="hole-pip-num">${h}</span>
+          ${scored ? hd.grossTotal - (e.holeData[`h${h-1}`]?.grossTotal||0) || '' : ''}
+        </div>`;
+      }
+
+      rows += `
+        <tr class="${isLeader?'leader':''} row-in" style="animation-delay:${i*0.04}s" onclick="toggleHoles(${i})">
+          <td class="rank-cell ${rankCls}">${rank}</td>
+          <td>
+            <div class="player-name">${e.playerName}</div>
+            ${e.teamName ? `<div class="player-team ${teamCls}">${e.teamName}</div>` : ''}
+            <div style="font-size:11px;color:#444;margin-top:2px">${e.course} · ${e.mode}</div>
+          </td>
+          <td class="num">${scoreHtml}</td>
+          <td>
+            <div class="holes-cell ${e.holesPlayed===18?'holes-done':''}">${e.holesPlayed}/18</div>
+            <div class="holes-bar"><div class="holes-fill" style="width:${pct}%"></div></div>
+          </td>
+          <td class="num"><span class="status-badge ${e.status==='finished'?'status-finished':'status-active'}">${e.status==='finished'?'✓ Done':'● Live'}</span></td>
+        </tr>
+        <tr>
+          <td colspan="5" style="padding:0">
+            <div class="hole-grid" id="holes-${i}">
+              <div style="font-size:10px;color:#555;margin-bottom:8px;letter-spacing:1px;font-weight:700">HOLE BY HOLE</div>
+              <div class="hole-grid-inner">${pips}</div>
+            </div>
+          </td>
+        </tr>`;
+
+      // Increment rank (same rank for ties)
+      if (i < entries.length - 1) {
+        const next = entries[i + 1];
+        const sameScore = e.mode === 'stableford'
+          ? e.stabTotal === next.stabTotal
+          : e.netTotal === next.netTotal;
+        if (!sameScore) rank = i + 2;
+      }
+    });
+
+    main.innerHTML = `
+      <div class="t-title">
+        <div class="t-name">${tLabel}</div>
+        <div class="t-meta">
+          <span>⛳ ${entries.length} player${entries.length!==1?'s':''}</span>
+          <span style="color:var(--teal)">● ${activeCnt} active</span>
+          ${finCnt ? `<span style="color:var(--gold)">✓ ${finCnt} finished</span>` : ''}
+        </div>
+      </div>
+      <table class="lb-table">
+        <thead><tr>
+          <th style="width:40px">#</th>
+          <th>Player</th>
+          <th class="num">Score</th>
+          <th class="num" style="width:80px">Holes</th>
+          <th class="num" style="width:80px">Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    const ts = new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('last-updated').textContent = `Last updated ${ts}`;
+  }
+
+  window.toggleHoles = function(idx) {
+    const el = document.getElementById('holes-' + idx);
+    if (el) el.classList.toggle('open');
+  };
+
+  // ── Auto-select tournament from URL param ──────────────────────────────────
+  const urlParams = new URLSearchParams(window.location.search);
+  const tParam = urlParams.get('t');
+  if (tParam) {
+    const sel = document.getElementById('t-select');
+    // Wait for options to load then select
+    setTimeout(() => {
+      sel.value = tParam;
+      if (sel.value === tParam) window.onTournamentChange(tParam);
+    }, 2000);
+  }
+</script>
+
+</body>
+</html>

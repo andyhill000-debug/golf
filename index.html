@@ -186,6 +186,65 @@
   .course-action-btn{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:6px;transition:opacity .15s;min-height:36px;min-width:36px}
   .course-action-btn:hover{opacity:.75}
 </style>
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, update, onValue, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBg_tfMOtzhcpMlTl-2o_2bfs0Dos8EHPM",
+      authDomain: "hillfred-golf.firebaseapp.com",
+      databaseURL: "https://hillfred-golf-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "hillfred-golf",
+      storageBucket: "hillfred-golf.firebasestorage.app",
+      messagingSenderId: "1047089194868",
+      appId: "1:1047089194868:web:3f5fab20d2bc15154f2e21"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+
+    // ── Expose sync helpers to the main (non-module) script ──────────────────
+    window._fbSyncHole = function(tournamentKey, gameId, playerName, holeNum, scores) {
+      // scores = { gross, net, stab, par, holesPlayed }
+      const path = `tournaments/${tournamentKey}/scores/${gameId}/${playerName.replace(/[.#$/\[\]]/g,'_')}`;
+      update(ref(db, path), {
+        [`h${holeNum}`]: scores,
+        holesPlayed: holeNum,
+        lastUpdated: Date.now()
+      }).catch(()=>{});
+    };
+
+    window._fbStartGame = function(tournamentKey, gameId, meta) {
+      set(ref(db, `tournaments/${tournamentKey}/scores/${gameId}/_meta`), {
+        ...meta,
+        startTime: Date.now(),
+        status: 'active'
+      }).catch(()=>{});
+    };
+
+    window._fbFinishGame = function(tournamentKey, gameId) {
+      update(ref(db, `tournaments/${tournamentKey}/scores/${gameId}/_meta`), {
+        status: 'finished',
+        endTime: Date.now()
+      }).catch(()=>{});
+    };
+
+    window._fbSetOnline = function(val) {
+      const dot = document.getElementById('fb-status-dot');
+      const lbl = document.getElementById('fb-status-lbl');
+      if(dot) dot.style.background = val ? '#00e8bb' : '#ff5a5a';
+      if(lbl) lbl.textContent = val ? 'LIVE' : 'OFFLINE';
+    };
+
+    // Test connection
+    onValue(ref(db, '.info/connected'), snap => {
+      window._fbSetOnline && window._fbSetOnline(snap.val() === true);
+    });
+
+    console.log('[Hillfred] Firebase initialised');
+  </script>
 </head>
 <body>
 
@@ -573,7 +632,7 @@
   </div>
   <div id="play-content" style="display:none">
     <div style="text-align:right;padding:6px 16px 0;font-size:10px;color:#444;letter-spacing:1px">
-      <span class="autosave-dot"></span>AUTO-SAVING
+      <span class="autosave-dot"></span>AUTO-SAVING &nbsp;·&nbsp; <span id="fb-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:3px;vertical-align:middle"></span><span id="fb-status-lbl" style="color:#555;font-size:9px;letter-spacing:1px">CONNECTING</span>
     </div>
     <div class="score-banner" id="score-banner"></div>
     <div class="hole-selector"><div class="hole-dots" id="hole-dots"></div></div>
@@ -2149,7 +2208,94 @@ function startGame(){
     startTime:new Date().toISOString(),id:Date.now()};
   activeHole=1;
   autosave();
+  _startFirebaseGame();
   showTab('play');
+}
+
+
+// ═══════════════════════════════════════════
+// FIREBASE LIVE SYNC
+// ═══════════════════════════════════════════
+function _syncHoleToFirebase(holeNum) {
+  if (!game || !game.tournament) return;       // only sync tournament games
+  if (!window._fbSyncHole) return;             // Firebase not yet loaded
+
+  const tKey = game.tournament.key;
+  const gameId = String(game.id);
+  const h = game.holes[holeNum - 1];
+  const {p1, p2, p3, p4} = game.players;
+  const pc = game.playerCount || 2;
+  const isStab = game.mode === 'stableford';
+  const isMatch = game.mode === 'matchplay';
+  const team = game.team;
+
+  // Build per-player data for this hole
+  const playerList = [
+    { name: p1.name, hcp: p1.hcp, field: 'p1' },
+    { name: p2.name, hcp: p2.hcp, field: 'p2' },
+    ...(pc >= 3 || team ? [{ name: p3.name, hcp: p3.hcp, field: 'p3' }] : []),
+    ...(pc >= 4 || team ? [{ name: p4.name, hcp: p4.hcp, field: 'p4' }] : []),
+  ];
+
+  // Compute running totals per player across all completed holes
+  playerList.forEach(p => {
+    let grossTotal = 0, netTotal = 0, stabTotal = 0, holesPlayed = 0;
+    game.holes.forEach(hh => {
+      const gross = hh[p.field];
+      if (gross == null) return;
+      holesPlayed++;
+      grossTotal += gross;
+      const si = gsi1(hh), si2 = gsi2(hh), si3 = gsi3(hh);
+      const strokes = strokesOnHole(p.hcp, 0, si, si2, si3);
+      netTotal += gross - strokes;
+      const sb = stablefordCalc(gross, hh.par, p.hcp, si, si2, si3);
+      if (sb) stabTotal += sb.points;
+    });
+
+    // Matchplay status
+    let mpStatus = null;
+    if (isMatch) {
+      const results = getHoleResults();
+      const st = matchStatus(results);
+      mpStatus = st ? st.label : null;
+    }
+
+    window._fbSyncHole(tKey, gameId, p.name, holeNum, {
+      grossTotal,
+      netTotal,
+      stabTotal,
+      holesPlayed,
+      par: game.holes.slice(0, holesPlayed).reduce((a, hh) => a + hh.par, 0),
+      mode: game.mode,
+      team: team || false,
+      teamName: team
+        ? (playerList.indexOf(p) < 2
+            ? (game.tournament.team1name || 'Team 1')
+            : (game.tournament.team2name || 'Team 2'))
+        : null,
+      mpStatus
+    });
+  });
+}
+
+function _startFirebaseGame() {
+  if (!game || !game.tournament || !window._fbStartGame) return;
+  const {p1, p2, p3, p4} = game.players;
+  const pc = game.playerCount || 2;
+  const team = game.team;
+  const players = [p1.name, p2.name];
+  if (pc >= 3 || team) players.push(p3.name);
+  if (pc >= 4 || team) players.push(p4.name);
+  window._fbStartGame(game.tournament.key, String(game.id), {
+    tournamentLabel: game.tournament.label,
+    course: game.courseName || '—',
+    mode: game.mode,
+    team: team || false,
+    team1name: game.tournament.team1name || null,
+    team2name: game.tournament.team2name || null,
+    players,
+    playerCount: pc
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -2862,6 +3008,12 @@ function onScoreInput(field,value){
   const v=parseInt(value);
   game.holes[activeHole-1][field]=(v>=1&&v<=15)?v:null;
   autosave(); // persist every score change
+  // Sync to Firebase when all active players have scored this hole
+  if(game.tournament){
+    const _pc=game.playerCount||2;
+    const _af=['p1','p2',...(game.team||(_pc>=3)?['p3']:[]),...(game.team||(_pc>=4)?['p4']:[])];
+    if(_af.every(f=>game.holes[activeHole-1][f]!=null)) _syncHoleToFirebase(activeHole);
+  }
   renderPlay();
 }
 function setHole(n){activeHole=n;renderPlay();}
@@ -3042,6 +3194,7 @@ function finishGame(){
   const results=getHoleResults();
   const status=game.mode==='matchplay'?matchStatus(results):null;
   const standings=game.mode!=='matchplay'&&!game.skins?computeStandings():null;
+  if(game.tournament && window._fbFinishGame) _fbFinishGame(game.tournament.key, String(game.id));
   history.unshift({...game,endTime:new Date().toISOString(),status,standings});
   try{localStorage.setItem(LS_HISTORY,JSON.stringify(history));}catch(e){}
   clearAutosave(); // game is complete — remove the in-progress backup
