@@ -1,0 +1,3382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0f0f0f"/>
+<title>Hillfred Golf Scorecard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
+     High contrast, large touch targets, vivid colours, legible at arm's length
+     in bright sunlight. Hillfred teal/gold brand maintained throughout.
+  ─────────────────────────────────────────────────────────────────────────── */
+  :root{
+    --teal:#00e8bb;
+    --gold:#e2b84a;
+    --red:#ff5a5a;
+    --black:#0a0a0a;
+    --bg:#0f0f0f;
+    --card:#1c1c1c;
+    --border:#303030;
+    --muted:#999;
+    --text:#f0f0f0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  button,input,select{-webkit-appearance:none;touch-action:manipulation}
+  button{user-select:none;-webkit-user-select:none}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:480px;margin:0 auto;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+  .header{background:linear-gradient(135deg,#0a0a0a,#0c2018);border-bottom:2px solid var(--teal);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .header-title{font-family:'Playfair Display',Georgia,serif;font-size:13px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;font-weight:700}
+  .nav{display:flex;gap:4px;padding:8px 10px;background:#141414;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:99}
+  .nav-btn{flex:1;padding:12px 4px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;transition:all .2s;background:#252525;color:#999;min-height:48px}
+  .nav-btn.active{background:var(--teal);color:#000;font-size:14px}
+  .tab{display:none;padding-bottom:calc(100px + env(safe-area-inset-bottom))}.tab.active{display:block}
+  .card{background:var(--card);border-radius:14px;margin:12px 14px;padding:18px;border:1px solid var(--border)}
+  .card-label{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:12px}
+  .input{width:100%;background:#141414;border:1.5px solid #3a3a3a;border-radius:10px;color:var(--text);font-size:16px;padding:13px 14px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;min-height:48px}
+  .input:focus{border-color:var(--teal)}
+  .input::placeholder{color:#555}
+  select.input option{background:#1c1c1c;color:var(--text)}
+  select.input optgroup{color:var(--teal);font-size:11px;letter-spacing:1px}
+  .field-label{font-size:11px;color:#bbb;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;margin-top:12px}
+  .divider{height:1px;background:var(--border);margin:14px 0}
+  .mode-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .mode-btn{flex:1;min-width:100px;padding:12px 6px;border-radius:10px;border:2px solid #333;cursor:pointer;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;background:#141414;color:#888;transition:all .2s;text-align:center;min-height:48px}
+  .mode-btn.active{border-color:var(--teal);background:rgba(0,232,187,.12);color:var(--teal)}
+  .toggle-row{display:flex;align-items:center;gap:12px;margin-top:14px}
+  .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none}
+  .toggle.on{background:var(--teal)}
+  .toggle::after{content:'';position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+  .toggle.on::after{left:26px}
+  .toggle-label{font-size:14px;color:#ccc;font-weight:600}
+  .btn{padding:14px 20px;border-radius:12px;border:none;cursor:pointer;font-weight:700;font-size:15px;font-family:'DM Sans',sans-serif;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:50px}
+  .btn-primary{background:var(--teal);color:#000}.btn-primary:hover{filter:brightness(1.1)}.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+  .btn-danger{background:var(--red);color:#fff}
+  .btn-ghost{background:#252525;color:#ddd;border:1.5px solid #3a3a3a}
+  .btn-full{width:100%;margin-top:10px}
+  .score-banner{background:linear-gradient(135deg,#0a1e16,#141414);border-bottom:2px solid var(--border);padding:16px 18px}
+  .score-banner-title{font-size:13px;color:var(--teal);letter-spacing:2px;font-weight:700;text-align:center;margin-bottom:8px}
+  .match-status{font-family:'Playfair Display',serif;font-size:26px;text-align:center;font-weight:700;line-height:1.2}
+  .status-p1{color:var(--teal)}.status-p2{color:var(--red)}.status-draw{color:var(--gold)}
+  .score-sub{font-size:12px;color:#bbb;text-align:center;margin-top:5px;font-weight:600}
+  .stroke-scores{display:flex;justify-content:space-around;align-items:center}
+  .stroke-player{text-align:center}
+  .stroke-name{font-size:12px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+  .stroke-total{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1}
+  .stroke-vs{color:#555;font-size:20px;font-weight:700}
+  .stroke-sub{font-size:12px;color:#bbb;margin-top:3px;font-weight:600}
+  .stroke-pts{font-size:14px;color:var(--gold);margin-top:4px;font-weight:700}
+  .hole-selector{padding:12px;border-bottom:1px solid #222;background:#141414;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;scrollbar-width:none}
+  .hole-selector::-webkit-scrollbar{display:none}
+    .hole-dots{display:flex;gap:6px;width:max-content}
+  .hole-dot{width:44px;height:44px;border-radius:9px;border:2px solid #333;background:#1a1a1a;color:#888;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;min-width:44px;min-height:44px}
+  .hole-dot.active{border-color:var(--teal);background:var(--teal);color:#000;font-size:14px;font-weight:900}
+  .hole-dot.done-win{background:#1a3028;border-color:rgba(0,232,187,.4);color:var(--teal)}
+  .hole-dot.done-lose{background:#2e1a1a;border-color:rgba(255,90,90,.35);color:var(--red)}
+  .hole-dot.done-halve{background:#1e1e2e;border-color:rgba(100,100,200,.4);color:#99aaff}
+  .hole-dot.done-scored{background:#1e2218;border-color:rgba(226,184,74,.35);color:var(--gold)}
+  .hole-dot.done-posterity{background:#1a1a1a;border-color:#2a2a2a;color:#444;font-style:italic}
+  .hole-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+  .hole-number{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;color:var(--text)}
+  .hole-par{color:var(--gold);font-weight:700;font-size:17px;margin-top:4px;letter-spacing:.5px}
+  .hole-si-box{text-align:right;background:#141414;border:2px solid var(--border);border-radius:10px;padding:8px 14px;min-width:72px}
+  .hole-si-label{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;margin-bottom:2px;text-transform:uppercase}
+  .hole-si-val{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--text);line-height:1}
+  .calc-box{background:#141414;border:1.5px solid #2e2e2e;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12px}
+  .calc-title{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;margin-bottom:8px;text-transform:uppercase}
+  .calc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #222}
+  .calc-row:last-child{border-bottom:none}
+  .calc-label{color:#bbb;font-weight:600}
+  .calc-val{font-weight:700;color:var(--text)}
+  .calc-pts{color:var(--gold);font-size:14px;font-weight:700}
+  .calc-note{font-size:10px;color:#666;margin-top:8px}
+  .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .score-grid-single{grid-template-columns:1fr!important}
+  .score-player-label{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .score-hcp-sub{font-size:12px;color:#ccc;margin-bottom:10px;font-weight:600;line-height:1.5}
+  .score-stepper{display:flex;align-items:center;background:#141414;border-radius:12px;border:2px solid #3a3a3a;overflow:hidden}
+  .step-btn{width:56px;height:60px;border:none;background:transparent;color:var(--teal);font-size:32px;cursor:pointer;font-weight:300;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s;min-width:56px;min-height:56px}
+  .step-btn:active{background:#222}
+  .step-clear{width:36px;height:60px;border:none;background:transparent;color:#555;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s;border-left:1px solid #2a2a2a;flex-shrink:0}
+  .step-clear:active{color:var(--red)}
+  .step-val{flex:1;height:60px;background:transparent;border:none;color:var(--text);font-size:32px;font-weight:700;text-align:center;font-family:'DM Sans',sans-serif;outline:none;caret-color:var(--teal)}
+  .step-val::-webkit-outer-spin-button,.step-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .score-result-row{margin-top:8px;font-size:13px;font-weight:700;line-height:1.4}
+  .hole-result-badge{text-align:center;margin:16px 0 4px;padding:15px;border-radius:12px;font-weight:700;font-size:17px;letter-spacing:.5px}
+  .badge-win{background:rgba(0,232,187,.18);color:var(--teal);border:2px solid rgba(0,232,187,.4)}
+  .badge-lose{background:rgba(255,90,90,.15);color:var(--red);border:2px solid rgba(255,90,90,.35)}
+  .badge-halve{background:rgba(226,184,74,.15);color:var(--gold);border:2px solid rgba(226,184,74,.35)}
+  .sc-table{width:100%;border-collapse:collapse;font-size:12px}
+  .sc-table th{padding:7px 4px;color:var(--teal);font-weight:700;font-size:10px;letter-spacing:.5px;text-align:center;border-bottom:2px solid #333;white-space:nowrap;background:#141414}
+  .sc-table th:first-child{text-align:left}
+  .sc-table td{padding:7px 4px;text-align:center;color:var(--text);font-size:13px}
+  .sc-table td:first-child{text-align:left;font-weight:700}
+  .sc-table tr:nth-child(even) td{background:#181818}
+  .sc-table tr:hover td{background:#1a2e22;cursor:pointer}
+  .sc-active td{background:rgba(0,232,187,.09)!important}
+  .sc-under{color:var(--teal);font-weight:700}.sc-over{color:var(--red);font-weight:700}.sc-par-c{color:#ccc;font-weight:600}
+  .sc-posterity{color:#444;font-style:italic}
+  .sc-win{color:var(--teal);font-weight:700}.sc-lose{color:var(--red);font-weight:700}.sc-halve{color:#ccc;font-weight:600}
+  .sc-total td{border-top:2px solid #444;font-weight:700;background:#141414!important;font-size:13px}
+  .sc-nine td{background:#111!important;font-size:10px;color:#999;letter-spacing:.5px;padding:4px 5px;font-weight:700}
+  .history-item{background:var(--card);border-radius:12px;margin:10px 14px;border:1px solid var(--border);overflow:hidden}
+  .history-header{padding:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .history-title{font-weight:700;font-size:16px;color:var(--text)}
+  .history-sub{font-size:12px;color:#bbb;margin-top:3px;font-weight:600}
+  .history-badge{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+  .hb-p1{background:rgba(0,232,187,.18);color:var(--teal)}.hb-p2{background:rgba(255,90,90,.18);color:var(--red)}.hb-draw{background:rgba(226,184,74,.18);color:var(--gold)}
+  .history-detail{padding:0 16px 16px;display:none}.history-detail.open{display:block}
+  .history-toggle{font-size:12px;color:var(--teal);margin-top:4px;font-weight:700}
+  .empty{padding:48px 24px;text-align:center;color:#bbb}
+  .empty-icon{font-size:56px;margin-bottom:14px}
+  .empty p{font-size:15px;line-height:1.6;font-weight:600}
+  .finish-bar{background:#141414;border-top:2px solid var(--border);padding:14px 16px;padding-bottom:calc(14px + env(safe-area-inset-bottom));position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:none;z-index:200}
+  .finish-bar.visible{display:block}
+  .par-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:10px}
+  .par-hole-cell{text-align:center}
+  .par-hole-num{font-size:10px;color:#bbb;font-weight:700;margin-bottom:3px}
+  .par-input{width:100%;background:#141414;border:1.5px solid #333;border-radius:7px;color:var(--gold);font-size:16px;font-weight:700;padding:8px 2px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;-webkit-appearance:none}
+  .par-input:focus{border-color:var(--teal)}
+  .par-input::-webkit-outer-spin-button,.par-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .par-input::placeholder{color:rgba(226,184,74,.5);font-weight:700}
+  .si-input{color:#7dd3fc!important}
+  .si-input::placeholder{color:rgba(125,211,252,.35)!important;font-weight:700}
+  .si2-input{color:#c084fc!important;margin-top:3px}
+  .si3-input{color:#86efac!important;margin-top:3px}
+  .si2-input::placeholder{color:rgba(192,132,252,.35)!important;font-weight:700}
+  .si3-input::placeholder{color:rgba(134,239,172,.3)!important;font-weight:700}
+  .si-input.si-dupe,.si2-input.si-dupe,.si3-input.si-dupe{border-color:#f97316!important;color:#f97316!important}
+  .par-nine-label{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;text-transform:uppercase;margin-top:14px;margin-bottom:6px}
+  .par-quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .par-quick-btn{padding:7px 12px;border-radius:8px;border:1.5px solid #333;background:#141414;color:#bbb;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-height:36px}
+  .par-quick-btn:hover{border-color:var(--teal);color:var(--teal)}
+  .par-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+  .par-total-label{font-size:12px;color:#bbb;font-weight:600}
+  .par-total-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);font-weight:700}
+  .par-total-nine{font-size:12px;color:#888;margin-top:2px;font-weight:600}
+  .saved-course-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .saved-course-chip{padding:7px 13px;border-radius:20px;border:1.5px solid #333;background:#141414;color:#bbb;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:5px}
+  .saved-course-chip:hover{border-color:var(--teal);color:var(--teal)}
+  .del-chip{color:#555;font-size:13px;line-height:1;margin-left:2px}.del-chip:hover{color:var(--red)}
+  @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .animate-in{animation:slideIn .2s ease-out}
+  .logo-svg{height:30px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+  .modal-overlay.hidden{display:none}
+  .modal-box{background:#1c1c1c;border:2px solid var(--teal);border-radius:18px;padding:28px 22px;max-width:400px;width:100%;animation:slideIn .25s ease-out}
+  .modal-logo{display:flex;justify-content:center;margin-bottom:20px}
+  .modal-icon{font-size:44px;text-align:center;margin-bottom:8px}
+  .modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;text-align:center;margin-bottom:6px;color:var(--text)}
+  .modal-sub{font-size:14px;color:#bbb;text-align:center;margin-bottom:20px;line-height:1.6;font-weight:600}
+  .modal-game-card{background:#141414;border:1.5px solid #333;border-radius:11px;padding:14px 16px;margin-bottom:20px}
+  .modal-game-title{font-size:16px;font-weight:700;margin-bottom:4px;color:var(--text)}
+  .modal-game-meta{font-size:12px;color:#bbb;line-height:1.8;font-weight:600}
+  .modal-game-progress{margin-top:8px}
+  .progress-bar-bg{background:#252525;border-radius:99px;height:7px;overflow:hidden;margin-top:4px}
+  .progress-bar-fill{background:var(--teal);height:100%;border-radius:99px;transition:width .4s}
+  .modal-progress-label{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+  .modal-btns{display:flex;flex-direction:column;gap:10px}
+  .autosave-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--teal);margin-right:5px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .btn-add-course{width:100%;padding:14px;border-radius:12px;border:2px dashed #3a3a3a;background:transparent;color:var(--teal);font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.5px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:50px}
+  .btn-add-course:hover{border-color:var(--teal);background:rgba(0,232,187,.06)}
+  .course-action-btn{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:6px;transition:opacity .15s;min-height:36px;min-width:36px}
+  .course-action-btn:hover{opacity:.75}
+</style>
+</head>
+<body>
+
+<!-- RESUME MODAL -->
+<div class="modal-overlay hidden" id="resume-modal">
+  <div class="modal-box">
+    <div class="modal-logo">
+      <svg style="height:28px" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,60)"><g transform="rotate(45 28 28)">
+          <rect x="0" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="0" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="0" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="20" y="20" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="40" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="0" y="40" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="40" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="40" width="16" height="16" fill="#c9a961" rx="1"/>
+        </g></g>
+        <text x="130" y="70" font-family="Georgia,serif" font-size="48" font-weight="700" fill="white" letter-spacing="-0.3">Hillfred</text>
+        <rect x="130" y="76" width="120" height="2" fill="#00d4aa"/>
+      </svg>
+    </div>
+    <div class="modal-icon">⛳</div>
+    <div class="modal-title">Game In Progress</div>
+    <div class="modal-sub">You have an unfinished game. Would you like to pick up where you left off?</div>
+    <div class="modal-game-card" id="resume-game-info"></div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="width:100%;font-size:15px" onclick="resumeGame()">▶ Continue Game</button>
+      <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="discardAndNew()">✕ Discard &amp; Start New Game</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <svg class="logo-svg" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(50,60)"><g transform="rotate(45 28 28)">
+      <rect x="0" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+      <rect x="20" y="0" width="16" height="16" fill="white" rx="1"/>
+      <rect x="40" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+      <rect x="0" y="20" width="16" height="16" fill="white" rx="1"/>
+      <rect x="20" y="20" width="16" height="16" fill="#00d4aa" rx="1"/>
+      <rect x="40" y="20" width="16" height="16" fill="white" rx="1"/>
+      <rect x="0" y="40" width="16" height="16" fill="#00d4aa" rx="1"/>
+      <rect x="20" y="40" width="16" height="16" fill="white" rx="1"/>
+      <rect x="40" y="40" width="16" height="16" fill="#c9a961" rx="1"/>
+    </g></g>
+    <text x="130" y="70" font-family="Georgia,serif" font-size="48" font-weight="700" fill="white" letter-spacing="-0.3">Hillfred</text>
+    <rect x="130" y="76" width="120" height="2" fill="#00d4aa"/>
+  </svg>
+  <span class="header-title">Golf Scorecard</span>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showTab('setup')">⚙️ Setup</button>
+  <button class="nav-btn" onclick="showTab('history')">📋 History</button>
+  <button class="nav-btn" onclick="showTab('tournament')">🏆 Results</button>
+</div>
+
+<!-- SETUP -->
+<div class="tab active" id="tab-setup">
+  <div class="card">
+    <div class="card-label">Game Mode</div>
+    <div class="mode-row">
+      <button class="mode-btn active" id="mode-matchplay"  onclick="setMode('matchplay')">🏆 Matchplay</button>
+      <button class="mode-btn"        id="mode-stroke"     onclick="setMode('stroke')">✏️ Stroke Play</button>
+      <button class="mode-btn"        id="mode-stableford" onclick="setMode('stableford')">⭐ Stableford</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
+      <div id="fourplayer-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
+        <div id="fourplayer-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">3-4 Players</div>
+        <button class="toggle" id="fourplayer-toggle" onclick="toggleFourPlayer()"></button>
+        <span class="toggle-label" id="fourplayer-label" style="font-size:12px">Off</span>
+      </div>
+      <div id="team-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
+        <div id="team-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">4BBB</div>
+        <button class="toggle" id="team-toggle" onclick="toggleTeam()"></button>
+        <span class="toggle-label" id="team-label" style="font-size:12px">Off</span>
+      </div>
+      <div id="skins-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
+        <div id="skins-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">💰 Skins</div>
+        <button class="toggle" id="skins-toggle" onclick="toggleSkins()"></button>
+        <span class="toggle-label" id="skins-label" style="font-size:12px">Off</span>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:14px 0 10px"></div>
+    <div class="field-label" style="margin-top:0">Tournament</div>
+    <select class="input" id="tournament-select" onchange="onTournamentSelect(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer">
+      <option value="">— No tournament —</option>
+    </select>
+
+    <!-- Tournament action row -->
+    <div id="tournament-actions" style="display:none;margin-top:8px"></div>
+
+    <!-- Match format picker — shown only for a teams tournament -->
+    <div id="teams-match-format-wrap" style="display:none;margin-top:10px">
+      <div class="field-label" style="margin-top:0;font-size:10px;letter-spacing:1px">Match Format</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+        <div id="tmf-singles-box" onclick="setTeamsMatchFormat('singles')" style="background:rgba(0,232,187,.12);border:1.5px solid var(--teal);border-radius:12px;padding:11px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s">
+          <div style="font-size:16px">🏌️</div>
+          <div id="tmf-singles-lbl" style="font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.5px">Singles</div>
+          <div id="tmf-singles-sub" style="font-size:9px;color:var(--teal);opacity:.8">1 v 1</div>
+        </div>
+        <div id="tmf-4bbb-box" onclick="setTeamsMatchFormat('4bbb')" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:11px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s">
+          <div style="font-size:16px">👥</div>
+          <div id="tmf-4bbb-lbl" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">4BBB</div>
+          <div id="tmf-4bbb-sub" style="font-size:9px;color:#666">Best Ball</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add tournament button -->
+    <div id="add-tournament-btn-wrap" style="margin-top:8px">
+      <button class="btn-add-course" onclick="showTournamentForm()">🏆 Add New Tournament</button>
+      <div id="clear-tournaments-step1" style="margin-top:8px">
+        <button class="btn btn-ghost" style="width:100%;font-size:12px;color:#ff5a5a;border-color:#3a1a1a" onclick="showClearTournamentsConfirm()">🗑 Clear All Saved Tournaments</button>
+      </div>
+      <div id="clear-tournaments-step2" style="display:none;margin-top:8px;padding:10px 12px;background:#1a0a0a;border:1.5px solid #3a1a1a;border-radius:9px">
+        <div style="color:var(--red);font-size:12px;font-weight:700;margin-bottom:4px">Delete all saved tournaments?</div>
+        <div style="color:#bbb;font-size:11px;margin-bottom:10px">This cannot be undone.</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="flex:1;font-size:12px;color:var(--red);border-color:#3a1a1a;min-height:40px" onclick="confirmClearAllTournaments()">✓ Delete All</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:12px;min-height:40px" onclick="hideClearTournamentsConfirm()">✕ Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tournament create/edit form -->
+    <div id="tournament-form" style="display:none;margin-top:14px;background:#141414;border:1.5px solid var(--border);border-radius:12px;padding:16px">
+      <div class="card-label" id="tournament-form-title" style="margin-bottom:12px">🏆 New Tournament</div>
+
+      <!-- Tournament type selector -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div id="ttype-singles-box" onclick="setTournamentType('singles')" style="background:rgba(0,232,187,.12);border:1.5px solid var(--teal);border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s">
+          <div style="font-size:18px">🏌️</div>
+          <div id="ttype-singles-lbl" style="font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.5px">Singles</div>
+          <div style="font-size:9px;color:var(--teal);opacity:.8">5–32 players</div>
+        </div>
+        <div id="ttype-teams-box" onclick="setTournamentType('teams')" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s">
+          <div style="font-size:18px">👥</div>
+          <div id="ttype-teams-lbl" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">Teams</div>
+          <div style="font-size:9px;color:#666">Singles · Stableford · Stroke · 4BBB</div>
+        </div>
+      </div>
+
+      <div class="field-label" style="margin-top:0">Tournament Name</div>
+      <input class="input" id="t-name" type="text" placeholder="e.g. Club Championship"/>
+
+      <!-- Singles: one player roster -->
+      <div id="t-singles-fields" style="margin-top:12px">
+        <div class="field-label" style="margin-top:0;color:var(--teal)">Player Roster</div>
+        <div style="font-size:10px;color:#888;margin-bottom:6px">One name per line · 5–32 players</div>
+        <textarea class="input" id="t-singles-players" rows="10" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Eve" style="resize:none;font-size:13px;line-height:1.6;padding:10px 12px"></textarea>
+      </div>
+
+      <!-- Teams: two team name + roster columns -->
+      <div id="t-teams-fields" style="display:none;margin-top:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Name</div>
+            <input class="input" id="t-team1-name" type="text" placeholder="e.g. Home"/>
+          </div>
+          <div>
+            <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Name</div>
+            <input class="input" id="t-team2-name" type="text" placeholder="e.g. Away"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div>
+            <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Players</div>
+            <div style="font-size:10px;color:#888;margin-bottom:6px">One name per line</div>
+            <textarea class="input" id="t-team1-players" rows="8" placeholder="Alice&#10;Bob&#10;Charlie" style="resize:none;font-size:13px;line-height:1.6;padding:10px 12px"></textarea>
+          </div>
+          <div>
+            <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Players</div>
+            <div style="font-size:10px;color:#888;margin-bottom:6px">One name per line</div>
+            <textarea class="input" id="t-team2-players" rows="8" placeholder="Dave&#10;Eve&#10;Frank" style="resize:none;font-size:13px;line-height:1.6;padding:10px 12px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="tournament-form-msg" style="display:none;margin-top:10px;font-size:12px;font-weight:700;padding:8px 12px;border-radius:8px"></div>
+
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-primary" style="flex:2;font-size:13px" onclick="saveTournament()">💾 Save Tournament</button>
+        <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="hideTournamentForm()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <div id="tournament-badge" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:linear-gradient(135deg,rgba(201,169,97,.12),rgba(0,212,170,.06));border:1px solid var(--gold);text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold)"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">⛳ Course Setup</div>
+
+    <!-- Course Selector Dropdown -->
+    <div class="field-label" style="margin-top:0">Select Course</div>
+    <select class="input" id="course-select" onchange="onCourseSelect(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer">
+      <option value="">— Choose a course —</option>
+    </select>
+    <!-- Clear saved courses — inline confirm (no alert/confirm dialogs) -->
+    <div id="clear-courses-step1" style="margin-top:8px">
+      <button class="btn btn-ghost" style="width:100%;font-size:12px;color:#ff5a5a;border-color:#3a1a1a" onclick="showClearConfirm()">🗑 Clear All Saved Courses</button>
+    </div>
+    <div id="clear-courses-step2" style="display:none;margin-top:8px;background:#1a0a0a;border:1.5px solid #3a1a1a;border-radius:10px;padding:12px 14px">
+      <div style="font-size:12px;color:#ff5a5a;font-weight:700;margin-bottom:4px">Remove all saved courses?</div>
+      <div style="font-size:11px;color:#bbb;margin-bottom:10px">Built-in courses (Bonnie Doon, Stonecutters Ridge) will remain.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1;font-size:13px;color:#ff5a5a;border-color:#3a1a1a;min-height:44px" onclick="confirmClearSavedCourses()">✓ Yes, clear them</button>
+        <button class="btn btn-ghost" style="flex:1;font-size:13px;min-height:44px" onclick="hideClearConfirm()">✕ Cancel</button>
+      </div>
+    </div>
+
+    <!-- Course action row: shown after a course is selected -->
+    <div id="course-action-row" style="display:none;margin-top:8px;display:none">
+    </div>
+    <div id="course-actions" style="display:none;margin-top:8px;gap:6px;flex-wrap:wrap"></div>
+
+    <!-- Add Course button — shown when no course selected and form is closed -->
+    <div id="add-course-btn-wrap" style="margin-top:10px">
+      <button class="btn-add-course" onclick="showAddCourse()">＋ Add New Course</button>
+    </div>
+
+    <!-- Course edit form — hidden until Add Course tapped or editing -->
+    <div id="course-edit-form" style="display:none;margin-top:14px">
+      <div class="field-label" style="margin-top:0">Course Name</div>
+      <input class="input" id="course-name" type="text" placeholder="e.g. Royal Melbourne" oninput="updateParTotals();checkCanStart()"/>
+      <div style="margin-top:14px">
+
+      </div>
+      <div class="par-nine-label">▸ Front Nine (Holes 1–9)</div>
+      <div class="par-grid" id="par-grid-front"></div>
+      <div class="par-nine-label" style="margin-top:16px">▸ Back Nine (Holes 10–18)</div>
+      <div class="par-grid" id="par-grid-back"></div>
+      <div class="par-total-row">
+        <div><div class="par-total-label">Course Par</div><div class="par-total-nine" id="par-nine-totals">Front: — · Back: —</div></div>
+        <div class="par-total-val" id="par-total-display">—</div>
+      </div>
+
+      <div class="divider" style="margin:16px 0 12px"></div>
+
+      <!-- MATCHPLAY INDEX DISPLAY (shown when matchplay mode active) -->
+      <div id="si-matchplay-block" style="display:none">
+        <div class="card-label" style="margin-bottom:6px;color:var(--gold)">🏆 Matchplay Index</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+          In matchplay, strokes are allocated using the <strong style="color:var(--gold)">fixed Matchplay Index</strong> below — regardless of course.
+        </div>
+        <div class="par-grid" id="si-matchplay-grid-front"></div>
+        <div class="par-nine-label" style="margin-top:12px">▸ Back Nine</div>
+        <div class="par-grid" id="si-matchplay-grid-back"></div>
+      </div>
+
+      <!-- COURSE SI SECTION (shown for stroke play / stableford) -->
+      <div id="si-course-block">
+        <div class="card-label" style="margin-bottom:6px">📊 Course Stroke Index</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+          Enter <span style="color:#7dd3fc;font-weight:700">SI 1–18</span>, <span style="color:#a78bfa;font-weight:700">SI 19–36</span> and <span style="color:#86efac;font-weight:700">SI 37–54</span> per hole.
+          The 19–36 and 37–54 rows are optional — only needed for higher handicappers.
+        </div>
+
+        <div class="par-nine-label">▸ Front Nine (Holes 1–9)</div>
+        <div style="display:flex;gap:4px;margin-bottom:4px;padding:0 1px">
+          <span style="font-size:9px;color:#7dd3fc;font-weight:700;flex:1;text-align:center;letter-spacing:.5px">SI 1–18 ▼</span>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:2px;padding:0 1px">
+          <span style="font-size:9px;color:#a78bfa;font-weight:700;flex:1;text-align:center;letter-spacing:.5px">SI 19–36 ▼</span>
+        </div>
+        <div style="display:flex;gap:4px;margin-bottom:2px;padding:0 1px">
+          <span style="font-size:9px;color:#86efac;font-weight:700;flex:1;text-align:center;letter-spacing:.5px">SI 37–54 ▼</span>
+        </div>
+        <div class="par-grid" id="si-grid-front"></div>
+        <div class="par-nine-label" style="margin-top:16px">▸ Back Nine (Holes 10–18)</div>
+        <div class="par-grid" id="si-grid-back"></div>
+        <div style="margin-top:8px;font-size:10px;color:#444">Each row must have unique SI values. Duplicates shown in orange.</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="saveCourse()">💾 Save Course</button>
+        <button class="btn btn-ghost" style="font-size:13px;color:#666" onclick="hideAddCourse()">✕ Cancel</button>
+      </div>
+    </div><!-- end course-edit-form -->
+  </div>
+
+  <!-- Player 1 card -->
+  <div class="card">
+    <div class="card-label" id="t1-card-label">Player 1</div>
+    <div id="p1-name-select-wrap" style="display:none">
+      <div class="field-label" id="p1-select-label" style="margin-top:0">Select Player</div>
+      <select class="input" id="p1-name-select" onchange="onPlayerSelect('p1-name','p1-name-select')" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer"></select>
+    </div>
+    <div class="field-label" id="p1-name-label">Name</div>
+    <input class="input" id="p1-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+    <div class="field-label">Daily Handicap</div>
+    <input class="input" id="p1-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    <!-- 4BBB partner slot (hidden in 4-player mode) -->
+    <div id="p3-fields" style="display:none">
+      <div class="divider"></div>
+      <div id="p3-name-select-wrap" style="display:none">
+        <div class="field-label" id="p3-select-label" style="margin-top:0">Select Partner</div>
+        <select class="input" id="p3-name-select" onchange="onPlayerSelect('p3-name','p3-name-select')" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer"></select>
+      </div>
+      <div class="field-label" id="p3-name-label">Partner Name</div>
+      <input class="input" id="p3-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+      <div class="field-label">Daily Handicap</div>
+      <input class="input" id="p3-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    </div>
+  </div>
+
+  <!-- Player 2 card -->
+  <div class="card">
+    <div class="card-label" id="t2-card-label">Player 2</div>
+    <div id="p2-name-select-wrap" style="display:none">
+      <div class="field-label" id="p2-select-label" style="margin-top:0">Select Player</div>
+      <select class="input" id="p2-name-select" onchange="onPlayerSelect('p2-name','p2-name-select')" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer"></select>
+    </div>
+    <div class="field-label" id="p2-name-label">Name</div>
+    <input class="input" id="p2-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+    <div class="field-label">Daily Handicap</div>
+    <input class="input" id="p2-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    <!-- 4BBB partner slot (hidden in 4-player mode) -->
+    <div id="p4-fields" style="display:none">
+      <div class="divider"></div>
+      <div id="p4-name-select-wrap" style="display:none">
+        <div class="field-label" id="p4-select-label" style="margin-top:0">Select Partner</div>
+        <select class="input" id="p4-name-select" onchange="onPlayerSelect('p4-name','p4-name-select')" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer"></select>
+      </div>
+      <div class="field-label" id="p4-name-label">Partner Name</div>
+      <input class="input" id="p4-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+      <div class="field-label">Daily Handicap</div>
+      <input class="input" id="p4-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    </div>
+  </div>
+
+  <!-- Player 3 card — shown for 4-player individual mode -->
+  <div id="p3-card" style="display:none">
+    <div class="card">
+      <div class="card-label">Player 3</div>
+      <div class="field-label" style="margin-top:0">Name</div>
+      <input class="input" id="p3-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+      <div class="field-label">Daily Handicap</div>
+      <input class="input" id="p3-ind-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap"/>
+    </div>
+  </div>
+
+  <!-- Player 4 card — shown for 4-player individual mode -->
+  <div id="p4-card" style="display:none">
+    <div class="card">
+      <div class="card-label">Player 4</div>
+      <div class="field-label" style="margin-top:0">Name</div>
+      <input class="input" id="p4-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
+      <div class="field-label">Daily Handicap</div>
+      <input class="input" id="p4-ind-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap"/>
+    </div>
+  </div>
+
+
+
+  <div style="margin:0 14px">
+    <div id="start-warn" style="text-align:center;font-size:13px;font-weight:600;margin-bottom:10px;padding:10px 12px;border-radius:10px;display:none"></div>
+    <button class="btn btn-primary btn-full" id="start-btn" onclick="startGame()" disabled>⛳ Start Game</button>
+  </div>
+</div>
+
+<!-- TOURNAMENT RESULTS -->
+<div class="tab" id="tab-tournament">
+  <div class="card">
+    <div class="card-label">🏆 Tournament Results</div>
+    <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.5">Select a tournament to consolidate all saved rounds and calculate the overall result.</div>
+    <div class="field-label" style="margin-top:0">Select Tournament</div>
+    <select class="input" id="tr-tournament-select" onchange="loadTournamentResults(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer">
+      <option value="">— Select tournament —</option>
+    </select>
+    <div id="tr-results" style="margin-top:14px"></div>
+
+  </div>
+</div>
+
+<!-- PLAY -->
+<div class="tab" id="tab-play">
+  <div id="play-empty" class="empty">
+    <div class="empty-icon">⛳</div>
+    <p>No active game.<br>Go to Setup to start one.</p>
+    <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('setup')">Start New Game</button>
+  </div>
+  <div id="play-content" style="display:none">
+    <div style="text-align:right;padding:6px 16px 0;font-size:10px;color:#444;letter-spacing:1px">
+      <span class="autosave-dot"></span>AUTO-SAVING
+    </div>
+    <div class="score-banner" id="score-banner"></div>
+    <div class="hole-selector"><div class="hole-dots" id="hole-dots"></div></div>
+    <div id="hole-entry"></div>
+    <div class="card">
+      <div class="card-label" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;min-height:44px" onclick="toggleScorecard()">
+        <span>Full Scorecard</span>
+        <span id="sc-toggle-icon" style="font-size:20px;color:#555;transition:transform .25s;line-height:1">▾</span>
+      </div>
+      <div id="sc-body" style="display:none">
+        <table class="sc-table" id="sc-table"></table>
+      </div>
+    </div>
+
+  </div>
+  <div class="finish-bar" id="finish-bar">
+    <div id="finish-bar-inner"></div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="tab" id="tab-history">
+  <div id="history-empty" class="empty">
+    <div class="empty-icon">📋</div>
+    <p>No games saved yet.<br>Complete a game to see it here.</p>
+  </div>
+  <div id="history-list"></div>
+  <div id="history-clear-btn" style="margin:0 14px;display:none">
+    <button class="btn btn-danger btn-full" onclick="clearHistory()">🗑 Clear All History</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+// Default Stroke Index from Matchplay_Index.xlsx (can be overridden per course)
+const DEFAULT_SI1 = {1:18,2:8,3:12,4:3,5:14,6:6,7:10,8:1,9:16,10:5,11:11,12:2,13:15,14:7,15:13,16:4,17:17,18:9};
+// SI 19-36 is course-specific — no universal default, starts empty
+const DEFAULT_SI2 = {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null};
+const STD72 = {1:4,2:3,3:4,4:5,5:4,6:3,7:4,8:5,9:4,10:4,11:3,12:4,13:5,14:4,15:3,16:4,17:5,18:4};
+const STD70 = {1:4,2:3,3:4,4:4,5:4,6:3,7:4,8:5,9:4,10:4,11:3,12:4,13:4,14:4,15:3,16:4,17:5,18:4};
+const LS_HISTORY     = 'hf_golf_history';
+const LS_COURSES     = 'hf_saved_courses';
+const LS_AUTOSAVE    = 'hf_game_autosave';
+const LS_TOURNAMENTS = 'hf_tournaments';
+
+// ── Preset courses baked in from Golf_Courses_and_Indexing.xlsx ──────────────
+const DEFAULT_SI3 = {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null};
+const PRESET_COURSES = [
+  {
+    name: 'Bonnie Doon',
+    preset: true,
+    pars: {1:4,2:4,3:4,4:4,5:4,6:3,7:5,8:4,9:5,10:4,11:3,12:4,13:3,14:5,15:3,16:4,17:4,18:4},
+    si1:  {1:2,2:8,3:4,4:5,5:3,6:16,7:13,8:14,9:17,10:1,11:11,12:18,13:10,14:7,15:15,16:12,17:9,18:6},
+    si2:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null},
+    si3:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null}
+  },
+  {
+    name: 'Stonecutters Ridge',
+    preset: true,
+    pars: {1:5,2:4,3:4,4:4,5:4,6:3,7:4,8:4,9:4,10:5,11:3,12:4,13:4,14:4,15:5,16:3,17:3,18:4},
+    si1:  {1:12,2:10,3:2,4:14,5:18,6:4,7:16,8:8,9:6,10:9,11:11,12:3,13:7,14:15,15:17,16:1,17:13,18:5},
+    si2:  {1:19,2:25,3:27,4:33,5:31,6:29,7:35,8:23,9:21,10:28,11:34,12:20,13:24,14:30,15:32,16:26,17:36,18:22},
+    si3:  {1:37,2:43,3:45,4:51,5:49,6:47,7:53,8:41,9:39,10:46,11:52,12:38,13:42,14:48,15:50,16:44,17:54,18:40}
+  },
+  {
+    name: 'Moore Park',
+    preset: true,
+    pars: {1:4,2:3,3:4,4:5,5:3,6:5,7:3,8:4,9:4,10:3,11:5,12:4,13:3,14:4,15:3,16:5,17:4,18:4},
+    si1:  {1:3,2:18,3:11,4:5,5:17,6:16,7:9,8:2,9:10,10:8,11:7,12:14,13:4,14:6,15:12,16:13,17:15,18:1},
+    si2:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null},
+    si3:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null}
+  },
+  {
+    name: 'The Coast',
+    preset: true,
+    pars: {1:4,2:5,3:5,4:3,5:4,6:5,7:4,8:3,9:3,10:4,11:4,12:3,13:4,14:4,15:3,16:4,17:4,18:4},
+    si1:  {1:3,2:16,3:15,4:18,5:9,6:8,7:1,8:17,9:10,10:13,11:5,12:14,13:2,14:7,15:12,16:4,17:6,18:11},
+    si2:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null},
+    si3:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null}
+  },
+  {
+    name: 'Macquarie Links',
+    preset: true,
+    pars: {1:5,2:4,3:4,4:4,5:3,6:4,7:5,8:3,9:4,10:4,11:3,12:5,13:4,14:4,15:3,16:4,17:5,18:4},
+    si1:  {1:12,2:2,3:8,4:14,5:4,6:18,7:16,8:10,9:6,10:15,11:7,12:13,13:17,14:5,15:1,16:9,17:11,18:3},
+    si2:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null},
+    si3:  {1:null,2:null,3:null,4:null,5:null,6:null,7:null,8:null,9:null,10:null,11:null,12:null,13:null,14:null,15:null,16:null,17:null,18:null}
+  },
+  {
+    name: 'Fox Hills',
+    preset: true,
+    pars: {1:4,2:4,3:3,4:4,5:3,6:4,7:4,8:4,9:4,10:5,11:3,12:4,13:4,14:4,15:3,16:4,17:3,18:5},
+    si1:  {1:11,2:2,3:12,4:1,5:4,6:16,7:17,8:10,9:5,10:15,11:9,12:6,13:8,14:14,15:18,16:3,17:13,18:7},
+    si2:  {1:28,2:20,3:27,4:19,5:31,6:34,7:35,8:26,9:22,10:30,11:32,12:23,13:25,14:29,15:36,16:21,17:33,18:24},
+    si3:  {1:46,2:38,3:45,4:37,5:49,6:52,7:53,8:44,9:40,10:48,11:50,12:41,13:43,14:47,15:54,16:39,17:51,18:42}
+  },
+  {
+    name: 'Long Reef',
+    preset: true,
+    pars: {1:5,2:3,3:4,4:4,5:4,6:4,7:3,8:4,9:5,10:3,11:4,12:4,13:3,14:4,15:5,16:4,17:4,18:4},
+    si1:  {1:9,2:12,3:16,4:6,5:3,6:18,7:8,8:15,9:17,10:1,11:11,12:10,13:14,14:5,15:13,16:4,17:2,18:7},
+    si2:  {1:21,2:33,3:34,4:25,5:20,6:36,7:31,8:32,9:30,10:28,11:29,12:26,13:35,14:23,15:27,16:22,17:19,18:24},
+    si3:  {1:39,2:34,3:50,4:41,5:38,6:53,7:45,8:52,9:48,10:46,11:47,12:44,13:54,14:43,15:49,16:40,17:37,18:42}
+  }
+];
+
+// ── Tournament data — preset + user-saved ────────────────────────────────────
+const PRESET_TOURNAMENTS = {}; // no built-in tournaments
+let TOURNAMENT = {...PRESET_TOURNAMENTS};
+try {
+  const savedT = JSON.parse(localStorage.getItem(LS_TOURNAMENTS)||'{}');
+  Object.assign(TOURNAMENT, savedT);
+} catch(e) {}
+let activeTournament = null;
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let gameMode='matchplay', teamPlay=false, skinsPlay=false, fourPlayer=false, game=null, activeHole=1;
+let coursePars={...STD72}, courseSI1={...DEFAULT_SI1}, courseSI2={...DEFAULT_SI2}, courseSI3={...DEFAULT_SI3}, savedCourses=[], history=[];
+try{
+  const stored = JSON.parse(localStorage.getItem(LS_COURSES)||'[]');
+  // Always ensure presets are present (merge without duplicating)
+  const userCourses = stored.filter(c => !c.preset);
+  savedCourses = [...PRESET_COURSES, ...userCourses];
+}catch(e){ savedCourses = [...PRESET_COURSES]; }
+try{history=JSON.parse(localStorage.getItem(LS_HISTORY)||'[]');}catch(e){}
+
+// ═══════════════════════════════════════════
+// CORE GOLF MATHS
+// ═══════════════════════════════════════════
+
+/**
+ * Strokes received on a hole.
+ * hcp:     player's handicap (rounded to integer)
+ * baseHcp: reference handicap to subtract from (0 for stroke/stableford, lowest in field for matchplay)
+ * si:      stroke index of the hole (1-18)
+ *
+ * A player with (hcp - baseHcp) = diff receives:
+ *   floor(diff/18) strokes on every hole
+ *   +1 extra stroke on holes where SI <= (diff mod 18)
+ */
+/** Safe SI1 getter (1-18) — falls back for old saved games */
+function gsi1(h){ return h.si1 || h.si || DEFAULT_SI1[h.hole] || h.hole; }
+/** Safe SI2 getter (19-36) — null means no independent 19-36 index set */
+function gsi2(h){ return h.si2 != null ? h.si2 : DEFAULT_SI2[h.hole]; }
+/** Safe SI3 getter (37-54) — null means no independent 37-54 index set */
+function gsi3(h){ return h.si3 != null ? h.si3 : DEFAULT_SI3[h.hole]; }
+/** Matchplay ALWAYS uses the fixed Matchplay Index (DEFAULT_SI1) — never course SI */
+function msi(h){ return DEFAULT_SI1[h.hole] || h.hole; }
+
+/**
+ * strokesOnHole(hcp, baseHcp, si1, si2, si3)
+ * si1 = Stroke Index 1-18  (required)
+ * si2 = Stroke Index 19-36 (optional, null = use si1 for this pass)
+ * si3 = Stroke Index 37-54 (optional, null = use si1 for this pass)
+ *
+ * Each "pass" covers 18 handicap strokes. A player with
+ * diff = round(hcp) - round(baseHcp) receives 1 stroke per pass where
+ * the pass's SI rank <= the remainder for that pass.
+ */
+function strokesOnHole(hcp, baseHcp, si1, si2, si3) {
+  const diff = Math.round(hcp) - Math.round(baseHcp);
+  if (diff <= 0) return 0;
+  let strokes = 0;
+  // Pass 1: diff 1-18, always uses si1
+  if (si1 <= diff) strokes++;
+  // Pass 2: diff 19-36, uses si2 if set, else si1
+  if (diff >= 19) {
+    const idx2 = (si2 != null) ? si2 : si1;
+    if (idx2 <= (diff - 18)) strokes++;
+  }
+  // Pass 3: diff 37-54, uses si3 if set, else si1
+  if (diff >= 37) {
+    const idx3 = (si3 != null) ? si3 : si1;
+    if (idx3 <= (diff - 36)) strokes++;
+  }
+  // Pass 4: diff 55-72, uses si2 if set, else si1 (very rare)
+  if (diff >= 55) {
+    const idx4 = (si2 != null) ? si2 : si1;
+    if (idx4 <= (diff - 54)) strokes++;
+  }
+  return strokes;
+}
+
+/**
+ * Stableford points for one player on one hole.
+ * Returns null if no score entered.
+ * Returns object: { gross, strokes, net, diff, points }
+ *
+ * Strokes are vs scratch (baseHcp = 0).
+ * Points scale:
+ *   net score vs par:   ≤-3  -2  -1   0  +1  ≥+2
+ *   stableford points:    5   4   3   2   1    0
+ */
+function stablefordCalc(gross, par, hcp, si1, si2, si3) {
+  if (gross == null) return null;
+  const strokes = strokesOnHole(hcp, 0, si1, si2, si3);
+  const net     = gross - strokes;
+  const diff    = net - par;          // negative = under par
+  const points  = Math.max(0, 2 - diff);
+  return { gross, strokes, net, diff, points };
+}
+
+/**
+ * Skins: multi-player (2-4 individual players), overlay on any format.
+ * Each hole worth 1 skin + any carried over. Ties carry.
+ * mode: 'matchplay' → hole winner (lowest net vs base), 'stableford' → most points, 'stroke' → lowest net (base=0)
+ * players: array of {name, hcp} — 2 to 4 players
+ * Returns array of 18 objects: { scores[], winner (0-based index or -1=tie/null=unscored), skinsAtStake, skinsWon, winnerName }
+ */
+function skinsCalc(holes, players, mode) {
+  const n = players.length;
+  const results = [];
+  let carryOver = 0;
+
+  holes.forEach((h, i) => {
+    const skinsAtStake = 1 + carryOver;
+
+    // Check all players have scored this hole
+    const grosses = players.map((_,pi) => pi===0?h.p1:pi===1?h.p2:pi===2?h.p3:h.p4);
+    if (grosses.some(g => g == null)) {
+      results.push({ scores:grosses, winner:null, skinsAtStake, skinsWon:0, winnerName:null });
+      // Don't advance carryOver for unscored holes — we don't know the result yet
+      return;
+    }
+
+    // Calculate per-player "value" (lower=better for net, higher=better for stableford)
+    // Use correct SI for each mode: matchplay uses msi (DEFAULT_SI1), others use course SI
+    const _si  = mode==='matchplay' ? (DEFAULT_SI1[h.hole]||h.hole) : (h.si1||h.si||DEFAULT_SI1[h.hole]||h.hole);
+    const _si2 = mode==='matchplay' ? null : (h.si2!=null?h.si2:null);
+    const _si3 = mode==='matchplay' ? null : (h.si3!=null?h.si3:null);
+    const base = mode==='matchplay' ? Math.min(...players.map(p=>p.hcp)) : 0;
+
+    let values;
+    if (mode === 'stableford') {
+      // Most Stableford points wins — stableford always uses base=0
+      values = players.map((p,pi) => {
+        const sb = stablefordCalc(grosses[pi], h.par, p.hcp, _si, _si2, _si3);
+        return sb ? sb.points : 0;
+      });
+      const best = Math.max(...values);
+      const winners = values.map((v,i)=>v===best?i:-1).filter(i=>i>=0);
+      if (winners.length === 1) {
+        carryOver = 0;
+        results.push({ scores:grosses, winner:winners[0], skinsAtStake, skinsWon:skinsAtStake, winnerName:players[winners[0]].name });
+      } else {
+        carryOver = skinsAtStake;
+        results.push({ scores:grosses, winner:-1, skinsAtStake, skinsWon:0, winnerName:null });
+      }
+    } else {
+      // Stroke or matchplay: lowest net wins
+      values = players.map((p,pi) => grosses[pi] - strokesOnHole(p.hcp, base, _si, _si2, _si3));
+      const best = Math.min(...values);
+      const winners = values.map((v,i)=>v===best?i:-1).filter(i=>i>=0);
+      if (winners.length === 1) {
+        carryOver = 0;
+        results.push({ scores:grosses, nets:values, winner:winners[0], skinsAtStake, skinsWon:skinsAtStake, winnerName:players[winners[0]].name });
+      } else {
+        carryOver = skinsAtStake;
+        results.push({ scores:grosses, nets:values, winner:-1, skinsAtStake, skinsWon:0, winnerName:null });
+      }
+    }
+  });
+  // ── End-of-round carryover distribution ──────────────────────────────────
+  // If hole 18 has been completed and skins are still carrying, distribute them.
+  const allPlayed = results.length === 18 && results.every(r => r.scores[0] != null);
+  if (allPlayed && carryOver > 0) {
+    // Tally skins won during the round per player
+    const skinsTally = players.map((_,i) => results.reduce((a,r) => a + (r.winner===i ? r.skinsWon : 0), 0));
+    const totalLeft = carryOver;
+    const perPlayer = Math.floor(totalLeft / n);
+    const remainder = totalLeft % n;
+    // Remainder → most skins winner; if tied for most, give to player with LEAST skins
+    const maxWins = Math.max(...skinsTally);
+    const minWins = Math.min(...skinsTally);
+    const topPlayers = skinsTally.map((s,i)=>s===maxWins?i:-1).filter(i=>i>=0);
+    const bonusIdx = topPlayers.length === 1
+      ? topPlayers[0]
+      : skinsTally.indexOf(minWins);
+    const distribution = players.map((_,i) => perPlayer + (i === bonusIdx ? remainder : 0));
+    results.push({
+      carryoverDistribution: true,
+      totalLeft,
+      perPlayer,
+      remainder,
+      bonusIdx,
+      bonusName: players[bonusIdx].name,
+      distribution,
+      players: players.map(p=>p.name),
+      skinsAtStake: 0, skinsWon: 0, winner: null, scores: [], winnerName: null
+    });
+  }
+  return results;
+}
+
+// Helper: get skinsCalc for current game
+function getSkinsResults() {
+  if (!game || !game.skins) return null;
+  return skinsCalc(game.holes, game.skinsPlayers, game.mode);
+}
+
+/**
+ * Matchplay result for individual 1v1.
+ * The lowest handicap between the two becomes the "base".
+ * The higher-hcp player receives the difference in strokes (allocated by SI).
+ * Returns: 1=P1 wins, -1=P2 wins, 0=halved, null=not played
+ */
+function matchHole1v1(gross1, gross2, hcp1, hcp2, si1, si2, si3) {
+  if (gross1 == null || gross2 == null) return null;
+  const base = Math.min(hcp1, hcp2);
+  const net1 = gross1 - strokesOnHole(hcp1, base, si1, si2, si3);
+  const net2 = gross2 - strokesOnHole(hcp2, base, si1, si2, si3);
+  return net1 < net2 ? 1 : net2 < net1 ? -1 : 0;
+}
+
+/**
+ * Matchplay result for 4-Ball Better-Ball (4BBB).
+ * Base = lowest handicap among ALL FOUR players.
+ * Each player nets: gross - strokesOnHole(playerHcp, lowestHcpOfAll4, si)
+ * Each team plays their BEST (lowest) net score.
+ * Returns: 1=Team1 wins, -1=Team2 wins, 0=halved, null=incomplete
+ *
+ * Note: if a player hasn't entered a score, they contribute 99 (worst case),
+ * so the other partner's score still counts for the team.
+ */
+function matchHole4BBB(g1a, g1b, g2a, g2b, hcp1a, hcp1b, hcp2a, hcp2b, si1, si2, si3) {
+  const hasT1 = g1a != null || g1b != null;
+  const hasT2 = g2a != null || g2b != null;
+  if (!hasT1 || !hasT2) return null;
+  const base = Math.min(hcp1a, hcp1b, hcp2a, hcp2b);
+  const net = (g, h) => g != null ? g - strokesOnHole(h, base, si1, si2, si3) : 99;
+  const best1 = Math.min(net(g1a,hcp1a), net(g1b,hcp1b));
+  const best2 = Math.min(net(g2a,hcp2a), net(g2b,hcp2b));
+  return best1 < best2 ? 1 : best2 < best1 ? -1 : 0;
+}
+
+/** All 18 hole results for the active game */
+function getHoleResults() {
+  if (!game) return Array(18).fill(null);
+  const {p1,p2,p3,p4} = game.players;
+  return game.holes.map(h => {
+    if (game.mode !== 'matchplay') return null;
+    if (game.team) return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,msi(h),null,null);
+    return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
+  });
+}
+
+/** Running match status from results array.
+ *
+ * Scans holes in order and returns the status at the EARLIEST point where
+ * the game is mathematically closed. This means:
+ *   - Scores entered AFTER the closing hole do NOT affect the match result.
+ *   - If a prior hole is corrected and the game is re-opened (no longer
+ *     mathematically decided), play may resume normally.
+ *
+ * Also returns `closingHole` (1-18) so the UI can show which hole ended the match,
+ * and `postMatch` results (holes played after closing) for posterity display.
+ */
+function matchStatus(results) {
+  let p1w=0, p2w=0, played=0;
+
+  for (let i=0; i<results.length; i++) {
+    const r = results[i];
+    if (r == null) continue;  // hole not yet scored — skip
+    played++;
+    if (r===1)  p1w++;
+    if (r===-1) p2w++;
+
+    const rem  = 18 - played;
+    const diff = p1w - p2w;
+
+    // Check if game is closed after this hole
+    if (diff > rem) {
+      return {winner:1, label:`${diff}&${rem}`, closed:true, leading:0,
+              closingHole: i+1, p1w, p2w, played};
+    }
+    if (-diff > rem) {
+      return {winner:2, label:`${-diff}&${rem}`, closed:true, leading:0,
+              closingHole: i+1, p1w, p2w, played};
+    }
+    if (played===18) {
+      if(diff>0) return {winner:1,label:'1UP',                  closed:true, leading:0, closingHole:18, p1w, p2w, played};
+      if(diff<0) return {winner:2,label:'1UP',                  closed:true, leading:0, closingHole:18, p1w, p2w, played};
+      return             {winner:0,label:'All Square — Halved', closed:true, leading:0, closingHole:18, p1w, p2w, played};
+    }
+  }
+
+  // Game still live
+  const diff = p1w - p2w;
+  if(diff===0) return {winner:0, label:'All Square', closed:false, leading:0, closingHole:null, p1w, p2w, played};
+  if(diff>0)   return {winner:0, label:`${diff} UP`, closed:false, leading:1, closingHole:null, p1w, p2w, played};
+  return              {winner:0, label:`${-diff} UP`,closed:false, leading:2, closingHole:null, p1w, p2w, played};
+}
+
+/**
+ * Returns a results array where holes played AFTER the closing hole
+ * are marked as "posterity" (result not counted in matchStatus).
+ * Used so the scorecard can show ∅ or greyed result for those holes.
+ */
+function effectiveResults(results) {
+  const st = matchStatus(results);
+  if (!st.closed || st.closingHole == null) return results;
+  // Zero out result influence after closing hole — keep original for display
+  return results.map((r, i) => i >= st.closingHole ? null : r);
+}
+
+// ═══════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const navIdx = ['setup','history','tournament'].indexOf(name);
+  if(navIdx >= 0) document.querySelectorAll('.nav-btn')[navIdx].classList.add('active');
+  if(name==='play') renderPlay();
+  if(name==='history') renderHistory();
+  if(name==='tournament') renderTournamentResultsDropdown();
+}
+function setMode(m) {
+  gameMode=m;
+  ['matchplay','stroke','stableford'].forEach(id=>document.getElementById('mode-'+id).classList.toggle('active',id===m));
+  updateSIDisplay();
+  checkCanStart();
+}
+function updateSIDisplay(){
+  const isMP = gameMode==='matchplay';
+  const mpBlock = document.getElementById('si-matchplay-block');
+  const csBlock = document.getElementById('si-course-block');
+  if(mpBlock) mpBlock.style.display = isMP ? 'block' : 'none';
+  if(csBlock) csBlock.style.display = isMP ? 'none' : 'block';
+}
+function toggleTeam() {
+  teamPlay=!teamPlay;
+  document.getElementById('team-toggle').classList.toggle('on',teamPlay);
+  document.getElementById('team-label').textContent=teamPlay?'On — 4BBB Best Ball':'Off';
+  const _tb=document.getElementById('team-box');
+  const _tbl=document.getElementById('team-box-label');
+  const _tl=document.getElementById('team-label');
+  if(_tb){_tb.style.borderColor=teamPlay?'var(--teal)':'#2a2a2a';_tb.style.background=teamPlay?'rgba(0,232,187,.12)':'#141414';}
+  if(_tbl){_tbl.style.color=teamPlay?'var(--teal)':'#888';}
+  if(_tl){_tl.style.color=teamPlay?'var(--teal)':'#ccc';}
+  // Can't have both 4BBB and 4-player on simultaneously
+  if(teamPlay && fourPlayer){
+    fourPlayer=false;
+    document.getElementById('fourplayer-toggle').classList.remove('on');
+    document.getElementById('fourplayer-label').textContent='Off';
+    const _fb=document.getElementById('fourplayer-box'),_fbl=document.getElementById('fourplayer-box-label'),_fl=document.getElementById('fourplayer-label');
+    if(_fb){_fb.style.borderColor='#2a2a2a';_fb.style.background='#141414';}
+    if(_fbl)_fbl.style.color='#888';
+    if(_fl)_fl.style.color='#ccc';
+  }
+  if(activeTournament){
+    // Keep tournament tiles in sync with 4BBB toggle
+    tournamentTeams = teamPlay;
+    const sBox=document.getElementById('t-singles-box'), tBox=document.getElementById('t-teams-box');
+    const sLbl=document.getElementById('t-singles-label'), tLbl=document.getElementById('t-teams-label');
+    if(sBox){sBox.style.background=!teamPlay?'rgba(0,232,187,.12)':'#141414';sBox.style.borderColor=!teamPlay?'var(--teal)':'#2a2a2a';}
+    if(tBox){tBox.style.background=teamPlay?'rgba(0,232,187,.12)':'#141414';tBox.style.borderColor=teamPlay?'var(--teal)':'#2a2a2a';}
+    if(sLbl)sLbl.style.color=!teamPlay?'var(--teal)':'#888';
+    if(tLbl)tLbl.style.color=teamPlay?'var(--teal)':'#888';
+    const sSub=sBox?sBox.querySelector('div:last-child'):null, tSub=tBox?tBox.querySelector('div:last-child'):null;
+    if(sSub)sSub.style.color=!teamPlay?'var(--teal)':'#666';
+    if(tSub)tSub.style.color=teamPlay?'var(--teal)':'#666';
+    // Show/hide partner slots
+    document.getElementById('p3-name-select-wrap').style.display=teamPlay?'block':'none';
+    document.getElementById('p4-name-select-wrap').style.display=teamPlay?'block':'none';
+    const t=TOURNAMENT[activeTournament];
+    document.getElementById('t1-card-label').textContent=teamPlay?(t.team1.name+' — Player A'):t.team1.name;
+    document.getElementById('t2-card-label').textContent=teamPlay?(t.team2.name+' — Player A'):t.team2.name;
+  } else {
+    _syncPlayerLabels();
+  }
+  document.getElementById('p3-fields').style.display=teamPlay?'block':'none';
+  document.getElementById('p4-fields').style.display=teamPlay?'block':'none';
+  document.getElementById('p3-card').style.display='none';
+  document.getElementById('p4-card').style.display='none';
+  checkCanStart();
+}
+function _syncPlayerLabels(){
+  const isTeam = teamPlay;
+  const isInd  = fourPlayer;
+  document.getElementById('t1-card-label').textContent = isTeam ? 'Team 1 — Player A' : 'Player 1';
+  document.getElementById('t2-card-label').textContent = isTeam ? 'Team 2 — Player A' : 'Player 2';
+  const p3nl=document.getElementById('p3-name-label');
+  const p3sl=document.getElementById('p3-select-label');
+  const p4nl=document.getElementById('p4-name-label');
+  const p4sl=document.getElementById('p4-select-label');
+  if(p3nl) p3nl.textContent = isTeam ? 'Partner Name' : 'Player 3 Name';
+  if(p3sl) p3sl.textContent = isTeam ? 'Select Partner' : 'Select Player';
+  if(p4nl) p4nl.textContent = isTeam ? 'Partner Name' : 'Player 4 Name';
+  if(p4sl) p4sl.textContent = isTeam ? 'Select Partner' : 'Select Player';
+}
+function toggleFourPlayer() {
+  fourPlayer=!fourPlayer;
+  document.getElementById('fourplayer-toggle').classList.toggle('on',fourPlayer);
+  document.getElementById('fourplayer-label').textContent=fourPlayer?'On':'Off';
+  const _fb=document.getElementById('fourplayer-box');
+  const _fbl=document.getElementById('fourplayer-box-label');
+  const _fl=document.getElementById('fourplayer-label');
+  if(_fb){_fb.style.borderColor=fourPlayer?'var(--teal)':'#2a2a2a';_fb.style.background=fourPlayer?'rgba(0,232,187,.12)':'#141414';}
+  if(_fbl){_fbl.style.color=fourPlayer?'var(--teal)':'#888';}
+  if(_fl){_fl.style.color=fourPlayer?'var(--teal)':'#ccc';}
+  // 4-player: show standalone cards, hide 4BBB partner slots
+  document.getElementById('p3-card').style.display=fourPlayer?'block':'none';
+  document.getElementById('p4-card').style.display=fourPlayer?'block':'none';
+  document.getElementById('p3-fields').style.display='none';
+  document.getElementById('p4-fields').style.display='none';
+
+  if(fourPlayer && teamPlay){
+    teamPlay=false;
+    document.getElementById('team-toggle').classList.remove('on');
+    document.getElementById('team-label').textContent='Off';
+    const _tb=document.getElementById('team-box'),_tbl=document.getElementById('team-box-label'),_tl=document.getElementById('team-label');
+    if(_tb){_tb.style.borderColor='#2a2a2a';_tb.style.background='#141414';}
+    if(_tbl)_tbl.style.color='#888';
+    if(_tl)_tl.style.color='#ccc';
+  }
+  _syncPlayerLabels();
+  if(!fourPlayer){
+    document.getElementById('p3-ind-name').value='';
+    document.getElementById('p4-ind-name').value='';
+    document.getElementById('p3-ind-hcp').value='';
+    document.getElementById('p4-ind-hcp').value='';
+  }
+  checkCanStart();
+}
+function toggleSkins() {
+  skinsPlay=!skinsPlay;
+  document.getElementById('skins-toggle').classList.toggle('on',skinsPlay);
+  document.getElementById('skins-label').textContent=skinsPlay?'On':'Off';
+  const _sb=document.getElementById('skins-box');
+  const _sbl=document.getElementById('skins-box-label');
+  const _sl=document.getElementById('skins-label');
+  if(_sb){_sb.style.borderColor=skinsPlay?'var(--teal)':'#2a2a2a';_sb.style.background=skinsPlay?'rgba(0,232,187,.12)':'#141414';}
+  if(_sbl){_sbl.style.color=skinsPlay?'var(--teal)':'#888';}
+  if(_sl){_sl.style.color=skinsPlay?'var(--teal)':'#ccc';}
+  checkCanStart();
+}
+function checkCanStart() {
+  const warn=document.getElementById('start-warn');
+  const btn=document.getElementById('start-btn');
+  const hasCourse=gv('course-name').trim().length>0;
+  const hasP1=gv('p1-name'), hasP2=gv('p2-name');
+  let hasPlayers=hasP1&&hasP2;
+  if(teamPlay) hasPlayers=hasPlayers&&gv('p3-name')&&gv('p4-name');
+  if(fourPlayer && gameMode!=='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
+  // Matchplay + 3-player: allow button but warn on attempt (handled in startGame)
+  if(fourPlayer && gameMode==='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
+  const ok=hasCourse&&hasPlayers;
+  btn.disabled=!ok;
+  if(!ok){
+    const msgs=[];
+    if(!hasCourse) msgs.push('⛳ Select or enter a course to continue');
+    if(!hasP1||!hasP2) msgs.push('👤 Enter names for Player 1 and Player 2');
+    else if(!hasPlayers) msgs.push('👥 Enter all required player names');
+    warn.style.display='block';
+    warn.style.background='rgba(255,90,90,0.08)';
+    warn.style.color='#ff8080';
+    warn.style.border='1px solid rgba(255,90,90,0.2)';
+    warn.textContent=msgs.join(' · ');
+  } else {
+    warn.style.display='none';
+  }
+}
+
+// ── Tournament ───────────────────────────────────────────────────────────────
+
+// Internal form state: which type is selected in the create/edit form
+let _tFormType = 'singles';  // 'singles' | 'teams'
+let _teamsMatchFmt = 'singles'; // 'singles' | '4bbb' — per-match format for teams tournaments
+
+function setTeamsMatchFormat(fmt) {
+  _teamsMatchFmt = fmt;
+  const is4bbb = fmt === '4bbb';
+
+  // Update tiles
+  const sBox = document.getElementById('tmf-singles-box');
+  const tBox = document.getElementById('tmf-4bbb-box');
+  const sLbl = document.getElementById('tmf-singles-lbl');
+  const tLbl = document.getElementById('tmf-4bbb-lbl');
+  const sSub = document.getElementById('tmf-singles-sub');
+  const tSub = document.getElementById('tmf-4bbb-sub');
+  if(sBox){sBox.style.background=!is4bbb?'rgba(0,232,187,.12)':'#141414';sBox.style.borderColor=!is4bbb?'var(--teal)':'#2a2a2a';}
+  if(tBox){tBox.style.background= is4bbb?'rgba(0,232,187,.12)':'#141414';tBox.style.borderColor= is4bbb?'var(--teal)':'#2a2a2a';}
+  if(sLbl)sLbl.style.color=!is4bbb?'var(--teal)':'#888';
+  if(tLbl)tLbl.style.color= is4bbb?'var(--teal)':'#888';
+  if(sSub){sSub.style.color=!is4bbb?'var(--teal)':'#666';sSub.style.opacity=!is4bbb?'.8':'1';}
+  if(tSub){tSub.style.color= is4bbb?'var(--teal)':'#666';tSub.style.opacity= is4bbb?'.8':'1';}
+
+  // Sync 4BBB toggle
+  const need4bbb = is4bbb;
+  if (need4bbb !== teamPlay) {
+    teamPlay = need4bbb;
+    document.getElementById('team-toggle').classList.toggle('on', teamPlay);
+    document.getElementById('team-label').textContent = teamPlay ? 'On — 4BBB Best Ball' : 'Off';
+    const _tb=document.getElementById('team-box'),_tbl=document.getElementById('team-box-label'),_tl=document.getElementById('team-label');
+    if(_tb){_tb.style.borderColor=teamPlay?'var(--teal)':'#2a2a2a';_tb.style.background=teamPlay?'rgba(0,232,187,.12)':'#141414';}
+    if(_tbl)_tbl.style.color=teamPlay?'var(--teal)':'#888';
+    if(_tl)_tl.style.color=teamPlay?'var(--teal)':'#ccc';
+  }
+
+  // Show/hide partner slots
+  document.getElementById('p3-fields').style.display = is4bbb ? 'block' : 'none';
+  document.getElementById('p4-fields').style.display = is4bbb ? 'block' : 'none';
+  document.getElementById('p3-card').style.display = 'none';
+  document.getElementById('p4-card').style.display = 'none';
+
+  // Show/hide partner dropdowns
+  document.getElementById('p3-name-select-wrap').style.display = is4bbb ? 'block' : 'none';
+  document.getElementById('p4-name-select-wrap').style.display = is4bbb ? 'block' : 'none';
+  // Hide redundant partner name label+input when dropdown drives it; restore when hidden
+  ['p3-name','p4-name'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.style.display=is4bbb?'none':'';
+  });
+  ['p3-name-label','p4-name-label'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.style.display=is4bbb?'none':'';
+  });
+
+  // Update card labels for the active tournament
+  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
+  if (t && t.type === 'teams') {
+    document.getElementById('t1-card-label').textContent = is4bbb ? t.team1.name + ' — Player A' : t.team1.name;
+    document.getElementById('t2-card-label').textContent = is4bbb ? t.team2.name + ' — Player A' : t.team2.name;
+    const p3nl=document.getElementById('p3-name-label'),p3sl=document.getElementById('p3-select-label');
+    const p4nl=document.getElementById('p4-name-label'),p4sl=document.getElementById('p4-select-label');
+    if(p3nl)p3nl.textContent='Partner Name'; if(p3sl)p3sl.textContent='Select Partner';
+    if(p4nl)p4nl.textContent='Partner Name'; if(p4sl)p4sl.textContent='Select Partner';
+  }
+  checkCanStart();
+}
+
+function setTournamentType(type) {
+  _tFormType = type;
+  const sBox = document.getElementById('ttype-singles-box');
+  const tBox = document.getElementById('ttype-teams-box');
+  const sLbl = document.getElementById('ttype-singles-lbl');
+  const tLbl = document.getElementById('ttype-teams-lbl');
+  const sSub = sBox ? sBox.querySelector('div:last-child') : null;
+  const tSub = tBox ? tBox.querySelector('div:last-child') : null;
+  const isSingles = type === 'singles';
+  if(sBox){ sBox.style.background=isSingles?'rgba(0,232,187,.12)':'#141414'; sBox.style.borderColor=isSingles?'var(--teal)':'#2a2a2a'; }
+  if(tBox){ tBox.style.background=!isSingles?'rgba(0,232,187,.12)':'#141414'; tBox.style.borderColor=!isSingles?'var(--teal)':'#2a2a2a'; }
+  if(sLbl) sLbl.style.color = isSingles ? 'var(--teal)' : '#888';
+  if(tLbl) tLbl.style.color = !isSingles ? 'var(--teal)' : '#888';
+  if(sSub) sSub.style.color = isSingles ? 'var(--teal)' : '#666';
+  if(tSub) tSub.style.color = !isSingles ? 'var(--teal)' : '#666';
+  const sFields = document.getElementById('t-singles-fields');
+  const tFields = document.getElementById('t-teams-fields');
+  if(sFields) sFields.style.display = isSingles ? 'block' : 'none';
+  if(tFields) tFields.style.display = !isSingles ? 'block' : 'none';
+}
+
+function onTournamentSelect(val) {
+  activeTournament = val || null;
+  const t = val ? TOURNAMENT[val] : null;
+  const badge = document.getElementById('tournament-badge');
+  badge.style.display = t ? 'block' : 'none';
+  if(t) badge.textContent = '🏆 ' + t.label.toUpperCase() + (t.type==='teams'?' · Teams':' · Singles');
+
+  if(val) renderTournamentActions(val);
+  else {
+    const actEl = document.getElementById('tournament-actions');
+    if(actEl) actEl.style.display = 'none';
+    document.getElementById('add-tournament-btn-wrap').style.display = 'block';
+  }
+
+  if (t) {
+    if (t.type === 'teams') {
+      // Teams tournament: show match format picker, populate team dropdowns
+      document.getElementById('teams-match-format-wrap').style.display = 'block';
+      // Apply team colours to card labels and select labels
+      document.getElementById('t1-card-label').style.color = 'var(--teal)';
+      document.getElementById('t2-card-label').style.color = 'var(--red)';
+      const p1sl=document.getElementById('p1-select-label'), p2sl=document.getElementById('p2-select-label');
+      const p3sl=document.getElementById('p3-select-label'), p4sl=document.getElementById('p4-select-label');
+      if(p1sl) p1sl.style.color='var(--teal)';
+      if(p2sl) p2sl.style.color='var(--red)';
+      if(p3sl) p3sl.style.color='var(--teal)';
+      if(p4sl) p4sl.style.color='var(--red)';
+      // Always populate all 4 dropdowns ready for either format
+      populateTournamentDropdown('p1-name-select', t.team1.players);
+      populateTournamentDropdown('p3-name-select', t.team1.players);
+      populateTournamentDropdown('p2-name-select', t.team2.players);
+      populateTournamentDropdown('p4-name-select', t.team2.players);
+      document.getElementById('p1-name-select-wrap').style.display = 'block';
+      document.getElementById('p2-name-select-wrap').style.display = 'block';
+      // Hide redundant name label+input — the dropdown drives the value
+      ['p1-name','p2-name'].forEach(id => {
+        const el=document.getElementById(id); if(el) el.style.display='none';
+      });
+      ['p1-name-label','p2-name-label'].forEach(id => {
+        const el=document.getElementById(id); if(el) el.style.display='none';
+      });
+      // Default to singles match format (user can switch to 4BBB via the picker)
+      _teamsMatchFmt = 'singles';
+      setTeamsMatchFormat('singles');
+    } else {
+      // Singles tournament: populate p1 & p2 dropdowns from shared roster; no partner slots
+      document.getElementById('teams-match-format-wrap').style.display = 'none';
+      document.getElementById('t1-card-label').textContent = 'Player 1';
+      document.getElementById('t2-card-label').textContent = 'Player 2';
+      populateTournamentDropdown('p1-name-select', t.players);
+      populateTournamentDropdown('p2-name-select', t.players);
+      document.getElementById('p1-name-select-wrap').style.display = 'block';
+      document.getElementById('p2-name-select-wrap').style.display = 'block';
+      // Hide redundant name label+input — the dropdown drives the value
+      ['p1-name','p2-name'].forEach(id => {
+        const el=document.getElementById(id); if(el) el.style.display='none';
+      });
+      ['p1-name-label','p2-name-label'].forEach(id => {
+        const el=document.getElementById(id); if(el) el.style.display='none';
+      });
+      // Ensure 4BBB is off for singles
+      if (teamPlay) {
+        teamPlay = false;
+        document.getElementById('team-toggle').classList.remove('on');
+        document.getElementById('team-label').textContent = 'Off';
+        const _tb=document.getElementById('team-box'),_tbl=document.getElementById('team-box-label'),_tl=document.getElementById('team-label');
+        if(_tb){_tb.style.borderColor='#2a2a2a';_tb.style.background='#141414';}
+        if(_tbl)_tbl.style.color='#888';
+        if(_tl)_tl.style.color='#ccc';
+      }
+      document.getElementById('p3-fields').style.display = 'none';
+      document.getElementById('p4-fields').style.display = 'none';
+    }
+    ['p1-name','p2-name','p3-name','p4-name'].forEach(id => {
+      const el = document.getElementById(id); if(el) el.value = '';
+    });
+  } else {
+    // No tournament — full reset
+    document.getElementById('teams-match-format-wrap').style.display = 'none';
+    teamPlay = false;
+    document.getElementById('team-toggle').classList.remove('on');
+    document.getElementById('team-label').textContent = 'Off';
+    const _tb=document.getElementById('team-box'),_tbl=document.getElementById('team-box-label'),_tl=document.getElementById('team-label');
+    if(_tb){_tb.style.borderColor='#2a2a2a';_tb.style.background='#141414';}
+    if(_tbl)_tbl.style.color='#888';
+    if(_tl)_tl.style.color='#ccc';
+    document.getElementById('p3-fields').style.display = 'none';
+    document.getElementById('p4-fields').style.display = 'none';
+    _syncPlayerLabels();
+    ['p1','p2','p3','p4'].forEach(p => {
+      const w = document.getElementById(p+'-name-select-wrap');
+      if(w) w.style.display = 'none';
+    });
+    // Restore name inputs and labels (hidden during tournament mode)
+    ['p1-name','p2-name','p3-name','p4-name'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.display='';
+    });
+    ['p1-name-label','p2-name-label','p3-name-label','p4-name-label'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.display='';
+    });
+    // Reset card label and select label colours
+    ['t1-card-label','t2-card-label'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.color='';
+    });
+    ['p1-select-label','p2-select-label','p3-select-label','p4-select-label'].forEach(id => {
+      const el=document.getElementById(id); if(el) el.style.color='';
+    });
+  }
+  checkCanStart();
+}
+
+function populateTournamentDropdown(selectId, players) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select name —</option>' +
+    players.map(p => `<option value="${p}">${p}</option>`).join('');
+}
+
+function onPlayerSelect(inputId, selectId) {
+  const sel = document.getElementById(selectId);
+  const inp = document.getElementById(inputId);
+  if (sel && inp) { inp.value = sel.value; checkCanStart(); }
+  // Hide the redundant name label+input when a tournament dropdown is driving it
+  // The input still holds the value for gv() — it's just invisible
+  const labelMap = {
+    'p1-name': 'p1-name-label',
+    'p2-name': 'p2-name-label',
+    'p3-name': 'p3-name-label',
+    'p4-name': 'p4-name-label',
+  };
+  const lblId = labelMap[inputId];
+  if (lblId) {
+    const lbl = document.getElementById(lblId);
+    if (lbl) lbl.style.display = 'none';
+    if (inp) inp.style.display = 'none';
+  }
+}
+
+// ── Tournament management ─────────────────────────────────────────────────────
+
+function renderTournamentDropdown() {
+  const sel = document.getElementById('tournament-select');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— No tournament —</option>';
+  Object.entries(TOURNAMENT).forEach(([key, t]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = t.label + (t.type === 'teams' ? ' (Teams)' : ' (Singles)');
+    sel.appendChild(opt);
+  });
+  if (current && TOURNAMENT[current]) sel.value = current;
+  // Show/hide the clear-all button based on whether any user tournaments exist
+  const hasUserT = Object.values(TOURNAMENT).some(t => !t.preset);
+  const s1 = document.getElementById('clear-tournaments-step1');
+  const s2 = document.getElementById('clear-tournaments-step2');
+  if (s1) s1.style.display = hasUserT ? 'block' : 'none';
+  if (s2) s2.style.display = 'none';
+}
+
+function persistTournaments() {
+  const userT = {};
+  Object.entries(TOURNAMENT).forEach(([k,v]) => { if (!v.preset) userT[k] = v; });
+  try { localStorage.setItem(LS_TOURNAMENTS, JSON.stringify(userT)); } catch(e) {}
+}
+
+function showTournamentForm(editKey) {
+  const form = document.getElementById('tournament-form');
+  const title = document.getElementById('tournament-form-title');
+  const msg = document.getElementById('tournament-form-msg');
+  form._editKey = editKey || null;
+  msg.style.display = 'none';
+
+  if (editKey && TOURNAMENT[editKey]) {
+    const t = TOURNAMENT[editKey];
+    title.textContent = '✏️ Edit Tournament';
+    document.getElementById('t-name').value = t.label;
+    if (t.type === 'teams') {
+      setTournamentType('teams');
+      document.getElementById('t-team1-name').value = t.team1.name;
+      document.getElementById('t-team2-name').value = t.team2.name;
+      document.getElementById('t-team1-players').value = t.team1.players.join('\n');
+      document.getElementById('t-team2-players').value = t.team2.players.join('\n');
+    } else {
+      setTournamentType('singles');
+      document.getElementById('t-singles-players').value = (t.players||[]).join('\n');
+    }
+  } else {
+    title.textContent = '🏆 New Tournament';
+    document.getElementById('t-name').value = '';
+    document.getElementById('t-team1-name').value = '';
+    document.getElementById('t-team2-name').value = '';
+    document.getElementById('t-team1-players').value = '';
+    document.getElementById('t-team2-players').value = '';
+    document.getElementById('t-singles-players').value = '';
+    setTournamentType('singles');
+  }
+
+  document.getElementById('add-tournament-btn-wrap').style.display = 'none';
+  document.getElementById('tournament-actions').style.display = 'none';
+  document.getElementById('teams-match-format-wrap').style.display = 'none';
+  form.style.display = 'block';
+  document.getElementById('tournament-select').value = '';
+  onTournamentSelect('');
+}
+
+function hideTournamentForm() {
+  document.getElementById('tournament-form').style.display = 'none';
+  document.getElementById('add-tournament-btn-wrap').style.display = 'block';
+  document.getElementById('tournament-form')._editKey = null;
+}
+
+function saveTournament() {
+  const label = document.getElementById('t-name').value.trim();
+  const form  = document.getElementById('tournament-form');
+  const editKey = form._editKey;
+  if (!label) { showTournamentMsg('Enter a tournament name.', 'error'); return; }
+
+  let rec;
+  if (_tFormType === 'teams') {
+    const team1name = document.getElementById('t-team1-name').value.trim();
+    const team2name = document.getElementById('t-team2-name').value.trim();
+    const team1players = document.getElementById('t-team1-players').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    const team2players = document.getElementById('t-team2-players').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if (!team1name) { showTournamentMsg('Enter a name for Team 1.', 'error'); return; }
+    if (!team2name) { showTournamentMsg('Enter a name for Team 2.', 'error'); return; }
+    if (team1players.length < 1) { showTournamentMsg('Add at least one player to Team 1.', 'error'); return; }
+    if (team2players.length < 1) { showTournamentMsg('Add at least one player to Team 2.', 'error'); return; }
+    rec = { label, type: 'teams', team1: { name: team1name, players: team1players }, team2: { name: team2name, players: team2players } };
+  } else {
+    const players = document.getElementById('t-singles-players').value.split('\n').map(s=>s.trim()).filter(Boolean);
+    if (players.length < 2) { showTournamentMsg('Add at least 2 players to the roster.', 'error'); return; }
+    rec = { label, type: 'singles', players };
+  }
+
+  const key = editKey || label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || ('t_'+Date.now());
+  TOURNAMENT[key] = rec;
+  persistTournaments();
+  renderTournamentDropdown();
+  showTournamentMsg('✓ Tournament saved!', 'success');
+  setTimeout(() => {
+    hideTournamentForm();
+    const sel = document.getElementById('tournament-select');
+    if (sel) { sel.value = key; onTournamentSelect(key); renderTournamentActions(key); }
+  }, 900);
+}
+
+function showTournamentMsg(text, type) {
+  const el = document.getElementById('tournament-form-msg');
+  el.textContent = text; el.style.display = 'block';
+  el.style.background = type === 'error' ? 'rgba(255,90,90,.12)' : 'rgba(0,232,187,.12)';
+  el.style.color = type === 'error' ? 'var(--red)' : 'var(--teal)';
+  el.style.border = type === 'error' ? '1px solid rgba(255,90,90,.3)' : '1px solid rgba(0,232,187,.3)';
+}
+
+function renderTournamentActions(key) {
+  const t = TOURNAMENT[key];
+  const el = document.getElementById('tournament-actions');
+  if (!t || !el) return;
+  el.style.display = 'block';
+  document.getElementById('add-tournament-btn-wrap').style.display = 'none';
+  hideClearTournamentsConfirm();
+  const typeLabel = t.type === 'teams'
+    ? `${t.team1.name} (${t.team1.players.length}) vs ${t.team2.name} (${t.team2.players.length})`
+    : `${(t.players||[]).length} players registered`;
+  el.innerHTML = `
+    <div style="padding:8px 12px;background:#141414;border:1.5px solid #2a2a2a;border-radius:9px;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span style="color:#ccc;font-weight:600">${t.type==='teams'?'👥':'🏌️'} ${typeLabel}</span>
+      <span style="display:flex;gap:8px;flex-shrink:0">
+        <button class="course-action-btn" style="color:var(--teal)" onclick="showTournamentRoster('${key}')">📋</button>
+        <button class="course-action-btn" style="color:var(--teal)" onclick="showTournamentForm('${key}')">✏️ Edit</button>
+        <button class="course-action-btn" style="color:var(--red)" onclick="deleteTournament('${key}')">🗑</button>
+      </span>
+    </div>`;
+}
+
+function deleteTournament(key) {
+  const t = TOURNAMENT[key];
+  if (!t) return;
+  const el = document.getElementById('tournament-actions');
+  el.innerHTML = `
+    <div style="padding:10px 12px;background:#1a0a0a;border:1.5px solid #3a1a1a;border-radius:9px;font-size:12px">
+      <div style="color:var(--red);font-weight:700;margin-bottom:4px">Delete "${t.label}"?</div>
+      <div style="color:#bbb;font-size:11px;margin-bottom:10px">This cannot be undone.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1;font-size:12px;color:var(--red);border-color:#3a1a1a;min-height:40px" onclick="confirmDeleteTournament('${key}')">✓ Delete</button>
+        <button class="btn btn-ghost" style="flex:1;font-size:12px;min-height:40px" onclick="renderTournamentActions('${key}')">✕ Cancel</button>
+      </div>
+    </div>`;
+}
+
+function confirmDeleteTournament(key) {
+  delete TOURNAMENT[key];
+  persistTournaments();
+  document.getElementById('tournament-select').value = '';
+  onTournamentSelect('');
+  document.getElementById('tournament-actions').style.display = 'none';
+  document.getElementById('add-tournament-btn-wrap').style.display = 'block';
+  renderTournamentDropdown();
+}
+
+function showClearTournamentsConfirm() {
+  document.getElementById('clear-tournaments-step1').style.display = 'none';
+  document.getElementById('clear-tournaments-step2').style.display = 'block';
+}
+function hideClearTournamentsConfirm() {
+  document.getElementById('clear-tournaments-step2').style.display = 'none';
+  document.getElementById('clear-tournaments-step1').style.display = 'block';
+}
+function confirmClearAllTournaments() {
+  // Remove all user-saved tournaments (never any presets to worry about)
+  Object.keys(TOURNAMENT).forEach(k => { if (!TOURNAMENT[k].preset) delete TOURNAMENT[k]; });
+  persistTournaments();
+  // Reset the selector and hide confirm panel
+  document.getElementById('tournament-select').value = '';
+  onTournamentSelect('');
+  hideClearTournamentsConfirm();
+  renderTournamentDropdown();
+}
+
+function showTournamentRoster(key) {
+  const t = TOURNAMENT[key];
+  if (!t) return;
+  const el = document.getElementById('tournament-actions');
+  let rosterHtml;
+  if (t.type === 'teams') {
+    const t1list = t.team1.players.map(p=>`<span style="display:inline-block;background:#1a2e24;color:var(--teal);border-radius:5px;padding:2px 7px;margin:2px;font-size:11px;font-weight:600">${p}</span>`).join('');
+    const t2list = t.team2.players.map(p=>`<span style="display:inline-block;background:#2e1a1a;color:var(--red);border-radius:5px;padding:2px 7px;margin:2px;font-size:11px;font-weight:600">${p}</span>`).join('');
+    rosterHtml = `
+      <div style="font-size:10px;color:var(--teal);font-weight:700;letter-spacing:1px;margin-bottom:6px">${t.team1.name.toUpperCase()}</div>
+      <div style="margin-bottom:10px">${t1list}</div>
+      <div style="font-size:10px;color:var(--red);font-weight:700;letter-spacing:1px;margin-bottom:6px">${t.team2.name.toUpperCase()}</div>
+      <div style="margin-bottom:10px">${t2list}</div>`;
+  } else {
+    const plist = (t.players||[]).map((p,i)=>`<span style="display:inline-block;background:#1a2020;color:var(--teal);border-radius:5px;padding:2px 7px;margin:2px;font-size:11px;font-weight:600">${i+1}. ${p}</span>`).join('');
+    rosterHtml = `
+      <div style="font-size:10px;color:var(--teal);font-weight:700;letter-spacing:1px;margin-bottom:6px">PLAYERS (${(t.players||[]).length})</div>
+      <div style="margin-bottom:10px;line-height:1.8">${plist}</div>`;
+  }
+  el.innerHTML = `
+    <div style="padding:12px;background:#141414;border:1.5px solid #2a2a2a;border-radius:9px">
+      ${rosterHtml}
+      <button class="btn btn-ghost" style="width:100%;font-size:12px;margin-top:4px" onclick="renderTournamentActions('${key}')">← Back</button>
+    </div>`;
+}
+
+function gv(id){
+  // When 4-player mode is on, read p3/p4 from standalone cards
+  if(fourPlayer && id==='p3-name') id='p3-ind-name';
+  if(fourPlayer && id==='p4-name') id='p4-ind-name';
+  if(fourPlayer && id==='p3-hcp')  id='p3-ind-hcp';
+  if(fourPlayer && id==='p4-hcp')  id='p4-ind-hcp';
+  return(document.getElementById(id)?.value||'').trim();
+}
+function gn(id){
+  if(fourPlayer && id==='p3-hcp') id='p3-ind-hcp';
+  if(fourPlayer && id==='p4-hcp') id='p4-ind-hcp';
+  return Math.round(parseFloat(document.getElementById(id)?.value)||0);
+}
+
+// ═══════════════════════════════════════════
+// COURSE PARS
+// ═══════════════════════════════════════════
+function buildParGrids() {
+  ['front','back'].forEach(nine=>{
+    const el=document.getElementById('par-grid-'+nine); el.innerHTML='';
+    const start=nine==='front'?1:10;
+    for(let i=start;i<start+9;i++){
+      const c=document.createElement('div'); c.className='par-hole-cell';
+      c.innerHTML=`<div class="par-hole-num">${i}</div>
+        <input class="par-input" id="par-h${i}" type="number" min="3" max="6"
+          placeholder="${coursePars[i]}"
+          onfocus="this.select()"
+          oninput="onParInput(${i},this.value)"
+          onchange="onParInput(${i},this.value)"
+          onblur="onParBlur(${i},this.value)"/>`;
+      el.appendChild(c);
+    }
+  });
+  updateParTotals(); renderSavedCourses();
+  buildSIGrids();    // build SI grids immediately after par grids
+  buildMatchplayIndexDisplay(); // read-only matchplay index grid
+  updateSIDisplay(); // show correct block for current mode
+}
+
+/** Build read-only matchplay index display grids */
+function buildMatchplayIndexDisplay(){
+  ['front','back'].forEach(nine=>{
+    const elId = 'si-matchplay-grid-' + nine;
+    const el = document.getElementById(elId); if(!el) return;
+    el.innerHTML='';
+    const start = nine==='front' ? 1 : 10;
+    for(let i=start; i<start+9; i++){
+      const cell = document.createElement('div');
+      cell.className = 'par-hole-cell';
+      cell.innerHTML = `<div class="par-hole-num">${i}</div>
+        <div style="width:100%;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:7px;color:var(--gold);font-size:16px;font-weight:700;padding:8px 2px;text-align:center;font-family:'DM Sans',sans-serif">${DEFAULT_SI1[i]}</div>`;
+      el.appendChild(cell);
+    }
+  });
+}
+
+function showAddCourse(){
+  document.getElementById('course-edit-form').style.display='block';
+  document.getElementById('add-course-btn-wrap').style.display='none';
+  // Clear name for new entry
+  const nameEl=document.getElementById('course-name');
+  if(nameEl) nameEl.value='';
+}
+function hideAddCourse(){
+  document.getElementById('course-edit-form').style.display='none';
+  document.getElementById('add-course-btn-wrap').style.display='block';
+  const actionsEl=document.getElementById('course-actions');
+  if(actionsEl) actionsEl.style.display='none';
+  // Clear course select back to blank
+  const sel=document.getElementById('course-select');
+  if(sel) sel.value='';
+}
+
+function buildSIGrids() {
+  ['front','back'].forEach(nine=>{
+    const el=document.getElementById('si-grid-'+nine); el.innerHTML='';
+    const start=nine==='front'?1:10;
+    for(let i=start;i<start+9;i++){
+      const cell=document.createElement('div'); cell.className='par-hole-cell';
+      const si2ph = courseSI2[i]!=null ? courseSI2[i] : '—';
+      const si3ph = courseSI3[i]!=null ? courseSI3[i] : '—';
+      cell.innerHTML=`<div class="par-hole-num">${i}</div>
+        <input class="par-input si-input" id="si1-h${i}" type="number" min="1" max="18"
+          placeholder="${courseSI1[i]}"
+          onfocus="this.select()"
+          oninput="onSIInput(1,${i},this.value)"
+          onchange="onSIInput(1,${i},this.value)"
+          onblur="onSIBlur(1,${i},this.value)"/>
+        <input class="par-input si2-input" id="si2-h${i}" type="number" min="19" max="36"
+          placeholder="${si2ph}"
+          onfocus="this.select()"
+          oninput="onSIInput(2,${i},this.value)"
+          onchange="onSIInput(2,${i},this.value)"
+          onblur="onSIBlur(2,${i},this.value)"/>
+        <input class="par-input si3-input" id="si3-h${i}" type="number" min="37" max="54"
+          placeholder="${si3ph}"
+          onfocus="this.select()"
+          oninput="onSIInput(3,${i},this.value)"
+          onchange="onSIInput(3,${i},this.value)"
+          onblur="onSIBlur(3,${i},this.value)"/>`;
+      el.appendChild(cell);
+    }
+  });
+  validateSIDuplicates();
+  validateSIDuplicates2();
+  validateSIDuplicates3();
+}
+
+function onSIInput(pass, h, v) {
+  const x = parseInt(v);
+  if (pass === 1 && x >= 1 && x <= 18) {
+    courseSI1[h] = x;
+    const el = document.getElementById('si1-h' + h);
+    if (el) el.placeholder = x;
+    validateSIDuplicates();
+  } else if (pass === 2 && x >= 19 && x <= 36) {
+    courseSI2[h] = x;
+    const el = document.getElementById('si2-h' + h);
+    if (el) el.placeholder = x;
+    validateSIDuplicates2();
+  } else if (pass === 3 && x >= 37 && x <= 54) {
+    courseSI3[h] = x;
+    const el = document.getElementById('si3-h' + h);
+    if (el) el.placeholder = x;
+    validateSIDuplicates3();
+  }
+}
+function onSIBlur(pass, h, v) {
+  const x = parseInt(v);
+  if (pass === 1) {
+    const el = document.getElementById('si1-h' + h);
+    if (!el) return;
+    if (isNaN(x) || x < 1 || x > 18) { el.value = ''; el.placeholder = courseSI1[h] || DEFAULT_SI1[h]; }
+    validateSIDuplicates();
+  } else if (pass === 2) {
+    const el = document.getElementById('si2-h' + h);
+    if (!el) return;
+    if (isNaN(x) || x < 19 || x > 36) { el.value = ''; courseSI2[h] = null; el.placeholder = '—'; }
+    validateSIDuplicates2();
+  } else {
+    const el = document.getElementById('si3-h' + h);
+    if (!el) return;
+    if (isNaN(x) || x < 37 || x > 54) { el.value = ''; courseSI3[h] = null; el.placeholder = '—'; }
+    validateSIDuplicates3();
+  }
+}
+function validateSIDuplicates() {
+  const counts = {};
+  for (let i = 1; i <= 18; i++) { const v=courseSI1[i]; if(v) counts[v]=(counts[v]||0)+1; }
+  for (let i = 1; i <= 18; i++) {
+    const el = document.getElementById('si1-h' + i);
+    if (el) el.classList.toggle('si-dupe', counts[courseSI1[i]] > 1);
+  }
+}
+function validateSIDuplicates2() {
+  const counts = {};
+  for (let i = 1; i <= 18; i++) { const v=courseSI2[i]; if(v!=null) counts[v]=(counts[v]||0)+1; }
+  for (let i = 1; i <= 18; i++) {
+    const el = document.getElementById('si2-h' + i);
+    if (el) el.classList.toggle('si-dupe', courseSI2[i]!=null && counts[courseSI2[i]] > 1);
+  }
+}
+function validateSIDuplicates3() {
+  const counts = {};
+  for (let i = 1; i <= 18; i++) { const v=courseSI3[i]; if(v!=null) counts[v]=(counts[v]||0)+1; }
+  for (let i = 1; i <= 18; i++) {
+    const el = document.getElementById('si3-h' + i);
+    if (el) el.classList.toggle('si-dupe', courseSI3[i]!=null && counts[courseSI3[i]] > 1);
+  }
+}
+function setDefaultSI() {
+  Object.assign(courseSI1, DEFAULT_SI1);
+  for (let i = 1; i <= 18; i++) {
+    const e = document.getElementById('si1-h' + i);
+    if (e) { e.value = ''; e.placeholder = DEFAULT_SI1[i]; e.classList.remove('si-dupe'); }
+  }
+  validateSIDuplicates();
+}
+function clearAllSI() {
+  Object.assign(courseSI1, DEFAULT_SI1);
+  Object.assign(courseSI2, DEFAULT_SI2);
+  for (let i = 1; i <= 18; i++) {
+    const e1 = document.getElementById('si1-h' + i);
+    if (e1) { e1.value = ''; e1.placeholder = DEFAULT_SI1[i]; e1.classList.remove('si-dupe'); }
+    const e2 = document.getElementById('si2-h' + i);
+    if (e2) { e2.value = ''; e2.placeholder = '—'; e2.classList.remove('si-dupe'); }
+    const e3 = document.getElementById('si3-h' + i);
+    if (e3) { e3.value = ''; e3.placeholder = '—'; e3.classList.remove('si-dupe'); }
+  }
+  validateSIDuplicates();
+}
+
+function onParInput(h,v){
+  const x=parseInt(v);
+  if(x>=3&&x<=6){
+    coursePars[h]=x;
+    // Update placeholder so if cleared it shows the last valid value
+    const el=document.getElementById('par-h'+h);
+    if(el) el.placeholder=x;
+    updateParTotals();
+  }
+}
+function onParBlur(h,v){
+  // If user leaves the box empty, restore display of current par as placeholder
+  const el=document.getElementById('par-h'+h);
+  if(!el) return;
+  if(v===''||v==null||isNaN(parseInt(v))){
+    el.placeholder=coursePars[h]||4;
+    el.value=''; // keep blank — coursePars still holds the last valid value
+  }
+}
+function updateParTotals(){
+  const f=[1,2,3,4,5,6,7,8,9].reduce((a,h)=>a+(coursePars[h]||4),0);
+  const b=[10,11,12,13,14,15,16,17,18].reduce((a,h)=>a+(coursePars[h]||4),0);
+  document.getElementById('par-total-display').textContent=f+b;
+  document.getElementById('par-nine-totals').textContent=`Front: ${f} · Back: ${b}`;
+}
+function setAllPars(p){
+  for(let i=1;i<=18;i++){
+    coursePars[i]=p;
+    const e=document.getElementById('par-h'+i);
+    if(e){e.value='';e.placeholder=p;}
+  }
+  updateParTotals();
+}
+function setStdPars(t){
+  const L=t===72?STD72:STD70;
+  for(let i=1;i<=18;i++){
+    coursePars[i]=L[i];
+    const e=document.getElementById('par-h'+i);
+    if(e){e.value='';e.placeholder=L[i];}
+  }
+  updateParTotals();
+}
+function saveCourse(){
+  const name=gv('course-name'); if(!name){alert('Enter a course name first.');return;}
+  // Don't allow overwriting preset courses by name
+  const existingPreset = PRESET_COURSES.find(c=>c.name===name);
+  if(existingPreset){ alert(`"${name}" is a built-in course and cannot be overwritten.\nRename your course to save it separately.`); return; }
+  const rec={name,pars:{...coursePars},si1:{...courseSI1},si2:{...courseSI2},si3:{...courseSI3}};
+  const idx=savedCourses.findIndex(c=>c.name===name && !c.preset);
+  if(idx>=0){if(!confirm(`Update "${name}"?`))return; savedCourses[idx]=rec;}
+  else savedCourses.push(rec);
+  // Persist only user courses (presets are always re-injected at startup)
+  persistUserCourses();
+  renderCourseDropdown();
+  checkCanStart();
+}
+function loadCourse(idx){
+  const c=savedCourses[idx]; if(!c)return;
+  // Load data into state (used when game starts)
+  coursePars={...c.pars};
+  if(c.si1) courseSI1={...c.si1}; else if(c.si) courseSI1={...c.si};
+  if(c.si2) courseSI2={...c.si2}; else courseSI2={...DEFAULT_SI2};
+  if(c.si3) courseSI3={...c.si3}; else courseSI3={...DEFAULT_SI3};
+  document.getElementById('course-name').value=c.name;
+  document.getElementById('course-select').value=String(idx);
+  // Always hide the edit form when a course is freshly selected —
+  // user must explicitly tap View or Edit to open it
+  document.getElementById('course-edit-form').style.display='none';
+  document.getElementById('add-course-btn-wrap').style.display='none';
+  // Show the action bar (View / Edit / Delete as appropriate)
+  renderCourseActions(idx);
+  updateSIDisplay();
+  checkCanStart();
+}
+
+/** Show edit/delete action buttons for the selected course index */
+function renderCourseActions(idx){
+  const c = savedCourses[idx];
+  const actionsEl = document.getElementById('course-actions');
+  const addBtnWrap = document.getElementById('add-course-btn-wrap');
+  const editForm = document.getElementById('course-edit-form');
+  if(!c || !actionsEl) return;
+
+  addBtnWrap.style.display = 'none';
+  editForm.style.display = 'none';
+  actionsEl.style.display = 'flex';
+
+  if(c.preset){
+    actionsEl.innerHTML = `
+      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#555;display:flex;align-items:center;justify-content:space-between">
+        <span>⛳ Built-in course</span>
+        <span style="display:flex;gap:8px">
+          <button class="course-action-btn" id="view-toggle-btn" onclick="toggleViewCourse(${idx})" style="color:var(--teal)">👁 View</button>
+          <button class="course-action-btn" onclick="editCourse(${idx})" style="color:var(--gold)">✏️ Edit as copy</button>
+        </span>
+      </div>`;
+  } else {
+    actionsEl.innerHTML = `
+      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#aaa;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-weight:600;color:#ccc">${c.name}</span>
+        <span style="display:flex;gap:8px">
+          <button class="course-action-btn" id="view-toggle-btn" onclick="toggleViewCourse(${idx})" style="color:var(--teal)">👁 View</button>
+          <button class="course-action-btn" onclick="editCourse(${idx})" style="color:var(--teal)">✏️ Edit</button>
+          <button class="course-action-btn" onclick="deleteCourseSelected()" style="color:var(--red)">🗑 Delete</button>
+        </span>
+      </div>`;
+  }
+}
+
+/** Toggle the course data panel open/closed for the View button */
+function toggleViewCourse(idx){
+  const form = document.getElementById('course-edit-form');
+  const btn  = document.getElementById('view-toggle-btn');
+  const isOpen = form.style.display === 'block';
+  if(isOpen){
+    form.style.display = 'none';
+    if(btn) btn.textContent = '👁 View';
+  } else {
+    loadCourseDataIntoForm(idx);
+    form.style.display = 'block';
+    if(btn) btn.textContent = '🙈 Hide';
+    updateSIDisplay();
+  }
+}
+
+/** Shared helper — loads course data into form fields without showing/hiding the form */
+function loadCourseDataIntoForm(idx){
+  const c = savedCourses[idx]; if(!c) return;
+  coursePars={...c.pars};
+  if(c.si1) courseSI1={...c.si1}; else if(c.si) courseSI1={...c.si};
+  if(c.si2) courseSI2={...c.si2}; else courseSI2={...DEFAULT_SI2};
+  if(c.si3) courseSI3={...c.si3}; else courseSI3={...DEFAULT_SI3};
+  const nameEl=document.getElementById('course-name');
+  if(nameEl) nameEl.value=c.name;
+  for(let i=1;i<=18;i++){
+    const ep=document.getElementById('par-h'+i); if(ep){ep.value='';ep.placeholder=coursePars[i]||4;}
+    const es1=document.getElementById('si1-h'+i); if(es1){es1.value='';es1.placeholder=courseSI1[i]||DEFAULT_SI1[i];}
+    const es2=document.getElementById('si2-h'+i); if(es2){es2.value='';es2.placeholder=courseSI2[i]!=null?courseSI2[i]:'';}
+    const es3=document.getElementById('si3-h'+i); if(es3){es3.value='';es3.placeholder=courseSI3[i]!=null?courseSI3[i]:'';}
+  }
+  updateParTotals(); validateSIDuplicates(); validateSIDuplicates2();
+}
+
+function viewCourse(idx){
+  loadCourseDataIntoForm(idx);
+  document.getElementById('course-edit-form').style.display='block';
+  document.getElementById('add-course-btn-wrap').style.display='none';
+  updateSIDisplay();
+}
+
+function editCourse(idx){
+  const c = savedCourses[idx]; if(!c) return;
+  loadCourseDataIntoForm(idx);
+  // For presets, clear the name so user must rename before saving (saves as a new copy)
+  if(c.preset){
+    const nameEl=document.getElementById('course-name');
+    if(nameEl){
+      nameEl.value='';
+      nameEl.placeholder=`e.g. ${c.name} (Custom)`;
+    }
+  }
+  document.getElementById('course-edit-form').style.display='block';
+  document.getElementById('add-course-btn-wrap').style.display='none';
+  updateSIDisplay();
+}
+function onCourseSelect(val){
+  if(val===''){
+    // Deselected — hide actions, show add button
+    const actionsEl=document.getElementById('course-actions');
+    if(actionsEl) actionsEl.style.display='none';
+    document.getElementById('course-edit-form').style.display='none';
+    document.getElementById('add-course-btn-wrap').style.display='block';
+    return;
+  }
+  loadCourse(parseInt(val));
+}
+function deleteCourseSelected(){
+  const sel=document.getElementById('course-select');
+  const idx=parseInt(sel.value);
+  if(isNaN(idx)) return;
+  const c=savedCourses[idx];
+  if(!c || c.preset){ alert('Built-in courses cannot be deleted.'); return; }
+  if(!confirm(`Delete "${c.name}"?
+This cannot be undone.`)) return;
+  savedCourses.splice(idx,1);
+  persistUserCourses();
+  renderCourseDropdown();
+  // Reset UI to empty state
+  sel.value='';
+  const actionsEl=document.getElementById('course-actions');
+  if(actionsEl) actionsEl.style.display='none';
+  document.getElementById('course-edit-form').style.display='none';
+  document.getElementById('add-course-btn-wrap').style.display='block';
+}
+/** Save only non-preset courses to localStorage */
+function persistUserCourses(){
+  try{ localStorage.setItem(LS_COURSES, JSON.stringify(savedCourses.filter(c=>!c.preset))); }catch(e){}
+}
+function showClearConfirm(){
+  document.getElementById('clear-courses-step1').style.display='none';
+  document.getElementById('clear-courses-step2').style.display='block';
+}
+function hideClearConfirm(){
+  document.getElementById('clear-courses-step2').style.display='none';
+  document.getElementById('clear-courses-step1').style.display='block';
+}
+function confirmClearSavedCourses(){
+  // Wipe localStorage entirely then rebuild from presets only
+  try{ localStorage.removeItem(LS_COURSES); }catch(e){}
+  savedCourses = [...PRESET_COURSES];
+  // Reset course UI
+  const sel=document.getElementById('course-select');
+  if(sel) sel.value='';
+  const actionsEl=document.getElementById('course-actions');
+  if(actionsEl) actionsEl.style.display='none';
+  const editForm=document.getElementById('course-edit-form');
+  if(editForm) editForm.style.display='none';
+  const addBtn=document.getElementById('add-course-btn-wrap');
+  if(addBtn) addBtn.style.display='block';
+  hideClearConfirm();
+  renderCourseDropdown();
+  // Swap button text briefly to confirm success
+  const s1=document.getElementById('clear-courses-step1');
+  if(s1) s1.innerHTML='<div style="padding:10px 0;font-size:13px;color:var(--teal);font-weight:700;text-align:center">✓ Saved courses cleared</div>';
+  setTimeout(()=>{
+    if(s1) s1.innerHTML='<button class="btn btn-ghost" style="width:100%;font-size:12px;color:#ff5a5a;border-color:#3a1a1a" onclick="showClearConfirm()">🗑 Clear All Saved Courses</button>';
+  },2500);
+}
+function renderCourseDropdown(){
+  const sel=document.getElementById('course-select');
+  if(!sel) return;
+  const currentName=savedCourses[parseInt(sel.value)]?.name||'';
+  while(sel.options.length > 1) sel.remove(1);
+  // Sort alphabetically by name, preserving real index for value
+  const sorted=[...savedCourses.map((c,i)=>({c,i}))].sort((a,b)=>a.c.name.localeCompare(b.c.name));
+  sorted.forEach(({c,i})=>{
+    const opt=document.createElement('option');
+    opt.value=String(i); opt.textContent=c.name;
+    sel.appendChild(opt);
+  });
+  // Restore selection by name (index may have shifted after sort)
+  if(currentName){
+    const match=[...sel.options].find(o=>o.textContent===currentName);
+    if(match) sel.value=match.value;
+  }
+}
+// Keep old renderSavedCourses as no-op (replaced by dropdown)
+function renderSavedCourses(){ renderCourseDropdown(); }
+
+// ═══════════════════════════════════════════
+// AUTO-SAVE & RESUME
+// ═══════════════════════════════════════════
+
+/** Write current game + activeHole to localStorage after every score change */
+function autosave(){
+  if(!game) return;
+  try{
+    localStorage.setItem(LS_AUTOSAVE, JSON.stringify({game, activeHole, savedAt: new Date().toISOString()}));
+  }catch(e){}
+}
+
+/** Clear the autosave slot (called on finish or discard) */
+function clearAutosave(){
+  try{localStorage.removeItem(LS_AUTOSAVE);}catch(e){}
+}
+
+/** On app open: check for a saved in-progress game and show the resume modal */
+function checkForSavedGame(){
+  let saved;
+  try{ saved=JSON.parse(localStorage.getItem(LS_AUTOSAVE)); }catch(e){}
+  if(!saved || !saved.game) return; // nothing to resume
+
+  const g=saved.game;
+  const {p1,p2,p3,p4}=g.players;
+  const played=g.holes.filter(h=>h.p1!=null).length;
+  const pct=Math.round((played/18)*100);
+  const savedAt=new Date(saved.savedAt).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const modeLabel=(g.mode==='matchplay'?'🏆 Matchplay':g.mode==='stableford'?'⭐ Stableford':'✏️ Stroke Play')+(g.skins?' + 💰 Skins':'');
+  const teamLabel=g.team?` · 4BBB Teams`:'';
+  const courseLabel=g.courseName?`<br>📍 ${g.courseName}`:'';
+  const names=g.team
+    ?`${p1.name} & ${p3.name} vs ${p2.name} & ${p4.name}`
+    :`${p1.name} vs ${p2.name}`;
+  const hcpLine=g.team
+    ?`Hcp: ${p1.name} ${p1.hcp} · ${p3.name} ${p3.hcp} | ${p2.name} ${p2.hcp} · ${p4.name} ${p4.hcp}`
+    :`Hcp: ${p1.name} ${p1.hcp} | ${p2.name} ${p2.hcp}`;
+
+  // Find the next unscored hole to resume on
+  const nextHole = g.holes.find(h=>h.p1==null);
+  const resumeHoleNum = nextHole ? nextHole.hole : 18;
+
+  document.getElementById('resume-game-info').innerHTML=`
+    <div class="modal-game-title">${names}</div>
+    <div class="modal-game-meta">
+      ${modeLabel}${teamLabel}${courseLabel}<br>
+      ${hcpLine}<br>
+      <span style="color:#555">Last saved: ${savedAt}</span>
+    </div>
+    <div class="modal-game-progress">
+      <div class="modal-progress-label">${played} of 18 holes completed</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--teal)">Will resume at Hole ${resumeHoleNum}</div>
+  `;
+
+  document.getElementById('resume-modal').classList.remove('hidden');
+}
+
+/** User chose to continue the saved game */
+function resumeGame(){
+  let saved;
+  try{ saved=JSON.parse(localStorage.getItem(LS_AUTOSAVE)); }catch(e){}
+  if(!saved||!saved.game) return;
+  game=saved.game;
+  // Resume on the first unscored hole, or hole 18 if all done
+  const nextHole=game.holes.find(h=>h.p1==null);
+  activeHole=nextHole?nextHole.hole:18;
+  document.getElementById('resume-modal').classList.add('hidden');
+  showTab('play');
+}
+
+/** User chose to discard and start fresh */
+function discardAndNew(){
+  clearAutosave();
+  document.getElementById('resume-modal').classList.add('hidden');
+  showTab('setup');
+}
+function startGame(){
+  // Matchplay requires exactly 2 or 4 players
+  if(gameMode==='matchplay' && fourPlayer){
+    const p3=gv('p3-name'), p4=gv('p4-name');
+    const count = p4 ? 4 : p3 ? 3 : 2;
+    if(count===3){
+      const warn=document.getElementById('start-warn');
+      warn.style.display='block';
+      warn.style.background='rgba(226,184,74,0.10)';
+      warn.style.color='var(--gold)';
+      warn.style.border='1px solid rgba(226,184,74,0.3)';
+      warn.textContent='⚠️ Matchplay requires 2 or 4 players — add or remove an additional player, or change game mode to Stroke Play or Stableford.';
+      return;
+    }
+  }
+  clearAutosave();
+  const _p3name=(teamPlay||fourPlayer)?gv('p3-name'):'';
+  const _p4name=(teamPlay||fourPlayer)?gv('p4-name'):'';
+  const playerCount=teamPlay?4:fourPlayer?(_p4name?4:_p3name?3:2):2;
+  const players={
+    p1:{name:gv('p1-name'),hcp:gn('p1-hcp')},
+    p2:{name:gv('p2-name'),hcp:gn('p2-hcp')},
+    p3:_p3name?{name:_p3name,hcp:gn('p3-hcp')}:{name:'P3',hcp:0},
+    p4:_p4name?{name:_p4name,hcp:gn('p4-hcp')}:{name:'P4',hcp:0},
+  };
+  // Skins extra players (optional 3rd and 4th individual players)
+  // Skins players = whoever is in the game (determined by playerCount)
+  const skinsPlayers=[];
+  if(skinsPlay){
+    skinsPlayers.push({name:gv('p1-name'),hcp:gn('p1-hcp')});
+    skinsPlayers.push({name:gv('p2-name'),hcp:gn('p2-hcp')});
+    if(playerCount>=3) skinsPlayers.push({name:_p3name,hcp:gn('p3-hcp')});
+    if(playerCount>=4) skinsPlayers.push({name:_p4name,hcp:gn('p4-hcp')});
+  }
+  // Snapshot both par AND si into each hole so the game is self-contained
+  const _tCtx = activeTournament ? {
+    key: activeTournament,
+    label: TOURNAMENT[activeTournament].label,
+    type:  TOURNAMENT[activeTournament].type,
+    team1name: TOURNAMENT[activeTournament].type==='teams' ? TOURNAMENT[activeTournament].team1.name : null,
+    team2name: TOURNAMENT[activeTournament].type==='teams' ? TOURNAMENT[activeTournament].team2.name : null,
+  } : null;
+  game={mode:gameMode,team:teamPlay,fourPlayer:fourPlayer,playerCount,skins:skinsPlay,skinsPlayers,courseName:gv('course-name'),tournament:_tCtx,players,
+    holes:Array.from({length:18},(_,i)=>({
+      hole:i+1,
+      par:coursePars[i+1]||4,
+      si1:courseSI1[i+1]||DEFAULT_SI1[i+1]||i+1,
+      si2:courseSI2[i+1],  // may be null
+      si3:courseSI3[i+1],  // may be null
+      p1:null,p2:null,p3:null,p4:null
+    })),
+    startTime:new Date().toISOString(),id:Date.now()};
+  activeHole=1;
+  autosave();
+  showTab('play');
+}
+
+// ═══════════════════════════════════════════
+// RENDER PLAY
+// ═══════════════════════════════════════════
+function toggleScorecard(){
+  const body=document.getElementById('sc-body');
+  const icon=document.getElementById('sc-toggle-icon');
+  if(!body||!icon) return;
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  icon.style.transform=open?'':' rotate(180deg)';
+}
+function renderPlay(){
+  if(!game){
+    document.getElementById('play-empty').style.display='block';
+    document.getElementById('play-content').style.display='none';
+    document.getElementById('finish-bar').classList.remove('visible'); return;
+  }
+  document.getElementById('play-empty').style.display='none';
+  document.getElementById('play-content').style.display='block';
+  const rawResults=getHoleResults();
+  const results=effectiveResults(rawResults); // freeze at closing hole
+  renderBanner(results,rawResults); renderDots(results,rawResults); renderHoleEntry(); renderScorecard(results,rawResults);
+  // Show finish bar if: all 18 played, OR matchplay game is closed (won)
+  const _mpStatus=game.mode==='matchplay'?matchStatus(results):null;
+  const _gameWon=_mpStatus&&_mpStatus.closed;
+  // For stroke/stableford: all 18 holes need ALL active players scored, not just p1
+  const _pc=game.playerCount||2;
+  const _activeFields=['p1','p2',...(_pc>=3?['p3']:[]),...(_pc>=4?['p4']:[])];
+  const _all18 = game.mode==='matchplay'
+    ? game.holes.filter(h=>h.p1!=null).length===18
+    : game.holes.every(h=>_activeFields.every(f=>h[f]!=null));
+  const _showFinish=_gameWon||_all18;
+  document.getElementById('finish-bar').classList.toggle('visible',_showFinish);
+  if(_showFinish) renderFinishBar(_mpStatus,_all18);
+}
+
+// ── Banner ─────────────────────────────────
+function renderBanner(results, rawResults){
+  const {p1,p2,p3,p4}=game.players;
+  const el=document.getElementById('score-banner');
+  const cn=game.courseName?game.courseName.toUpperCase():'';
+  const _modeTxt=game.mode==='matchplay'?'MATCHPLAY':game.mode==='stableford'?'STABLEFORD':'STROKE PLAY';
+  const _extraTxt=game.skins?' + 💰 SKINS':game.team?' · 4BBB':game.fourPlayer?' · 4 PLAYERS':'';
+  const cnHtml=`<div style="font-size:10px;color:#555;letter-spacing:1.5px;font-weight:700;text-align:center;margin-bottom:2px">${_modeTxt}${_extraTxt}</div>${cn?`<div class="score-banner-title">${cn}</div>`:''}`; 
+
+  if(game.mode==='matchplay' && !game.skins){
+    const st=matchStatus(results),played=results.filter(r=>r!=null).length;
+    const p1w=results.filter(r=>r===1).length,p2w=results.filter(r=>r===-1).length,halv=results.filter(r=>r===0).length;
+    let colCls=st.winner===1?'status-p1':st.winner===2?'status-p2':'status-draw';
+    let ldr='';
+    if(st.winner===1)ldr=`<span style="color:var(--teal)">${game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name}</span> wins `;
+    else if(st.winner===2)ldr=`<span style="color:var(--red)">${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name}</span> wins `;
+    else if(st.leading===1)ldr=`<span style="color:var(--teal)">${game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name}</span> leads `;
+    else if(st.leading===2)ldr=`<span style="color:var(--red)">${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name}</span> leads `;
+    // Posterity notice: show if holes were played after the match was closed
+    const posterityHoles = st.closed && rawResults ? rawResults.slice(st.closingHole||0).filter(r=>r!=null).length : 0;
+    const posterityNote = posterityHoles>0
+      ? `<div style="margin-top:6px;font-size:10px;color:#555;letter-spacing:.5px">⊘ ${posterityHoles} hole${posterityHoles>1?'s':''} played after match closed — recorded for posterity only</div>`
+      : '';
+    el.innerHTML=`${cnHtml}<div class="score-banner-title">MATCHPLAY STATUS</div>
+      <div class="match-status ${colCls}">${ldr}${st.label}</div>
+      <div class="score-sub">${st.played||played}/18 holes · W:${st.p1w??p1w} H:${halv} W:${st.p2w??p2w}</div>
+      ${posterityNote}`;
+
+  } else if(game.mode==='stableford' && !game.skins){
+    let t1=0,t2=0,t3=0,t4=0;
+    game.holes.forEach(h=>{
+      const c1=stablefordCalc(h.p1,h.par,p1.hcp,gsi1(h),gsi2(h),gsi3(h));
+      const c2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
+      if(c1)t1+=c1.points; if(c2)t2+=c2.points;
+      if(game.team||game.fourPlayer){
+        const c3=stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h));
+        const c4=stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h));
+        if(c3)t3+=c3.points; if(c4)t4+=c4.points;
+      }
+    });
+    const _colors4=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
+    if(game.fourPlayer){
+      const _fps=[{n:p1.name,t:t1},{n:p2.name,t:t2},{n:p3.name,t:t3},{n:p4.name,t:t4}];
+      el.innerHTML=`${cnHtml}<div class="score-banner-title">STABLEFORD</div>
+        <div class="stroke-scores" style="flex-wrap:wrap;gap:6px">
+          ${_fps.map((p,i)=>`<div class="stroke-player">
+            <div class="stroke-name" style="color:${_colors4[i]}">${p.n}</div>
+            <div class="stroke-total" style="color:${_colors4[i]}">${p.t}</div>
+            <div class="stroke-sub">pts</div>
+          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#333">·</div>')}
+        </div>`;
+    } else {
+      el.innerHTML=`${cnHtml}<div class="score-banner-title">STABLEFORD</div>
+        <div class="stroke-scores">
+          <div class="stroke-player">
+            <div class="stroke-name" style="color:var(--teal)">${game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name}</div>
+            <div class="stroke-total" style="color:var(--teal)">${game.team?t1+t3:t1}</div>
+            ${game.team?`<div class="stroke-sub">${p1.name}: ${t1} · ${p3.name}: ${t3}</div>`:''}
+            <div class="stroke-sub">points</div>
+          </div>
+          <div class="stroke-vs">vs</div>
+          <div class="stroke-player">
+            <div class="stroke-name" style="color:var(--red)">${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name}</div>
+            <div class="stroke-total" style="color:var(--red)">${game.team?t2+t4:t2}</div>
+            ${game.team?`<div class="stroke-sub">${p2.name}: ${t2} · ${p4.name}: ${t4}</div>`:''}
+            <div class="stroke-sub">points</div>
+          </div>
+        </div>`;
+    }
+
+  } else if(!game.skins){
+    const _colors4b=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
+    const _pc=game.playerCount||2;
+    const _fps4=[p1,p2,...(_pc>=3?[p3]:[]),...(_pc>=4?[p4]:[])];
+    const _fields4=['p1','p2','p3','p4'];
+    let _gtot=[0,0,0,0],_ntot=[0,0,0,0],_par=[0,0,0,0];
+    game.holes.forEach(h=>{
+      const si=gsi1(h),si2=gsi2(h),si3=gsi3(h);
+      _fps4.forEach((p,i)=>{
+        const g=h[_fields4[i]];
+        if(g!=null){_gtot[i]+=g;_ntot[i]+=g-strokesOnHole(p.hcp,0,si,si2,si3);_par[i]+=h.par;}
+      });
+    });
+    if(game.fourPlayer){
+      el.innerHTML=`${cnHtml}<div class="score-banner-title">STROKE PLAY</div>
+        <div class="stroke-scores" style="flex-wrap:wrap;gap:6px">
+          ${_fps4.map((p,i)=>`<div class="stroke-player">
+            <div class="stroke-name" style="color:${_colors4b[i]}">${p.name}</div>
+            <div class="stroke-total">${_gtot[i]||'—'}</div>
+            <div class="stroke-sub">${_gtot[i]?((_gtot[i]-_par[i]>=0?'+':'')+(_gtot[i]-_par[i])+' to par'):'—'}</div>
+            <div class="stroke-pts">Net: ${_gtot[i]?_ntot[i]:'—'}</div>
+          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#333">·</div>')}
+        </div>`;
+    } else {
+      el.innerHTML=`${cnHtml}<div class="score-banner-title">STROKE PLAY</div>
+        <div class="stroke-scores">
+          <div class="stroke-player">
+            <div class="stroke-name" style="color:var(--teal)">${p1.name}</div>
+            <div class="stroke-total">${_gtot[0]||'—'}</div>
+            <div class="stroke-sub">${_gtot[0]?((_gtot[0]-_par[0]>=0?'+':'')+(_gtot[0]-_par[0])+' to par'):'—'}</div>
+            <div class="stroke-pts">Net: ${_gtot[0]?_ntot[0]:'—'} (Hcp ${p1.hcp})</div>
+          </div>
+          <div class="stroke-vs">vs</div>
+          <div class="stroke-player">
+            <div class="stroke-name" style="color:var(--red)">${p2.name}</div>
+            <div class="stroke-total">${_gtot[1]||'—'}</div>
+            <div class="stroke-sub">${_gtot[1]?((_gtot[1]-_par[1]>=0?'+':'')+(_gtot[1]-_par[1])+' to par'):'—'}</div>
+            <div class="stroke-pts">Net: ${_gtot[1]?_ntot[1]:'—'} (Hcp ${p2.hcp})</div>
+          </div>
+        </div>`;
+    }
+  }
+
+  // Skins banner — replaces mode banner entirely when skins is on
+  if (game.skins && game.skinsPlayers && game.skinsPlayers.length >= 2) {
+    const sk = getSkinsResults();
+    const colors = ['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
+    const totals = {};
+    game.skinsPlayers.forEach(p => totals[p.name] = 0);
+    if (sk) sk.forEach(r => {
+      if(r.winner>=0 && r.winnerName) totals[r.winnerName] = (totals[r.winnerName]||0) + r.skinsWon;
+      if(r.carryoverDistribution) r.distribution.forEach((d,i) => { if(d>0) totals[r.players[i]] = (totals[r.players[i]]||0) + d; });
+    });
+    let currentCarry = 0;
+    const _hasDistrib = sk && sk.some(r=>r.carryoverDistribution);
+    if (sk && !_hasDistrib) {
+      for(let i=sk.length-1;i>=0;i--){
+        if(sk[i].winner===-1 && sk[i].scores.every(s=>s!=null)) currentCarry+=1;
+        else break;
+      }
+    }
+    const holesPlayed = sk ? sk.filter(r=>r.scores[0]!=null).length : 0;
+    const skRows = game.skinsPlayers.map((p,pi)=>
+      `<div class="stroke-player">
+        <div class="stroke-name" style="color:${colors[pi]}">${p.name}</div>
+        <div class="stroke-total" style="color:${colors[pi]}">${totals[p.name]||0}</div>
+        <div class="stroke-sub">skin${totals[p.name]!==1?'s':''}</div>
+      </div>`
+    ).join('<div class="stroke-vs" style="color:#333;font-size:11px">·</div>');
+    el.innerHTML=`${cnHtml}<div class="score-banner-title">💰 SKINS · ${game.mode.toUpperCase()}</div>
+      <div class="stroke-scores" style="flex-wrap:wrap;gap:6px">${skRows}</div>
+      <div class="score-sub" style="margin-top:6px">
+        ${holesPlayed}/18 holes played${currentCarry>0?` · ↗ ${currentCarry} skin${currentCarry>1?'s':''} carrying`:''}
+        ${_hasDistrib?(()=>{const dr=sk.find(r=>r.carryoverDistribution); return `<br><span style="color:var(--gold);font-size:11px;font-weight:600">⚖️ ${dr.totalLeft} unresolved skin${dr.totalLeft>1?'s':''} split: ${dr.perPlayer} each${dr.remainder>0?` + ${dr.remainder} bonus to ${dr.bonusName} (least skins in tied lead)`:''}</span>`;})():''}
+      </div>`;
+  }
+}
+
+// ── Hole dots ──────────────────────────────
+function renderDots(results, rawResults){
+  const el=document.getElementById('hole-dots'); el.innerHTML='';
+  const st = game.mode==='matchplay' ? matchStatus(results) : null;
+  const _skResults=(game.skins&&game.skinsPlayers&&game.skinsPlayers.length>=2)?getSkinsResults():null;
+  game.holes.forEach((h,i)=>{
+    const res=results[i], rawRes=rawResults?rawResults[i]:res, done=h.p1!=null;
+    const isPostMatch = st && st.closed && st.closingHole != null && (i+1) > st.closingHole;
+    let cls='hole-dot';
+    if(activeHole===h.hole) cls+=' active';
+    else if(isPostMatch && done) cls+=' done-posterity';
+    else if(done&&game.mode==='matchplay') cls+=res===1?' done-win':res===-1?' done-lose':' done-halve';
+    else if(done&&game.skins){
+      const _sk=getSkinsResults();
+      const _sr=_sk?_sk[i]:null;
+      // Color dot by whether this player (p1) won, lost, or tied
+      if(_sr&&_sr.winner>=0){
+        const _p1idx=game.skinsPlayers.findIndex(p=>p.name===game.players.p1.name);
+        if(_sr.winner===_p1idx) cls+=' done-win';
+        else cls+=' done-lose';
+      } else if(_sr&&_sr.winner===-1) cls+=' done-halve';
+      else cls+=' done-scored';
+    }
+    else if(done) cls+=' done-scored';
+    const btn=document.createElement('button');
+    btn.className=cls;
+    btn.textContent=h.hole;
+    if(isPostMatch && done) btn.title='Scored for posterity — does not affect match result';
+    btn.onclick=()=>{activeHole=h.hole;renderPlay();};
+    el.appendChild(btn);
+  });
+}
+
+// ── Hole entry card ────────────────────────
+function renderHoleEntry(){
+  const h=game.holes[activeHole-1];
+  const {p1,p2,p3,p4}=game.players;
+  const isMP=game.mode==='matchplay';
+  const si=isMP?msi(h):gsi1(h), si2h=isMP?null:gsi2(h), si3h=isMP?null:gsi3(h);
+  const isMatch=game.mode==='matchplay';
+  const isStab=game.mode==='stableford';
+
+  // Compute strokes for each player on this hole
+  // When skins matchplay is active, base = min hcp of ALL skins players (not just p1/p2)
+  let s1,s2,s3,s4,base;
+  if(isMatch&&game.skins&&game.skinsPlayers&&game.skinsPlayers.length>=2){
+    base=Math.min(...game.skinsPlayers.map(p=>p.hcp));
+    s1=strokesOnHole(p1.hcp,base,si,si2h,si3h); s2=strokesOnHole(p2.hcp,base,si,si2h,si3h); s3=0; s4=0;
+  } else if(isMatch&&!game.team){
+    base=Math.min(p1.hcp,p2.hcp);
+    s1=strokesOnHole(p1.hcp,base,si,si2h,si3h); s2=strokesOnHole(p2.hcp,base,si,si2h,si3h); s3=0; s4=0;
+  } else if(isMatch&&game.team){
+    base=Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp);
+    s1=strokesOnHole(p1.hcp,base,si,si2h,si3h); s2=strokesOnHole(p2.hcp,base,si,si2h,si3h);
+    s3=strokesOnHole(p3.hcp,base,si,si2h,si3h); s4=strokesOnHole(p4.hcp,base,si,si2h,si3h);
+  } else {
+    base=0;
+    s1=strokesOnHole(p1.hcp,0,si,si2h,si3h); s2=strokesOnHole(p2.hcp,0,si,si2h,si3h);
+    const _pc2=game.playerCount||2;
+    s3=(game.team||(game.fourPlayer&&_pc2>=3))?strokesOnHole(p3.hcp,0,si,si2h,si3h):0;
+    s4=(game.team||(game.fourPlayer&&_pc2>=4))?strokesOnHole(p4.hcp,0,si,si2h,si3h):0;
+  }
+
+  // Stableford calcs
+  const _pc_sb=game.playerCount||2;
+  const sb1=isStab?stablefordCalc(h.p1,h.par,p1.hcp,si,si2h,si3h):null;
+  const sb2=isStab?stablefordCalc(h.p2,h.par,p2.hcp,si,si2h,si3h):null;
+  const sb3=(isStab&&(game.team||(game.fourPlayer&&_pc_sb>=3)))?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
+  const sb4=(isStab&&(game.team||(game.fourPlayer&&_pc_sb>=4)))?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
+
+  // Stroke labels
+  const strokeLbl=(s)=>{ return s>0?`<span style="color:var(--teal);font-size:10px;font-weight:700">+${s} stroke${s>1?'s':''}</span>`:'<span style="color:#888;font-size:9px">no strokes</span>'; }
+
+  // Net score decoration helper (inline for hole entry — mirrors scorecard version)
+  const holeNetDeco=(net,par)=>{
+    if (net == null) return net;
+    const diff = net - par;
+    if (diff <= -3) return `⬤⬤ ${net}`;   // albatross — annotated in label text
+    if (diff === -2) return `◉ ${net}`;    // eagle
+    if (diff === -1) return `○ ${net}`;    // birdie
+    if (diff ===  0) return `${net}`;       // par
+    if (diff ===  1) return `${net} □`;    // bogey
+    if (diff ===  2) return `${net} □□`;   // double bogey
+    return `${net} □□□`;                    // triple+
+  }
+
+  // Score result line beneath each stepper
+  const resultLbl=(gross,strokes,sbCalc)=>{
+    if(gross==null) return '';
+    const net=gross-strokes;
+    if(isStab&&sbCalc){
+      const d=sbCalc.diff; const ds=d<0?d:'+'+d;
+      const ptCol=sbCalc.points>=3?'var(--teal)':sbCalc.points===0?'var(--red)':'var(--gold)';
+      return `<div class="score-result-row">Net ${sbCalc.net} (${ds} par) = <span style="color:${ptCol};font-size:14px">${sbCalc.points}pt${sbCalc.points!==1?'s':''}</span></div>`;
+    }
+    if(!isMatch){
+      const d=net-h.par;
+      const col=d<=-1?'var(--teal)':d>=1?'var(--red)':'#aaa';
+      const suffix=d<0?` (${d} to par)`:d>0?` (+${d} to par)`:' (par)';
+      return `<div class="score-result-row" style="color:${col}">Net ${net}${suffix}</div>`;
+    }
+    return `<div class="score-result-row" style="color:#888">Net ${net}</div>`;
+  }
+  const skinsHoleResult=()=>{
+    if(!game.skins) return '';
+    const sk=getSkinsResults();
+    if(!sk) return '';
+    const sr=sk[h.hole-1];
+    if(!sr||sr.winner===null) return '';
+    const at=sr.skinsAtStake;
+    let badge='';
+    if(sr.winner===-1){
+      badge=`<div class="hole-result-badge badge-halve">💰 Tied — ${at} skin${at>1?'s':''} carry${at>1?' all':''}</div>`;
+    } else {
+      badge=`<div class="hole-result-badge badge-win" style="background:rgba(226,184,74,.15);border-color:var(--gold);color:var(--gold)">💰 ${sr.winnerName} wins ${at} skin${at>1?'s':''}!</div>`;
+    }
+    // On hole 18, show carryover distribution if applicable
+    if(h.hole===18){
+      const dr=sk.find(r=>r.carryoverDistribution);
+      if(dr){
+        const lines=dr.distribution.map((d,i)=>d>0?`${dr.players[i]}: +${d}`:'').filter(Boolean).join(' · ');
+        badge+=`<div class="hole-result-badge" style="background:rgba(226,184,74,.10);border-color:var(--gold);color:var(--gold);margin-top:6px">
+          ⚖️ ${dr.totalLeft} skin${dr.totalLeft>1?'s':''} split after 18 · ${lines}${dr.remainder>0?` (${dr.bonusName} gets +1 — least skins in tied lead)`:''}</div>`;
+      }
+    }
+    return badge;
+  }
+
+  /** Render stroke dots: one dot per stroke the player gets on this hole */
+  const strokeDots=(strokes)=>{
+    if(!strokes) return '';
+    const dots = Array.from({length:strokes}, (_,i)=>`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:2px;opacity:${i===0?1:0.6}"></span>`).join('');
+    return `<span style="display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle">${dots}</span>`;
+  }
+
+  const playerBlock=(player,field,gross,strokes,sbCalc,color)=>{
+    return `<div>
+      <div class="score-player-label" style="color:${color}">${player.name}</div>
+      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes)}${strokeDots(strokes)}</div>
+      <div class="score-stepper">
+        <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
+        <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
+          value="${gross!=null?gross:''}" placeholder="—"
+          oninput="onScoreInput('${field}',this.value)"
+          onchange="onScoreInput('${field}',this.value)"/>
+        <button class="step-btn" onclick="stepScore('${field}',1)">+</button>
+        ${gross!=null?`<button class="step-clear" onclick="clearScore('${field}')" title="Clear">✕</button>`:''}
+      </div>
+      ${resultLbl(gross,strokes,sbCalc)}
+    </div>`;
+  }
+
+  // Build score grid
+  let gridHtml;
+  if(game.team){
+    gridHtml=`
+      <div style="margin-bottom:14px">
+        <div style="font-size:9px;color:var(--teal);letter-spacing:1.5px;font-weight:700;margin-bottom:8px">TEAM 1</div>
+        <div class="score-grid">
+          ${playerBlock(p1,'p1',h.p1,s1,sb1,'var(--teal)')}
+          ${playerBlock(p3,'p3',h.p3,s3,sb3,'var(--teal)')}
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:9px;color:var(--red);letter-spacing:1.5px;font-weight:700;margin-bottom:8px">TEAM 2</div>
+        <div class="score-grid">
+          ${playerBlock(p2,'p2',h.p2,s2,sb2,'var(--red)')}
+          ${playerBlock(p4,'p4',h.p4,s4,sb4,'var(--red)')}
+        </div>
+      </div>`;
+  } else {
+    const colors4=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
+    if(game.fourPlayer){
+      const _hpc=game.playerCount||2;
+      const _p3block=playerBlock(p3,'p3',h.p3,s3,stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h),'var(--gold)');
+      const _p4block=_hpc>=4?playerBlock(p4,'p4',h.p4,s4,stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h),'#a78bfa'):'';
+      gridHtml=`<div class="score-grid">
+        ${playerBlock(p1,'p1',h.p1,s1,sb1,'var(--teal)')}
+        ${playerBlock(p2,'p2',h.p2,s2,sb2,'var(--red)')}
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+        <div class="score-grid">
+          ${_p3block}${_p4block}
+        </div>
+      </div>`;
+    } else {
+      // Base 2-player grid
+      gridHtml=`<div class="score-grid">
+        ${playerBlock(p1,'p1',h.p1,s1,sb1,'var(--teal)')}
+        ${playerBlock(p2,'p2',h.p2,s2,sb2,'var(--red)')}
+      </div>`;
+
+    }
+  }
+
+  // Calculation transparency box
+  let calcHtml='';
+  if(isMatch&&!game.skins&&(h.p1!=null||h.p2!=null)){
+    if(!game.team){
+      const n1=h.p1!=null?h.p1-s1:null,n2=h.p2!=null?h.p2-s2:null;
+      calcHtml=`<div class="calc-box">
+        <div class="calc-title">Matchplay Calculation · SI ${si} · Hole Par ${h.par}</div>
+        <div class="calc-row"><span class="calc-label">${p1.name} — Hcp ${p1.hcp}, base ${Math.round(base)}, diff ${Math.round(p1.hcp)-Math.round(base)}</span><span class="calc-val">${s1} stroke${s1!==1?'s':''}</span></div>
+        <div class="calc-row"><span class="calc-label">${p1.name} gross ${h.p1??'—'} − ${s1} = net</span><span class="calc-val">${n1??'—'}</span></div>
+        <div style="height:5px"></div>
+        <div class="calc-row"><span class="calc-label">${p2.name} — Hcp ${p2.hcp}, base ${Math.round(base)}, diff ${Math.round(p2.hcp)-Math.round(base)}</span><span class="calc-val">${s2} stroke${s2!==1?'s':''}</span></div>
+        <div class="calc-row"><span class="calc-label">${p2.name} gross ${h.p2??'—'} − ${s2} = net</span><span class="calc-val">${n2??'—'}</span></div>
+        <div class="calc-note">Lower net wins the hole. Equal nets = halved.</div>
+      </div>`;
+    } else {
+      const nb=Math.round(base);
+      const n1a=h.p1!=null?h.p1-s1:null,n1b=h.p3!=null?h.p3-s3:null;
+      const n2a=h.p2!=null?h.p2-s2:null,n2b=h.p4!=null?h.p4-s4:null;
+      const best1=Math.min(n1a??99,n1b??99),best2=Math.min(n2a??99,n2b??99);
+      calcHtml=`<div class="calc-box">
+        <div class="calc-title">4BBB Calculation · SI ${si} · Base (lowest hcp of all 4) = ${nb}</div>
+        <div class="calc-row"><span class="calc-label">${p1.name} (Hcp ${p1.hcp}): ${h.p1??'—'} − ${s1} = net <strong>${n1a??'—'}</strong></span><span class="calc-val" style="color:var(--teal)">Team 1</span></div>
+        <div class="calc-row"><span class="calc-label">${p3.name} (Hcp ${p3.hcp}): ${h.p3??'—'} − ${s3} = net <strong>${n1b??'—'}</strong></span><span class="calc-val" style="color:var(--teal)">Team 1</span></div>
+        <div class="calc-row"><span class="calc-label" style="color:var(--teal)">Team 1 best net</span><span class="calc-val" style="color:var(--teal)">${best1<99?best1:'—'}</span></div>
+        <div style="height:4px"></div>
+        <div class="calc-row"><span class="calc-label">${p2.name} (Hcp ${p2.hcp}): ${h.p2??'—'} − ${s2} = net <strong>${n2a??'—'}</strong></span><span class="calc-val" style="color:var(--red)">Team 2</span></div>
+        <div class="calc-row"><span class="calc-label">${p4.name} (Hcp ${p4.hcp}): ${h.p4??'—'} − ${s4} = net <strong>${n2b??'—'}</strong></span><span class="calc-val" style="color:var(--red)">Team 2</span></div>
+        <div class="calc-row"><span class="calc-label" style="color:var(--red)">Team 2 best net</span><span class="calc-val" style="color:var(--red)">${best2<99?best2:'—'}</span></div>
+        <div class="calc-note">Each player's strokes = their hcp minus ${nb} (lowest hcp), allocated by SI. Team plays best net.</div>
+      </div>`;
+    }
+  } else if(isStab&&(h.p1!=null||h.p2!=null)){
+    const stabRow=(player,sb)=>{
+      if(!sb) return `<div class="calc-row"><span class="calc-label">${player.name}</span><span class="calc-val">—</span></div>`;
+      const ds=sb.diff<0?sb.diff:'+'+sb.diff;
+      const ptCol=sb.points>=3?'var(--teal)':sb.points===0?'var(--red)':'var(--gold)';
+      return `<div class="calc-row">
+        <span class="calc-label">${player.name} (Hcp ${player.hcp}): ${sb.gross} gross − ${sb.strokes} strk = net ${sb.net} (${ds} par)</span>
+        <span class="calc-pts" style="color:${ptCol}">${sb.points}pt</span>
+      </div>`;
+    }
+    calcHtml=`<div class="calc-box">
+      <div class="calc-title">Stableford Calculation · SI ${si} · Par ${h.par}</div>
+      ${stabRow(p1,sb1)}${stabRow(p2,sb2)}
+      ${(game.team||(game.fourPlayer&&_pc_sb>=3))?stabRow(p3,sb3):''}
+      ${(game.team||(game.fourPlayer&&_pc_sb>=4))?stabRow(p4,sb4):''}
+      <div class="calc-note">Points: Albatross=5 · Eagle=4 · Birdie=3 · Par=2 · Bogey=1 · Double bogey+=0</div>
+    </div>`;
+  }
+
+
+
+  // Match result badge — suppress for skins multi-player (1v1 result is meaningless)
+  let badgeHtml='';
+  if(isMatch && !game.skins){
+    const res=game.team
+      ?matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si)
+      :matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,si);
+    if(res===1)  badgeHtml=`<div class="hole-result-badge badge-win">▲ ${game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name} wins this hole</div>`;
+    if(res===-1) badgeHtml=`<div class="hole-result-badge badge-lose">▼ ${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name} wins this hole</div>`;
+    if(res===0)  badgeHtml=`<div class="hole-result-badge badge-halve">● Hole Halved</div>`;
+  }
+
+  // Only show Next Hole once every active player has a score on this hole
+  const _pc=game.playerCount||2;
+  const _activeFields=['p1','p2',...(game.team||(_pc>=3)?['p3']:[]),...(game.team||(_pc>=4)?['p4']:[])];
+  const _holeComplete=_activeFields.every(f=>h[f]!=null);
+
+  document.getElementById('hole-entry').innerHTML=`
+    <div class="card animate-in">
+      <div class="hole-header">
+        <div>
+          <div class="hole-number">Hole ${h.hole}</div>
+          <div class="hole-par">Par ${h.par} · ${h.hole<=9?'Front 9':'Back 9'}</div>
+        </div>
+        <div class="hole-si-box">
+          <div class="hole-si-label">STROKE INDEX</div>
+          <div class="hole-si-val">${si}</div>
+        </div>
+      </div>
+      ${gridHtml}
+      ${calcHtml}
+      ${badgeHtml}
+      ${skinsHoleResult()}
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-ghost" style="flex:1;font-size:16px;min-height:54px" onclick="prevHole()">←</button>
+        ${_holeComplete&&activeHole<18?`<button class="btn btn-primary" style="flex:3;font-size:17px;min-height:54px;letter-spacing:.5px" onclick="saveAndNext()">NEXT HOLE →</button>`:'<div style="flex:3"></div>'}
+      </div>
+    </div>`;
+}
+
+// ── Scorecard table ────────────────────────
+function renderScorecard(results, rawResults){
+  const {p1,p2,p3,p4}=game.players;
+  const isMatch=game.mode==='matchplay',isStab=game.mode==='stableford',team=game.team;
+  const p1s=p1.name.split(' ')[0],p2s=p2.name.split(' ')[0];
+  const p3s=team?p3.name.split(' ')[0]:'',p4s=team?p4.name.split(' ')[0]:'';
+
+  const _skColors=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
+  const _skActive=game.skins&&game.skinsPlayers&&game.skinsPlayers.length>=2;
+  const _fp=game.fourPlayer;
+  const _pc4=game.playerCount||2;
+  const thead=_skActive
+    ? `<tr>
+        <th style="text-align:left">H</th><th>Par</th><th>SI</th>
+        ${game.skinsPlayers.map((p,i)=>`<th style="color:${_skColors[i]}">${p.name.split(' ')[0]}</th>`).join('')}
+        <th style="color:var(--gold);font-size:9px">💰</th>
+      </tr>`
+    : `<tr>
+        <th style="text-align:left">H</th><th>Par</th><th>SI</th>
+        <th style="color:var(--teal)">${p1s}</th>${team?`<th style="color:var(--teal)">${p3s}</th>`:''}
+        <th style="color:var(--red)">${p2s}</th>${team?`<th style="color:var(--red)">${p4s}</th>`:''}
+        ${_fp&&_pc4>=3?`<th style="color:var(--gold)">${p3s}</th>`:''}
+        ${_fp&&_pc4>=4?`<th style="color:#a78bfa">${p4s}</th>`:''}
+        ${isMatch?'<th style="color:#888;font-size:9px">Res</th>':''}
+        ${isStab?`<th style="color:var(--teal)">Pts</th>${(team||_fp)?'<th>Pts</th>':''}<th style="color:var(--red)">Pts</th>${(team||_fp)?'<th>Pts</th>':''}`:
+                  team?`<th style="color:var(--teal)">Net</th><th style="color:var(--teal)">Net</th><th style="color:var(--red)">Net</th><th style="color:var(--red)">Net</th>`:
+                  `<th style="color:var(--teal)">Net</th><th style="color:var(--red)">Net</th>${_fp?'<th style="color:var(--gold)">Net</th><th style="color:#a78bfa">Net</th>':''}`}
+      </tr>`;
+
+  let rows='';
+  // Accumulators for nine totals
+  let nGross={p1:0,p2:0,p3:0,p4:0},nPts={p1:0,p2:0,p3:0,p4:0},nPar=0,nStart=0;
+
+  // Net score decoration: wraps net score value in golf notation symbols
+  const netScoreDeco=(net,par)=>{
+    if (net == null) return '<span style="color:#444">—</span>';
+    const diff = net - par;
+    const v = net;
+    const base = 'display:inline-block;text-align:center;vertical-align:middle;font-size:11px;font-weight:800;box-sizing:border-box;';
+
+    // Double circle: use border + outline with outline-offset for perfect even gap
+    const dblCirc = (col) =>
+      `<span style="${base}width:22px;height:22px;line-height:22px;border-radius:50%;border:2px solid ${col};outline:2px solid ${col};outline-offset:3px;color:${col}">${v}</span>`;
+
+    // Single circle
+    const sglCirc = (col) =>
+      `<span style="${base}width:22px;height:22px;line-height:22px;border-radius:50%;border:2px solid ${col};color:${col}">${v}</span>`;
+
+    // Double square: border + outline with outline-offset
+    const dblSq = (col) =>
+      `<span style="${base}width:22px;height:22px;line-height:22px;border:2px solid ${col};outline:2px solid ${col};outline-offset:3px;color:${col}">${v}</span>`;
+
+    // Single square
+    const sglSq = (col) =>
+      `<span style="${base}width:22px;height:22px;line-height:22px;border:2px solid ${col};color:${col}">${v}</span>`;
+
+    if (diff <= -3) return dblCirc('#ff5a5a');  // Albatross — double red circle
+    if (diff === -2) return dblCirc('#ff5a5a'); // Eagle — double red circle
+    if (diff === -1) return sglCirc('#ff5a5a'); // Birdie — single red circle
+    if (diff === 0)  return `<span style="color:#aaa;font-size:11px;font-weight:700">${v}</span>`; // Par
+    if (diff === 1)  return sglSq('#888');       // Bogey — single square
+    if (diff === 2)  return dblSq('#888');       // Double bogey — double square
+    return dblSq('#ff5a5a');                     // Triple+ — double red square
+  }
+
+  const scoreCell=(g,par)=>{if(g==null)return'<td>—</td>';const c=g<par?'sc-under':g>par?'sc-over':'sc-par-c';return`<td class="${c}">${g}</td>`;}
+  const ptsCell=(sb)=>{
+    if(!sb) return '<td style="text-align:center">—</td>';
+    const pts=sb.points;
+    const base='display:inline-block;text-align:center;vertical-align:middle;font-size:11px;font-weight:800;box-sizing:border-box;width:22px;height:22px;line-height:22px;';
+    const red='#ff5a5a', grey='#888';
+    let inner;
+    if(pts>=4) inner=`<span style="${base}border-radius:50%;border:2px solid ${red};outline:2px solid ${red};outline-offset:3px;color:${red}">${pts}</span>`;
+    else if(pts===3) inner=`<span style="${base}border-radius:50%;border:2px solid ${red};color:${red}">${pts}</span>`;
+    else if(pts===2) inner=`<span style="font-size:11px;font-weight:800;color:#aaa">${pts}</span>`;
+    else if(pts===1) inner=`<span style="${base}border:2px solid ${grey};color:${grey}">${pts}</span>`;
+    else inner=`<span style="${base}border:2px solid ${grey};outline:2px solid ${grey};outline-offset:3px;color:${grey}">${pts}</span>`;
+    return `<td style="text-align:center;padding:2px 4px">${inner}</td>`;
+  }
+
+  const _skResults=_skActive?getSkinsResults():null;
+  game.holes.forEach((h,i)=>{
+    const _isMP=game.mode==='matchplay';
+    const si=_isMP?msi(h):gsi1(h),si2h=_isMP?null:gsi2(h),si3h=_isMP?null:gsi3(h),res=results[i],isAct=activeHole===h.hole;
+    const _st=_isMP?matchStatus(results):null;
+    const isPostMatch=_st&&_st.closed&&_st.closingHole!=null&&(i+1)>_st.closingHole;
+    const sb1=stablefordCalc(h.p1,h.par,p1.hcp,si,si2h,si3h);
+    const sb2=stablefordCalc(h.p2,h.par,p2.hcp,si,si2h,si3h);
+    const sb3=team?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
+    const sb4=team?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
+    // In matchplay use the correct base (lowest hcp), not 0
+    const _mpBase=_isMP?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
+    const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,_mpBase,si,si2h,si3h):null;
+    const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,_mpBase,si,si2h,si3h):null;
+    const rawRes=rawResults?rawResults[i]:res;
+    const resSym=isPostMatch?(rawRes===1?'△':rawRes===-1?'▽':rawRes===0?'∘':'⊘'):res===1?'▲':res===-1?'▼':res===0?'–':'·';
+    const resCls=isPostMatch?'sc-posterity':res===1?'sc-win':res===-1?'sc-lose':res===0?'sc-halve':'';
+
+    // Accumulate for nine summary
+    if(h.p1)nGross.p1+=h.p1; if(h.p2)nGross.p2+=h.p2; if((team||_fp)&&h.p3)nGross.p3+=h.p3||0; if((team||_fp)&&h.p4)nGross.p4+=h.p4||0;
+    if(sb1)nPts.p1+=sb1.points; if(sb2)nPts.p2+=sb2.points; if(sb3)nPts.p3+=sb3.points; if(sb4)nPts.p4+=sb4.points;
+    nPar+=h.par;
+
+    if(_skActive){
+      // Skins scorecard: show all skins players' gross scores + skin result
+      const _skr=_skResults?_skResults[i]:null;
+      const _skGross=[h.p1,h.p2,h.p3,h.p4];
+      const _skCell=(pi)=>{
+        const g=_skGross[pi]; if(g==null) return '<td style="color:#444">—</td>';
+        const won=_skr&&_skr.winner===pi;
+        const col=won?_skColors[pi]:(g<h.par?'#ff5a5a':g>h.par?'#888':'#aaa');
+        const fw=won?'font-weight:700':'';
+        return `<td style="color:${col};${fw}">${g}${won?' 💰':''}</td>`;
+      };
+      const _skinCol=!_skr||_skr.winner===null?'color:#333'
+        :_skr.winner===-1?'color:var(--gold)':'color:var(--gold);font-weight:700';
+      const _skinTxt=!_skr||_skr.winner===null?'·'
+        :_skr.winner===-1?`↗${_skr.skinsAtStake}`:`+${_skr.skinsWon}`;
+      rows+=`<tr class="${isAct?'sc-active':''}" onclick="setHole(${h.hole})">
+        <td>${h.hole}</td><td style="color:var(--gold)">${h.par}</td><td style="color:#aaa;font-size:11px;font-weight:600">${si}</td>
+        ${game.skinsPlayers.map((_,pi)=>_skCell(pi)).join('')}
+        <td style="${_skinCol};text-align:center">${_skinTxt}</td>
+      </tr>`;
+    } else {
+      const _fpBase4=_fp?0:null;
+      const n3=_fp&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,si,si2h,si3h):null;
+      const n4=_fp&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,si,si2h,si3h):null;
+      const sb3fp=(_fp||team)?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
+      const sb4fp=(_fp||team)?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
+      rows+=`<tr class="${isAct?'sc-active':''}" onclick="setHole(${h.hole})">
+        <td>${h.hole}</td><td style="color:var(--gold)">${h.par}</td><td style="color:#aaa;font-size:11px;font-weight:600">${si}</td>
+        ${scoreCell(h.p1,h.par)}${team?scoreCell(h.p3,h.par):''}
+        ${scoreCell(h.p2,h.par)}${team?scoreCell(h.p4,h.par):''}
+        ${_fp&&_pc4>=3?scoreCell(h.p3,h.par):''}
+        ${_fp&&_pc4>=4?scoreCell(h.p4,h.par):''}
+        ${isMatch?`<td class="${resCls}">${resSym}</td>`:''}
+        ${isStab?`${ptsCell(sb1)}${(team||_fp)?ptsCell(sb3fp):''}${ptsCell(sb2)}${(team||_fp)?ptsCell(sb4fp):''}`:
+                 `<td style="text-align:center">${netScoreDeco(n1,h.par)}</td><td style="text-align:center">${netScoreDeco(n2,h.par)}</td>${_fp?`<td style="text-align:center">${netScoreDeco(n3,h.par)}</td><td style="text-align:center">${netScoreDeco(n4,h.par)}</td>`:''}`}
+      </tr>`;
+    }
+
+    if(h.hole===9||h.hole===18){
+      const lbl=h.hole===9?'FRONT 9':'BACK 9';
+      let sumParts=`${lbl} · Par ${nPar}`;
+      if(_skActive){
+        const _skGrossArr=[nGross.p1,nGross.p2,nGross.p3||0,nGross.p4||0];
+        sumParts+=` · `+game.skinsPlayers.map((p,i)=>`${p.name.split(' ')[0]}: ${_skGrossArr[i]||'—'}`).join(' | ');
+      } else if(isStab) sumParts+=` · ${p1s}: ${nPts.p1}pt${(team||_fp)?` · ${p3s}: ${nPts.p3}pt`:''} | ${p2s}: ${nPts.p2}pt${(team||_fp)?` · ${p4s}: ${nPts.p4}pt`:''}`;
+      else sumParts+=` · ${p1s}: ${nGross.p1||'—'}${(team||_fp)?` · ${p3s}: ${nGross.p3||'—'}`:''} | ${p2s}: ${nGross.p2||'—'}${(team||_fp)?` · ${p4s}: ${nGross.p4||'—'}`:''}`;
+      const _activeCols=_fp?_pc4:team?4:2;
+      const cols=_skActive?(3+game.skinsPlayers.length+1):(3+_activeCols+(isMatch?1:0)+(isStab?(_fp||team?_activeCols:2):(_fp?_activeCols:2)));
+      rows+=`<tr class="sc-nine"><td colspan="${cols}">${sumParts}</td></tr>`;
+      // Reset nine accumulators for back 9
+      nGross={p1:0,p2:0,p3:0,p4:0}; nPts={p1:0,p2:0,p3:0,p4:0}; nPar=0;
+    }
+  });
+
+  // Totals
+  const tPar=game.holes.reduce((a,h)=>a+h.par,0);
+  const tg1=game.holes.reduce((a,h)=>a+(h.p1||0),0),tg2=game.holes.reduce((a,h)=>a+(h.p2||0),0);
+  const tg3=(team||_fp)?game.holes.reduce((a,h)=>a+(h.p3||0),0):0,tg4=(team||_fp)?game.holes.reduce((a,h)=>a+(h.p4||0),0):0;
+  let tn1=0,tn2=0,tn3=0,tn4=0,tp1=0,tp2=0,tp3=0,tp4=0;
+  game.holes.forEach(h=>{
+    const _smp=game.mode==='matchplay';
+    const s=_smp?msi(h):gsi1(h),s2=_smp?null:gsi2(h),s3h=_smp?null:gsi3(h);
+    const _tBase=(game.mode==='matchplay')?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
+    if(h.p1)tn1+=h.p1-strokesOnHole(p1.hcp,_tBase,s,s2,s3h);
+    if(h.p2)tn2+=h.p2-strokesOnHole(p2.hcp,_tBase,s,s2,s3h);
+    if(_fp&&h.p3)tn3+=h.p3-strokesOnHole(p3.hcp,0,s,s2,s3h);
+    if(_fp&&h.p4)tn4+=h.p4-strokesOnHole(p4.hcp,0,s,s2,s3h);
+    const c1=stablefordCalc(h.p1,h.par,p1.hcp,s,s2,s3h),c2=stablefordCalc(h.p2,h.par,p2.hcp,s,s2,s3h);
+    const c3=(team||_fp)?stablefordCalc(h.p3,h.par,p3.hcp,s,s2,s3h):null,c4=(team||_fp)?stablefordCalc(h.p4,h.par,p4.hcp,s,s2,s3h):null;
+    if(c1)tp1+=c1.points; if(c2)tp2+=c2.points; if(c3)tp3+=c3.points; if(c4)tp4+=c4.points;
+  });
+
+  if(_skActive){
+    const _skTotGross=[
+      game.holes.reduce((a,h)=>a+(h.p1||0),0),
+      game.holes.reduce((a,h)=>a+(h.p2||0),0),
+      game.holes.reduce((a,h)=>a+(h.p3||0),0),
+      game.holes.reduce((a,h)=>a+(h.p4||0),0),
+    ];
+    const _skWins=game.skinsPlayers.map(()=>0);
+    if(_skResults) _skResults.forEach(r=>{
+      if(r.winner>=0) _skWins[r.winner]+=r.skinsWon;
+      if(r.carryoverDistribution) r.distribution.forEach((d,i)=>{ _skWins[i]+=d; });
+    });
+    rows+=`<tr class="sc-total">
+      <td>TOT</td><td style="color:var(--gold)">${tPar}</td><td></td>
+      ${game.skinsPlayers.map((p,i)=>`<td style="color:${_skColors[i]};font-weight:700">${_skTotGross[i]||'—'}</td>`).join('')}
+      <td style="color:var(--gold);font-weight:700">${_skWins.map((w,i)=>`${game.skinsPlayers[i].name.split(' ')[0]}:${w}`).join(' ')}</td>
+    </tr>`;
+  } else {
+    const _d='—',_t3c=(team||(_fp&&_pc4>=3)),_t4c=(team||(_fp&&_pc4>=4));
+    const _totCells=isStab
+      ?(`<td style="color:var(--teal);font-size:13px">${tp1}</td>`+(_t3c?`<td>${tp3}</td>`:'')+
+        `<td style="color:var(--red);font-size:13px">${tp2}</td>`+(_t4c?`<td>${tp4}</td>`:''))
+      :(`<td style="color:var(--gold);font-weight:700">${tn1||_d}</td>`+
+        `<td style="color:var(--gold);font-weight:700">${tn2||_d}</td>`+
+        (_fp&&_pc4>=3?`<td style="color:var(--gold);font-weight:700">${tn3||_d}</td>`:'')+
+        (_fp&&_pc4>=4?`<td style="color:var(--gold);font-weight:700">${tn4||_d}</td>`:'')
+      );
+    rows+=`<tr class="sc-total">
+      <td>TOT</td><td style="color:var(--gold)">${tPar}</td><td></td>
+      <td style="color:var(--teal)">${tg1||'—'}</td>${team?`<td>${tg3||'—'}</td>`:''}
+      <td style="color:var(--red)">${tg2||'—'}</td>${team?`<td>${tg4||'—'}</td>`:''}
+      ${_fp&&_pc4>=3?`<td style="color:var(--gold)">${tg3||'—'}</td>`:''}
+      ${_fp&&_pc4>=4?`<td style="color:#a78bfa">${tg4||'—'}</td>`:''}
+      ${isMatch?'<td></td>':''}
+      ${_totCells}
+    </tr>`;
+  }
+
+  document.getElementById('sc-table').innerHTML=`<thead>${thead}</thead><tbody>${rows}</tbody>`;
+  const _scBody=document.getElementById('sc-body');
+  const _scIcon=document.getElementById('sc-toggle-icon');
+  if(_scBody&&_scBody.style.display==='block'&&_scIcon)_scIcon.style.transform='rotate(180deg)';
+
+
+}
+
+// ═══════════════════════════════════════════
+// SCORE ENTRY
+// ═══════════════════════════════════════════
+
+function clearScore(field){
+  game.holes[activeHole-1][field]=null;
+  autosave();
+  renderPlay();
+}
+function stepScore(field,delta){
+  const el=document.getElementById('score-'+field); if(!el)return;
+  let v=parseInt(el.value)||0; v=Math.max(1,Math.min(15,v+delta));
+  el.value=v; onScoreInput(field,v);
+}
+function onScoreInput(field,value){
+  if(!game)return;
+  const v=parseInt(value);
+  game.holes[activeHole-1][field]=(v>=1&&v<=15)?v:null;
+  autosave(); // persist every score change
+  renderPlay();
+}
+function setHole(n){activeHole=n;renderPlay();}
+function prevHole(){if(activeHole>1){activeHole--;renderPlay();}}
+function saveAndNext(){if(activeHole<18){activeHole++;renderPlay();}}
+
+// ═══════════════════════════════════════════
+// FINISH
+// ═══════════════════════════════════════════
+
+/**
+ * Countback for stroke/stableford ties.
+ * players: array of {name, hcp, total} already confirmed tied.
+ * holes:   game.holes array (18 entries).
+ * mode:    'stroke' | 'stableford'
+ * Returns: { winner: {name,hcp} | null (still tied), method: string, detail: string }
+ */
+function countback(players, holes, mode) {
+  const isStab = mode === 'stableford';
+
+  // Score a subset of holes for one player
+  function subScore(playerObj, holeSlice) {
+    let total = 0;
+    holeSlice.forEach(h => {
+      const field = playerObj.field;
+      const gross = h[field];
+      if (gross == null) return;
+      if (isStab) {
+        const sb = stablefordCalc(gross, h.par, playerObj.hcp, gsi1(h), gsi2(h), gsi3(h));
+        if (sb) total += sb.points;
+      } else {
+        total += gross - strokesOnHole(playerObj.hcp, 0, gsi1(h), gsi2(h), gsi3(h));
+      }
+    });
+    return total;
+  }
+
+  const windows = [
+    { label: 'last 9', start: 9 },
+    { label: 'last 6', start: 12 },
+    { label: 'last 3', start: 15 },
+    { label: 'last hole', start: 17 },
+  ];
+
+  for (const { label, start } of windows) {
+    const slice = holes.slice(start); // e.g. holes 10-18, 13-18, 16-18, 18
+    const scores = players.map(p => ({ name: p.name, score: subScore(p, slice) }));
+    const best = isStab ? Math.max(...scores.map(s=>s.score)) : Math.min(...scores.map(s=>s.score));
+    const winners = scores.filter(s => s.score === best);
+    const detail = scores.map(s => `${s.name}: ${s.score}${isStab?' pts':''}`).join(' · ');
+    if (winners.length === 1) {
+      return { winner: winners[0].name, method: label, detail };
+    }
+    // Still tied — continue to next window
+  }
+
+  // All windows exhausted — genuine dead heat
+  return { winner: null, method: 'countback exhausted', detail: 'Dead heat — all countback windows tied' };
+}
+
+/**
+ * Compute final standings for stroke/stableford (non-skins, non-matchplay).
+ * Returns array of player result objects sorted by rank, with countback applied.
+ */
+function computeStandings() {
+  if (!game || game.skins || game.mode === 'matchplay') return null;
+  const isStab = game.mode === 'stableford';
+  const {p1,p2,p3,p4} = game.players;
+  const _pc = game.playerCount || 2;
+  const allPlayers = [
+    { name: p1.name, hcp: p1.hcp, field: 'p1' },
+    { name: p2.name, hcp: p2.hcp, field: 'p2' },
+    ...(_pc >= 3 ? [{ name: p3.name, hcp: p3.hcp, field: 'p3' }] : []),
+    ...(_pc >= 4 ? [{ name: p4.name, hcp: p4.hcp, field: 'p4' }] : []),
+  ];
+
+  // Compute 18-hole total for each player
+  const totals = allPlayers.map(p => {
+    let total = 0;
+    game.holes.forEach(h => {
+      const gross = h[p.field];
+      if (gross == null) return;
+      if (isStab) {
+        const sb = stablefordCalc(gross, h.par, p.hcp, gsi1(h), gsi2(h), gsi3(h));
+        if (sb) total += sb.points;
+      } else {
+        total += gross - strokesOnHole(p.hcp, 0, gsi1(h), gsi2(h), gsi3(h));
+      }
+    });
+    return { ...p, total };
+  });
+
+  // Sort: stableford = most pts first, stroke = fewest net strokes first
+  totals.sort((a, b) => isStab ? b.total - a.total : a.total - b.total);
+
+  // Assign ranks with countback for ties
+  const standings = [];
+  let i = 0;
+  while (i < totals.length) {
+    // Find all players tied at this total
+    const tied = totals.filter(p => p.total === totals[i].total);
+    if (tied.length === 1 || !game.holes.every(h => h.p1 != null)) {
+      // No tie or round incomplete — just rank normally
+      tied.forEach(p => standings.push({ ...p, rank: standings.length + 1, countback: null }));
+    } else {
+      // Apply countback among tied players
+      const cb = countback(tied, game.holes, game.mode);
+      if (cb.winner) {
+        // Winner gets current rank, rest share next rank
+        const winnerData = tied.find(p => p.name === cb.winner);
+        const rest = tied.filter(p => p.name !== cb.winner);
+        standings.push({ ...winnerData, rank: standings.length + 1, countback: cb });
+        rest.forEach(p => standings.push({ ...p, rank: standings.length + 1, countback: { ...cb, loser: true } }));
+      } else {
+        // Dead heat — all share rank
+        tied.forEach(p => standings.push({ ...p, rank: standings.length + 1, countback: cb }));
+      }
+    }
+    i += tied.length;
+  }
+  return standings;
+}
+
+function renderFinishBar(mpStatus, all18){
+  const el = document.getElementById('finish-bar-inner');
+  if (!el) return;
+  if (mpStatus && mpStatus.closed && !all18) {
+    // Match won before 18 — offer finish early or keep playing
+    const {p1,p2} = game.players;
+    const winnerName = mpStatus.winner===1?(game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name):mpStatus.winner===2?(game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name):'';
+    el.innerHTML = `
+      <div style="font-size:12px;color:var(--gold);font-weight:700;text-align:center;margin-bottom:10px;letter-spacing:.5px">
+        🏆 ${winnerName} wins ${mpStatus.label} — match complete
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:2;font-size:14px" onclick="finishGame()">✅ Finish &amp; Save</button>
+        <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="dismissFinishBar()">Continue →</button>
+      </div>`;
+  } else {
+    // All 18 played — compute standings with countback for stroke/stableford
+    const standings = computeStandings();
+    let standingsHtml = '';
+    if (standings && standings.length > 1) {
+      const rankEmoji = ['🥇','🥈','🥉','4️⃣'];
+      const colors = ['var(--gold)','#aaa','#cd7f32','#888'];
+      const modeLabel = game.mode === 'stableford' ? 'pts' : 'net';
+      const rows = standings.map((p, idx) => {
+        const cbNote = p.countback && !p.countback.loser && p.countback.winner
+          ? `<span style="font-size:10px;color:#888"> · Won ${p.countback.method} countback</span>`
+          : p.countback && p.countback.winner === null
+          ? `<span style="font-size:10px;color:#888"> · Dead heat</span>`
+          : '';
+        const cbDetail = p.countback && !p.countback.loser && p.countback.winner
+          ? `<div style="font-size:10px;color:#555;margin-top:1px;padding-left:22px">${p.countback.detail}</div>`
+          : '';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1e1e1e">
+          <span style="font-size:16px;width:22px;text-align:center">${rankEmoji[p.rank-1]||p.rank}</span>
+          <span style="flex:1;font-size:13px;font-weight:600;color:${colors[p.rank-1]||'#888'}">${p.name}${cbNote}</span>
+          <span style="font-size:14px;font-weight:700;color:${colors[p.rank-1]||'#888'}">${p.total} ${modeLabel}</span>
+        </div>${cbDetail}`;
+      }).join('');
+      standingsHtml = `<div style="margin-bottom:10px">
+        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:6px">🏆 FINAL STANDINGS</div>
+        ${rows}
+      </div>`;
+    }
+    el.innerHTML = `${standingsHtml}<button class="btn btn-primary btn-full" onclick="finishGame()">✅ Finish &amp; Save to History</button>`;
+  }
+}
+
+function dismissFinishBar(){
+  // Hide the finish bar — player wants to keep scoring for posterity
+  document.getElementById('finish-bar').classList.remove('visible');
+}
+
+function finishGame(){
+  if(!game)return;
+  const results=getHoleResults();
+  const status=game.mode==='matchplay'?matchStatus(results):null;
+  const standings=game.mode!=='matchplay'&&!game.skins?computeStandings():null;
+  history.unshift({...game,endTime:new Date().toISOString(),status,standings});
+  try{localStorage.setItem(LS_HISTORY,JSON.stringify(history));}catch(e){}
+  clearAutosave(); // game is complete — remove the in-progress backup
+  game=null; showTab('history');
+}
+
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  const empty=document.getElementById('history-empty');
+  const clrBtn=document.getElementById('history-clear-btn');
+  if(!history.length){empty.style.display='block';list.innerHTML='';clrBtn.style.display='none';return;}
+  empty.style.display='none'; clrBtn.style.display='block';
+
+  list.innerHTML=history.map((g,idx)=>{
+    const {p1,p2,p3,p4}=g.players;
+    const date=new Date(g.startTime).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+    const played=g.holes.filter(h=>h.p1!=null).length;
+    const isMatch=g.mode==='matchplay',isStab=g.mode==='stableford';
+    const results=g.holes.map(h=>{
+      if(!isMatch)return null;
+      if(g.team)return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,msi(h),null,null);
+      return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
+    });
+    const st=isMatch?matchStatus(results):null;
+    let sp1=0,sp2=0;
+    g.holes.forEach(h=>{
+      const c1=stablefordCalc(h.p1,h.par,p1.hcp,gsi1(h),gsi2(h),gsi3(h));
+      const c2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
+      if(c1)sp1+=c1.points; if(c2)sp2+=c2.points;
+    });
+    const tg1=g.holes.reduce((a,h)=>a+(h.p1||0),0);
+    const tg2=g.holes.reduce((a,h)=>a+(h.p2||0),0);
+
+    let badgeCls='hb-draw',badgeText='';
+    if(isMatch){
+      if(st.winner===1){badgeCls='hb-p1';badgeText=`${g.team?(g.tournament&&g.tournament.team1name||'Team 1'):p1.name} wins ${st.label}`;}
+      else if(st.winner===2){badgeCls='hb-p2';badgeText=`${g.team?(g.tournament&&g.tournament.team2name||'Team 2'):p2.name} wins ${st.label}`;}
+      else if(st.leading===1){badgeCls='hb-p1';badgeText=`${p1.name} ${st.label}`;}
+      else if(st.leading===2){badgeCls='hb-p2';badgeText=`${p2.name} ${st.label}`;}
+      else{badgeCls='hb-draw';badgeText=st.label;}
+    } else if(isStab){
+      // Use saved standings (with countback) if available
+      const sd=g.standings;
+      const winner=sd&&sd[0]&&(!sd[1]||sd[0].total!==sd[1].total||(sd[0].countback&&sd[0].countback.winner&&!sd[0].countback.loser));
+      if(winner){
+        const w=sd[0];
+        const cbTag=w.countback&&w.countback.winner?` (${w.countback.method} countback)`:'';
+        badgeCls=w.name===p1.name?'hb-p1':'hb-p2';
+        badgeText=`${w.name} wins ${w.total}pts${cbTag}`;
+      } else if(sp1>sp2){badgeCls='hb-p1';badgeText=`${p1.name} wins (${sp1}pts)`;}
+      else if(sp2>sp1){badgeCls='hb-p2';badgeText=`${p2.name} wins (${sp2}pts)`;}
+      else{
+        // Check saved countback even if standings not available
+        const sd2=g.standings;
+        const cbWinner=sd2&&sd2[0]&&sd2[0].countback&&sd2[0].countback.winner&&!sd2[0].countback.loser?sd2[0]:null;
+        if(cbWinner){
+          badgeCls=cbWinner.name===p1.name?'hb-p1':'hb-p2';
+          badgeText=`${cbWinner.name} wins ${sp1}pts (${cbWinner.countback.method} countback)`;
+        } else {
+          badgeCls='hb-draw';badgeText=`Tied ${sp1}pts`;
+        }
+      }
+    } else {
+      // Stroke play — use saved standings with countback if available
+      const sd=g.standings;
+      const cbWinner=sd&&sd[0]&&sd[0].countback&&sd[0].countback.winner&&!sd[0].countback.loser?sd[0]:null;
+      const ldr=tg1<tg2?p1.name:tg2<tg1?p2.name:null;
+      if(cbWinner){
+        badgeCls=cbWinner.name===p1.name?'hb-p1':'hb-p2';
+        badgeText=`${cbWinner.name} wins (${cbWinner.countback.method} countback)`;
+      } else {
+        badgeCls=ldr===p1.name?'hb-p1':ldr===p2.name?'hb-p2':'hb-draw';
+        badgeText=ldr?`${ldr} wins`:'Level';
+      }
+    }
+
+    // 4BBB totals for p3/p4
+    const tg3=g.holes.reduce((a,h)=>a+(h.p3||0),0);
+    const tg4=g.holes.reduce((a,h)=>a+(h.p4||0),0);
+    let sp3=0,sp4=0;
+    if(g.team){g.holes.forEach(h=>{
+      const c3=stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h));
+      const c4=stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h));
+      if(c3)sp3+=c3.points; if(c4)sp4+=c4.points;
+    });}
+
+    let scRows=g.holes.map((h,i)=>{
+      const _hmp=g.mode==='matchplay';
+      const si=_hmp?msi(h):gsi1(h),si2h=_hmp?null:gsi2(h),si3h=_hmp?null:gsi3(h),res=results[i];
+      const resSym=res===1?'▲':res===-1?'▼':res===0?'–':'·';
+      const resCol=res===1?'color:var(--teal)':res===-1?'color:var(--red)':'color:#aaa';
+      const sb1h=stablefordCalc(h.p1,h.par,p1.hcp,si,si2h,si3h);
+      const sb2h=stablefordCalc(h.p2,h.par,p2.hcp,si,si2h,si3h);
+      const sb3h=g.team?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
+      const sb4h=g.team?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
+      return `<tr style="background:${i%2===0?'#141414':'#181818'}">
+        <td style="padding:3px 5px;font-weight:700">${h.hole}</td>
+        <td style="padding:3px 5px;text-align:center;color:var(--gold)">${h.par}</td>
+        <td style="padding:3px 5px;text-align:center;color:var(--teal)">${h.p1??'—'}</td>
+        ${g.team?`<td style="padding:3px 5px;text-align:center;color:var(--teal)">${h.p3??'—'}</td>`:''}
+        <td style="padding:3px 5px;text-align:center;color:var(--red)">${h.p2??'—'}</td>
+        ${g.team?`<td style="padding:3px 5px;text-align:center;color:var(--red)">${h.p4??'—'}</td>`:''}
+        ${isMatch?`<td style="padding:3px 5px;text-align:center;font-weight:700;${resCol}">${resSym}</td>`:''}
+        ${isStab&&!g.team?`<td style="padding:3px 5px;text-align:center;color:var(--gold)">${sb1h?sb1h.points:'—'}</td>
+                  <td style="padding:3px 5px;text-align:center;color:var(--gold)">${sb2h?sb2h.points:'—'}</td>`:''}
+        ${isStab&&g.team?`<td style="padding:3px 5px;text-align:center;color:var(--teal)">${sb1h?sb1h.points:'—'}</td>
+                  <td style="padding:3px 5px;text-align:center;color:var(--teal)">${sb3h?sb3h.points:'—'}</td>
+                  <td style="padding:3px 5px;text-align:center;color:var(--red)">${sb2h?sb2h.points:'—'}</td>
+                  <td style="padding:3px 5px;text-align:center;color:var(--red)">${sb4h?sb4h.points:'—'}</td>`:''}
+      </tr>`;
+    }).join('');
+    scRows+=`<tr style="border-top:1px solid #333;font-weight:700">
+      <td style="padding:5px" colspan="2">Total</td>
+      <td style="padding:5px;text-align:center;color:var(--teal)">${tg1||'—'}</td>
+      ${g.team?`<td style="padding:5px;text-align:center;color:var(--teal)">${tg3||'—'}</td>`:''}
+      <td style="padding:5px;text-align:center;color:var(--red)">${tg2||'—'}</td>
+      ${g.team?`<td style="padding:5px;text-align:center;color:var(--red)">${tg4||'—'}</td>`:''}
+      ${isMatch?'<td></td>':''}
+      ${isStab&&!g.team?`<td style="padding:5px;text-align:center;color:var(--gold)">${sp1}</td>
+                <td style="padding:5px;text-align:center;color:var(--gold)">${sp2}</td>`:''}
+      ${isStab&&g.team?`<td style="padding:5px;text-align:center;color:var(--teal)">${sp1}</td>
+                <td style="padding:5px;text-align:center;color:var(--teal)">${sp3}</td>
+                <td style="padding:5px;text-align:center;color:var(--red)">${sp2}</td>
+                <td style="padding:5px;text-align:center;color:var(--red)">${sp4}</td>`:''}
+    </tr>`;
+
+    // Team name labels for header
+    const tn1=g.tournament&&g.tournament.team1name||'Team 1';
+    const tn2=g.tournament&&g.tournament.team2name||'Team 2';
+
+    return `<div class="history-item" id="hist-${idx}">
+      <div class="history-header" onclick="toggleHistory(${idx})">
+        <div>
+          <div class="history-title">${g.team?`${tn1} vs ${tn2}`:`${p1.name} vs ${p2.name}`}</div>
+          <div class="history-sub">${date} · ${isMatch?'Matchplay':isStab?'Stableford':'Stroke Play'}${g.skins?' + Skins':''} · ${g.team?'Teams (4BBB)':'Individual'} · ${played}/18${g.courseName?` · ${g.courseName}`:''}</div>
+          <div class="history-sub" style="margin-top:2px">Hcp: ${p1.name} ${p1.hcp} | ${p2.name} ${p2.hcp}${p3&&g.team?` | ${p3.name} ${p3.hcp}`:''}${p4&&g.team?` | ${p4.name} ${p4.hcp}`:''}</div>
+          <div class="history-toggle">▼ Show scorecard</div>
+        </div>
+        <div class="history-badge ${badgeCls}">${badgeText}</div>
+      </div>
+      <div class="history-detail" id="hist-detail-${idx}">
+        ${g.team?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px;font-weight:700;letter-spacing:.5px">
+          <div style="color:var(--teal);padding:4px 8px;background:rgba(0,232,187,.08);border-radius:6px">🟢 ${tn1}: ${p1.name} &amp; ${p3.name}</div>
+          <div style="color:var(--red);padding:4px 8px;background:rgba(255,90,90,.08);border-radius:6px">🔴 ${tn2}: ${p2.name} &amp; ${p4.name}</div>
+        </div>`:''}
+        <div style="overflow-x:auto">
+          <table class="sc-table" style="font-size:11px">
+            <thead><tr>
+              <th style="text-align:left">H</th><th>Par</th>
+              <th style="color:var(--teal)">${p1.name.split(' ')[0]}</th>
+              ${g.team?`<th style="color:var(--teal)">${p3.name.split(' ')[0]}</th>`:''}
+              <th style="color:var(--red)">${p2.name.split(' ')[0]}</th>
+              ${g.team?`<th style="color:var(--red)">${p4.name.split(' ')[0]}</th>`:''}
+              ${isMatch?'<th>Res</th>':''}
+              ${isStab&&!g.team?'<th style="color:var(--teal)">Pts</th><th style="color:var(--red)">Pts</th>':''}
+              ${isStab&&g.team?`<th style="color:var(--teal)">Pts</th><th style="color:var(--teal)">Pts</th><th style="color:var(--red)">Pts</th><th style="color:var(--red)">Pts</th>`:''}
+            </tr></thead>
+            <tbody>${scRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistory(idx){
+  const d=document.getElementById('hist-detail-'+idx);
+  const t=document.querySelector(`#hist-${idx} .history-toggle`);
+  const open=d.classList.contains('open');
+  d.classList.toggle('open',!open);
+  if(t)t.textContent=open?'▼ Show scorecard':'▲ Hide scorecard';
+}
+function clearHistory(){
+  if(!confirm('Clear all game history? This cannot be undone.'))return;
+  history=[];
+  try{localStorage.removeItem(LS_HISTORY);}catch(e){}
+  renderHistory();
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+buildParGrids();       // builds par + SI grids, matchplay display, updateSIDisplay
+renderTournamentDropdown(); // populate tournament dropdown
+// Note: Tournament Results dropdown populated lazily on tab open
+renderCourseDropdown(); // populate dropdown with presets + user courses
+checkCanStart();
+checkForSavedGame(); // show resume modal if a game was in progress
+
+// ═══════════════════════════════════════════
+// TOURNAMENT RESULTS CONSOLIDATION
+// ═══════════════════════════════════════════
+
+function renderTournamentResultsDropdown() {
+  const sel = document.getElementById('tr-tournament-select');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Select tournament —</option>';
+  Object.entries(TOURNAMENT).forEach(([key, t]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = t.label + (t.type === 'teams' ? ' (Teams)' : ' (Singles)');
+    sel.appendChild(opt);
+  });
+  if (current && TOURNAMENT[current]) sel.value = current;
+  if (sel.value) loadTournamentResults(sel.value);
+}
+
+function loadTournamentResults(key) {
+  const el = document.getElementById('tr-results');
+  if (!key) { el.innerHTML = ''; return; }
+  const t = TOURNAMENT[key];
+  if (!t) { el.innerHTML = '<div style="color:#888;font-size:13px">Tournament not found.</div>'; return; }
+  const rounds = history.filter(g => g.tournament && g.tournament.key === key);
+  if (rounds.length === 0) {
+    el.innerHTML = '<div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📭</div><div style="color:#888;font-size:13px">No completed rounds found for <strong style="color:#ccc">' + t.label + '</strong>.</div><div style="color:#555;font-size:11px;margin-top:6px">Finish and save games with this tournament selected to see results here.</div></div>';
+    return;
+  }
+  el.innerHTML = t.type === 'singles' ? renderSinglesResults(t, rounds) : renderTeamsResults(t, rounds);
+}
+
+function renderSinglesResults(t, rounds) {
+  const playerMap = {};
+  rounds.forEach(g => {
+    const pCount = g.playerCount || 2;
+    const participants = [
+      { name: g.players.p1.name, hcp: g.players.p1.hcp, field: 'p1' },
+      { name: g.players.p2.name, hcp: g.players.p2.hcp, field: 'p2' },
+      ...(pCount >= 3 && g.players.p3.name !== 'P3' ? [{ name: g.players.p3.name, hcp: g.players.p3.hcp, field: 'p3' }] : []),
+      ...(pCount >= 4 && g.players.p4.name !== 'P4' ? [{ name: g.players.p4.name, hcp: g.players.p4.hcp, field: 'p4' }] : []),
+    ];
+    participants.forEach(p => {
+      if (!playerMap[p.name]) playerMap[p.name] = [];
+      const holesPlayed = g.holes.filter(h => h[p.field] != null);
+      const gross = holesPlayed.reduce((a,h) => a + h[p.field], 0);
+      let net = 0, stab = 0;
+      holesPlayed.forEach(h => {
+        net += h[p.field] - strokesOnHole(p.hcp, 0, gsi1(h), gsi2(h), gsi3(h));
+        const sb = stablefordCalc(h[p.field], h.par, p.hcp, gsi1(h), gsi2(h), gsi3(h));
+        if (sb) stab += sb.points;
+      });
+      playerMap[p.name].push({ mode: g.mode, gross, net, stab, played: holesPlayed.length,
+        course: g.courseName||'—', date: new Date(g.startTime).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) });
+    });
+  });
+
+  const modeCounts = {};
+  rounds.forEach(g => { modeCounts[g.mode] = (modeCounts[g.mode]||0)+1; });
+  const dominantMode = Object.entries(modeCounts).sort((a,b)=>b[1]-a[1])[0][0];
+  const isStab = dominantMode === 'stableford';
+
+  const playerRows = Object.entries(playerMap).map(([name, games]) => {
+    const rc = games.length;
+    const totalNet  = games.reduce((a,g)=>a+g.net,0);
+    const totalStab = games.reduce((a,g)=>a+g.stab,0);
+    const avgNet    = rc > 0 ? (totalNet/rc).toFixed(1) : '—';
+    const avgStab   = rc > 0 ? (totalStab/rc).toFixed(1) : '—';
+    return { name, rc, totalNet, totalStab, avgNet, avgStab, games, primary: isStab ? totalStab : totalNet };
+  }).sort((a,b) => isStab ? b.primary - a.primary : a.primary - b.primary);
+
+  const rankEmoji = ['🥇','🥈','🥉'];
+  const colLabel  = isStab ? 'Pts' : 'Net';
+  const modeBreakdown = Object.entries(modeCounts).map(([m,c])=>`${c}×${m==='stableford'?'Stableford':m==='matchplay'?'Matchplay':'Stroke'}`).join(' · ');
+
+  const rows = playerRows.map((p,i) => {
+    const rank  = rankEmoji[i]||(i+1+'.');
+    const color = i===0?'var(--gold)':i===1?'#aaa':i===2?'#cd7f32':'#888';
+    return `<tr style="background:${i%2===0?'#141414':'#181818'}">
+      <td style="padding:7px 8px;font-size:15px;text-align:center">${rank}</td>
+      <td style="padding:7px 8px;font-weight:700;color:${color};font-size:13px">${p.name}</td>
+      <td style="padding:7px 8px;text-align:center;color:#888">${p.rc}</td>
+      <td style="padding:7px 8px;text-align:center;font-weight:700;color:${color}">${isStab?p.totalStab:p.totalNet}</td>
+      <td style="padding:7px 8px;text-align:center;color:#666;font-size:11px">${isStab?p.avgStab:p.avgNet}</td>
+    </tr>`;
+  }).join('');
+
+  const playerDetail = Object.entries(playerMap).map(([name, games]) => {
+    const dRows = games.map(g => `<tr><td style="padding:4px 6px;color:#888">${g.date}</td><td style="padding:4px 6px;color:#888">${g.course}</td><td style="padding:4px 6px;text-align:center">${g.mode==='stableford'?'⭐':g.mode==='matchplay'?'🏆':'✏️'}</td><td style="padding:4px 6px;text-align:center;color:var(--teal)">${g.gross}</td><td style="padding:4px 6px;text-align:center;color:var(--gold)">${g.net}</td><td style="padding:4px 6px;text-align:center;color:#a78bfa">${g.stab}</td><td style="padding:4px 6px;text-align:center;color:#555">${g.played}/18</td></tr>`).join('');
+    return `<details style="margin-bottom:8px"><summary style="cursor:pointer;padding:6px 8px;background:#141414;border-radius:7px;font-size:12px;color:#ccc;font-weight:600;list-style:none;display:flex;justify-content:space-between"><span>${name}</span><span style="color:#555">${games.length} round${games.length!==1?'s':''} ▾</span></summary><div style="overflow-x:auto;margin-top:4px"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#111"><th style="padding:4px 6px;text-align:left;color:#555">Date</th><th style="padding:4px 6px;text-align:left;color:#555">Course</th><th style="padding:4px 6px">Mode</th><th style="padding:4px 6px;color:var(--teal)">Gross</th><th style="padding:4px 6px;color:var(--gold)">Net</th><th style="padding:4px 6px;color:#a78bfa">Stab</th><th style="padding:4px 6px;color:#555">Holes</th></tr></thead><tbody>${dRows}</tbody></table></div></details>`;
+  }).join('');
+
+  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700">🏆 ${t.label.toUpperCase()} · SINGLES LEADERBOARD</div><div style="font-size:10px;color:#555;margin-top:4px">${rounds.length} round${rounds.length!==1?'s':''} · ${modeBreakdown}</div></div><div style="overflow-x:auto;margin-bottom:16px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:11px"><th style="padding:7px 8px"></th><th style="padding:7px 8px;text-align:left;color:#888">Player</th><th style="padding:7px 8px;color:#888">Rounds</th><th style="padding:7px 8px;color:var(--gold)">${colLabel}</th><th style="padding:7px 8px;color:#555">Avg</th></tr></thead><tbody>${rows}</tbody></table></div><div style="font-size:10px;color:var(--teal);letter-spacing:1px;font-weight:700;margin-bottom:8px">ROUND BREAKDOWN BY PLAYER</div>${playerDetail}`;
+}
+
+function renderTeamsResults(t, rounds) {
+  let t1wins=0, t2wins=0, halved=0;
+  const matchRows = rounds.map((g,i) => {
+    const isMatch = g.mode==='matchplay', isStab = g.mode==='stableford';
+    const {p1,p2,p3,p4} = g.players;
+    const t1n = (g.tournament&&g.tournament.team1name)||t.team1.name;
+    const t2n = (g.tournament&&g.tournament.team2name)||t.team2.name;
+    const date = new Date(g.startTime).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    let result='', rColor='#888';
+    if (isMatch && g.status) {
+      const st=g.status;
+      if(st.winner===1){result=`${t1n} wins ${st.label}`;rColor='var(--teal)';t1wins++;}
+      else if(st.winner===2){result=`${t2n} wins ${st.label}`;rColor='var(--red)';t2wins++;}
+      else{result='Halved';rColor='var(--gold)';halved++;}
+    } else {
+      let a=0,b=0;
+      g.holes.forEach(h => {
+        if(isStab){
+          const s1=stablefordCalc(h.p1,h.par,p1.hcp,gsi1(h),gsi2(h),gsi3(h));
+          const s2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
+          const s3=g.team?stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h)):null;
+          const s4=g.team?stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h)):null;
+          a+=Math.max(s1?s1.points:0,s3?s3.points:0);
+          b+=Math.max(s2?s2.points:0,s4?s4.points:0);
+        } else {
+          const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n3=g.team&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n4=g.team&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          a+=Math.min(n1,n3); b+=Math.min(n2,n4);
+        }
+      });
+      if(isStab?a>b:a<b){result=`${t1n} wins`;rColor='var(--teal)';t1wins++;}
+      else if(isStab?b>a:b<a){result=`${t2n} wins`;rColor='var(--red)';t2wins++;}
+      else{result='Halved';rColor='var(--gold)';halved++;}
+    }
+    const players=g.team?`${p1.name} & ${p3.name} vs ${p2.name} & ${p4.name}`:`${p1.name} vs ${p2.name}`;
+    return `<tr style="background:${i%2===0?'#141414':'#181818'}"><td style="padding:7px 8px;color:#888;font-size:11px">${date}</td><td style="padding:7px 8px;font-size:11px;color:#999">${isMatch?'🏆':isStab?'⭐':'✏️'} ${players}</td><td style="padding:7px 8px;font-size:12px;font-weight:700;color:${rColor};text-align:right">${result}</td></tr>`;
+  }).join('');
+
+  const total=t1wins+t2wins+halved;
+  const t1pts=t1wins+halved*0.5, t2pts=t2wins+halved*0.5;
+  const winner=t1pts>t2pts?t.team1.name:t2pts>t1pts?t.team2.name:null;
+  const wHtml=winner?`<div style="font-size:22px;font-weight:700;color:var(--teal);margin-bottom:4px">🏆 ${winner}</div><div style="font-size:11px;color:#888">Overall Winner</div>`:`<div style="font-size:18px;font-weight:700;color:var(--gold)">Tied — ${t1pts} all</div>`;
+
+  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700;margin-bottom:10px">🏆 ${t.label.toUpperCase()} · TEAMS RESULT</div>${wHtml}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center"><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--teal)">${t1pts}</div><div style="font-size:11px;color:var(--teal);font-weight:700;margin-top:4px">${t.team1.name}</div><div style="font-size:10px;color:#555">${t1wins}W · ${halved}H</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:18px;font-weight:700;color:#555">${total}</div><div style="font-size:10px;color:#555;margin-top:4px">matches</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--red)">${t2pts}</div><div style="font-size:11px;color:var(--red);font-weight:700;margin-top:4px">${t.team2.name}</div><div style="font-size:10px;color:#555">${t2wins}W · ${halved}H</div></div></div><div style="font-size:10px;color:#555;letter-spacing:1px;font-weight:700;margin-bottom:8px">MATCH RESULTS</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:10px"><th style="padding:6px 8px;text-align:left;color:#555">Date</th><th style="padding:6px 8px;text-align:left;color:#555">Players</th><th style="padding:6px 8px;text-align:right;color:#555">Result</th></tr></thead><tbody>${matchRows}</tbody></table></div>`;
+}
+</script>
+
+</body>
+</html>
