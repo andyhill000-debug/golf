@@ -374,18 +374,17 @@ function detectTeamPlay(entries) {
 function computeTeamScores(entries) {
   const t1name = entries[0]?.t1name || 'Team 1';
   const t2name = entries[0]?.t2name || 'Team 2';
-  const t1 = entries.filter(e => e.teamName === t1name);
-  const t2 = entries.filter(e => e.teamName === t2name);
-  const mode = entries[0]?.mode || 'stroke';
+  const mode   = entries[0]?.mode   || 'stroke';
   const isStab = mode === 'stableford';
+  const isMatch = mode === 'matchplay';
 
-  // Aggregate: for stableford take best ball (max), for stroke take best ball (min net)
-  // Group by gameId first, then compare
+  // Group entries by gameId so each game = one match row
   const games = {};
   entries.forEach(e => {
-    if (!games[e.gameId]) games[e.gameId] = {t1:[],t2:[],meta:e};
+    if (!games[e.gameId]) games[e.gameId] = { t1:[], t2:[], status: e.status, course: e.course, hp: 0 };
     if (e.teamName === t1name) games[e.gameId].t1.push(e);
-    else games[e.gameId].t2.push(e);
+    else                       games[e.gameId].t2.push(e);
+    games[e.gameId].hp = Math.max(games[e.gameId].hp, e.holesPlayed);
   });
 
   let t1pts = 0, t2pts = 0, halved = 0;
@@ -393,21 +392,63 @@ function computeTeamScores(entries) {
 
   Object.values(games).forEach(g => {
     if (!g.t1.length || !g.t2.length) return;
-    const s1 = isStab ? Math.max(...g.t1.map(p=>p.stabTotal)) : Math.min(...g.t1.map(p=>p.netTotal));
-    const s2 = isStab ? Math.max(...g.t2.map(p=>p.stabTotal)) : Math.min(...g.t2.map(p=>p.netTotal));
-    const hp  = Math.max(...[...g.t1,...g.t2].map(p=>p.holesPlayed));
-    let res, resLabel, resCls;
-    if (isStab ? s1 > s2 : s1 < s2)      { t1pts++; res=1; resLabel=`${t1name} leads`; resCls='col-teal'; }
-    else if (isStab ? s2 > s1 : s2 < s1) { t2pts++; res=2; resLabel=`${t2name} leads`; resCls='col-red'; }
-    else                                   { halved++;res=0; resLabel='All Square'; resCls='col-grey'; }
-    const t1pnames = g.t1.map(p=>p.name.split(' ')[0]).join(' & ');
-    const t2pnames = g.t2.map(p=>p.name.split(' ')[0]).join(' & ');
-    const status = g.meta.status;
-    matchRows.push({ t1pnames, t2pnames, hp, res, resLabel, resCls, status,
-      t1score: isStab ? s1 : s1, t2score: isStab ? s2 : s2, isStab });
+
+    // Score to compare — best ball for the pairing
+    const s1 = isStab ? Math.max(...g.t1.map(p=>p.stabTotal))  : Math.min(...g.t1.map(p=>p.netTotal));
+    const s2 = isStab ? Math.max(...g.t2.map(p=>p.stabTotal))  : Math.min(...g.t2.map(p=>p.netTotal));
+
+    // Match status label
+    let res, resCls, statusLabel;
+    if (isMatch) {
+      // Use the mpStatus from any player that has one (both should agree)
+      const mpStr = [...g.t1,...g.t2].map(p=>p.mpStatus).find(s=>s) || 'AS';
+      statusLabel = mpStr;
+      // Determine winner direction from the string — "X UP" belongs to the team whose player reported it
+      const reportedBy = [...g.t1,...g.t2].find(p=>p.mpStatus);
+      if (mpStr === 'AS' || !reportedBy) { res=0; resCls='col-grey'; halved++; }
+      else if (mpStr.includes('UP')) {
+        if (reportedBy.teamName === t1name) { res=1; resCls='col-teal'; t1pts++; }
+        else                                { res=2; resCls='col-red';  t2pts++; }
+      } else { res=0; resCls='col-grey'; halved++; }
+    } else if (isStab ? s1 > s2 : s1 < s2) {
+      res=1; resCls='col-teal'; t1pts++;
+      const gap = isStab ? s1-s2 : s2-s1;
+      statusLabel = `${t1name} +${gap}`;
+    } else if (isStab ? s2 > s1 : s2 < s1) {
+      res=2; resCls='col-red'; t2pts++;
+      const gap = isStab ? s2-s1 : s1-s2;
+      statusLabel = `${t2name} +${gap}`;
+    } else {
+      res=0; resCls='col-grey'; halved++;
+      statusLabel = 'AS';
+    }
+
+    // Player display strings — full names for the table, first names for the banner
+    const t1full  = g.t1.map(p=>p.name).join(' & ');
+    const t2full  = g.t2.map(p=>p.name).join(' & ');
+    const t1short = g.t1.map(p=>p.name.split(' ')[0]).join(' & ');
+    const t2short = g.t2.map(p=>p.name.split(' ')[0]).join(' & ');
+
+    // Per-player score strings for display
+    const fmtScore = (p) => {
+      if (isStab)  return `${p.stabTotal}pts`;
+      if (isMatch) return p.mpStatus || 'AS';
+      const d = p.netTotal - p.par;
+      return d===0 ? 'E' : (d>0?'+':'')+d;
+    };
+    const t1scores = g.t1.map(p=>`${p.name.split(' ')[0]} ${fmtScore(p)}`).join('  ');
+    const t2scores = g.t2.map(p=>`${p.name.split(' ')[0]} ${fmtScore(p)}`).join('  ');
+
+    matchRows.push({
+      t1full, t2full, t1short, t2short,
+      t1scores, t2scores,
+      hp: g.hp, res, resCls, statusLabel,
+      status: g.status, course: g.course,
+      isStab, isMatch,
+    });
   });
 
-  return { t1name, t2name, t1pts, t2pts, halved, matchRows, mode, isStab };
+  return { t1name, t2name, t1pts, t2pts, halved, matchRows, mode, isStab, isMatch };
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -572,19 +613,30 @@ function showBannerTeams(entries) {
   const banner  = document.getElementById('live-banner');
   const content = document.getElementById('banner-content');
   const ts = computeTeamScores(entries);
-
   const t1Leading = ts.t1pts > ts.t2pts;
   const t2Leading = ts.t2pts > ts.t1pts;
 
-  const matchRowsHtml = ts.matchRows.map(m => {
-    const statusBadge = m.status === 'finished'
-      ? `<span style="color:var(--gold);font-size:10px">✓ Done</span>`
-      : `<span style="color:var(--teal);font-size:10px">● Live</span>`;
-    return `<div class="tb-match-row">
-      <span class="tb-match-players">${m.t1pnames} vs ${m.t2pnames}</span>
-      <span class="tb-match-result ${m.resCls}">${m.resLabel}</span>
-      <span class="tb-match-holes">${m.hp}/18 ${statusBadge}</span>
-    </div>`;
+  const matchCardsHtml = ts.matchRows.map(m => {
+    const doneBadge = m.status === 'finished'
+      ? `<span style="color:var(--gold);font-size:10px;font-weight:700">✓ Done</span>`
+      : `<span style="color:var(--teal);font-size:10px;font-weight:700">● ${m.hp}/18</span>`;
+    return `
+      <div style="background:#0f0f0f;border:1px solid #1e1e1e;border-radius:10px;padding:10px 14px;margin-bottom:7px">
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--teal)">${m.t1short}</div>
+            <div style="font-size:11px;color:#555;margin-top:2px">${m.t1scores}</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px;font-weight:900;font-family:'Playfair Display',serif" class="${m.resCls}">${m.statusLabel}</div>
+            <div style="margin-top:3px">${doneBadge}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:700;font-size:13px;color:var(--red)">${m.t2short}</div>
+            <div style="font-size:11px;color:#555;margin-top:2px">${m.t2scores}</div>
+          </div>
+        </div>
+      </div>`;
   }).join('');
 
   content.innerHTML = `
@@ -593,20 +645,20 @@ function showBannerTeams(entries) {
         <div class="tb-header-label">📡 Live · ${entries[0]?.tLabel||''}</div>
         <div class="tb-header-title">${ts.t1name} vs ${ts.t2name}</div>
       </div>
-      <div class="tb-grid">
+      <div class="tb-grid" style="margin-bottom:12px">
         <div class="tb-team ${t1Leading?'winning':''}">
           <div class="tb-team-name" style="color:var(--teal)">${ts.t1name}</div>
           <div class="tb-pts" style="color:var(--teal)">${ts.t1pts}</div>
-          <div class="tb-sub">${ts.t1pts===1?'1 match':''}${ts.t1pts===0?'0':''}</div>
+          <div class="tb-sub">${ts.t1wins||ts.t1pts}W · ${ts.halved}H</div>
         </div>
         <div class="tb-vs">VS</div>
         <div class="tb-team t2 ${t2Leading?'winning':''}">
           <div class="tb-team-name" style="color:var(--red)">${ts.t2name}</div>
           <div class="tb-pts" style="color:var(--red)">${ts.t2pts}</div>
-          <div class="tb-sub">${ts.t2pts===1?'1 match':''}</div>
+          <div class="tb-sub">${ts.t2wins||ts.t2pts}W · ${ts.halved}H</div>
         </div>
       </div>
-      ${matchRowsHtml ? `<div class="tb-matches">${matchRowsHtml}</div>` : ''}
+      ${matchCardsHtml}
     </div>`;
 
   banner.style.overflow = 'visible';
@@ -630,11 +682,13 @@ function renderLive(modeFilter) {
   const isTeams = detectTeamPlay(entries);
   if (isTeams) {
     showBannerTeams(entries);
+    main.innerHTML = ''; // banner IS the teams display
+    return;
   } else {
     hideBanner();
   }
 
-  // Build table
+  // Individual play — build animated leaderboard table
   const tLabel    = entries[0].tLabel;
   const activeCnt = entries.filter(e=>e.status==='active').length;
   const finCnt    = entries.filter(e=>e.status==='finished').length;
@@ -642,7 +696,6 @@ function renderLive(modeFilter) {
   let rows = '', rank = 1;
   entries.forEach((e, i) => {
     const rCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
-    const tCls = e.teamName===e.t1name?'team-1':e.teamName===e.t2name?'team-2':'';
     const pct  = Math.round((e.holesPlayed/18)*100);
 
     let sh;
@@ -672,7 +725,6 @@ function renderLive(modeFilter) {
         <td><span class="rank-num ${rCls}">${rank}</span></td>
         <td>
           <div class="p-name">${e.name}</div>
-          ${e.teamName?`<div class="p-team ${tCls}">${e.teamName}</div>`:''}
           <div class="p-sub">${e.course} · ${e.mode}</div>
         </td>
         <td class="r">${sh}</td>
