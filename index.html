@@ -4034,10 +4034,12 @@ function renderScorecard(results, rawResults){
           + (team ? `<th style="color:var(--teal)">${p3s}</th><th style="color:var(--teal);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           + `<th style="color:var(--red)">${p2s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>`
           + (team ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
-          + (isMatch&&!(_fp&&!team&&_pc4>=4) ? '<th style="color:#888;font-size:9px">Res</th>' : '')
+          /* Res1 — always shown for matchplay (separator between M1 and M2 in fp4 mode) */
+          + (isMatch ? '<th style="color:#888;font-size:9px">R1</th>' : '')
+          /* Match 2 columns — only in fourPlayer non-team 4-player mode */
           + (_fp&&!team&&_pc4>=3 ? `<th style="color:var(--teal)">${p3s}</th><th style="color:var(--teal);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           + (_fp&&!team&&_pc4>=4 ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
-          + (isMatch&&_fp&&!team&&_pc4>=4 ? '<th style="color:#888;font-size:9px">Res</th>' : '')
+          + (isMatch&&_fp&&!team&&_pc4>=4 ? '<th style="color:#888;font-size:9px">R2</th>' : '')
         }
       </tr>`;
 
@@ -4157,9 +4159,8 @@ function renderScorecard(results, rawResults){
           + (team ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(h.p3!=null?h.p3-strokesOnHole(p3.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
           + scoreCell(h.p2,h.par) + (isStab ? ptsCell(sb2) : `<td style="text-align:center">${netScoreDeco(n2,h.par)}</td>`)
           + (team ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(h.p4!=null?h.p4-strokesOnHole(p4.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
-          /* Res1 — only when NOT fourPlayer dual-match (in that case Res1 goes here too) */
-          + (isMatch&&!_fp2match ? `<td class="${resCls}">${resSym}</td>` : '')
-          + (isMatch&&_fp2match ? `<td class="${resCls}">${resSym}</td>` : '')
+          /* Res1 — always shown for matchplay, sits between M1 and M2 */
+          + (isMatch ? `<td class="${resCls}">${resSym}</td>` : '')
           /* Match 2: p3 gross/net, p4 gross/net, Res2 */
           + (_fp&&!team&&_pc4>=3 ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(n3,h.par)}</td>`) : '')
           + (_fp&&!team&&_pc4>=4 ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(n4,h.par)}</td>`) : '')
