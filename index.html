@@ -1483,8 +1483,8 @@ function toggleTeam() {
     document.getElementById('p3-name-select-wrap').style.display=teamPlay?'block':'none';
     document.getElementById('p4-name-select-wrap').style.display=teamPlay?'block':'none';
     const t=TOURNAMENT[activeTournament];
-    document.getElementById('t1-card-label').textContent=teamPlay?(t.team1.name+' — Player A'):t.team1.name;
-    document.getElementById('t2-card-label').textContent=teamPlay?(t.team2.name+' — Player A'):t.team2.name;
+    document.getElementById('t1-card-label').textContent=t.team1.name;
+    document.getElementById('t2-card-label').textContent=t.team2.name;
   } else {
     _syncPlayerLabels();
   }
@@ -1517,12 +1517,12 @@ function _syncPlayerLabels(){
   const t1cl = document.getElementById('t1-card-label');
   const t2cl = document.getElementById('t2-card-label');
   if (t1cl) {
-    t1cl.textContent = isTeam ? 'Team 1 — Player A' : useDualMatch ? 'Player 1 — Match 1' : 'Player 1';
+    t1cl.textContent = isTeam ? 'Team 1' : useDualMatch ? 'Player 1 — Match 1' : 'Player 1';
     t1cl.style.color = useDualMatch ? 'var(--teal)' : '';  // teal for Match 1
   }
   if (t2cl) {
-    t2cl.textContent = isTeam ? 'Team 2 — Player A' : useDualMatch ? 'Player 2 — Match 1' : 'Player 2';
-    t2cl.style.color = useDualMatch ? 'var(--red)' : '';   // red for Match 1 opponent
+    t2cl.textContent = isTeam ? 'Team 2' : useDualMatch ? 'Player 2 — Match 1' : 'Player 2';
+    t2cl.style.color = useDualMatch ? 'var(--red)' : isTeam ? 'var(--red)' : '';
   }
 
   const p3nl=document.getElementById('p3-name-label');
@@ -1705,8 +1705,8 @@ function setTeamsMatchFormat(fmt) {
 
   // Update card labels for the active tournament
   if (t && t.type === 'teams') {
-    document.getElementById('t1-card-label').textContent = is4bbb ? t.team1.name + ' — Player A' : t.team1.name + ' — Match 1';
-    document.getElementById('t2-card-label').textContent = is4bbb ? t.team2.name + ' — Player A' : t.team2.name + ' — Match 1';
+    document.getElementById('t1-card-label').textContent = t.team1.name + (is4bbb ? '' : ' — Match 1');
+    document.getElementById('t2-card-label').textContent = t.team2.name + (is4bbb ? '' : ' — Match 1');
     const p3nl=document.getElementById('p3-name-label'),p3sl=document.getElementById('p3-select-label');
     const p4nl=document.getElementById('p4-name-label'),p4sl=document.getElementById('p4-select-label');
     if(isTeamsSingles){
