@@ -1611,18 +1611,31 @@ function renderTournamentTab() {
         ? `Teams · ${t.team1.name} vs ${t.team2.name}`
         : `Singles · ${(t.players||[]).length} players`;
       const isActive = key === activeTournament;
-      return `<div class="tnmt-item${isActive?' selected':''}" onclick="selectTournamentFromList('${key}')">
+      // Use data-key attributes + event delegation to avoid quote-escaping issues
+      return `<div class="tnmt-item${isActive?' selected':''}" data-key="${key}" data-action="select">
         <div class="tnmt-item-icon">${icon}</div>
         <div class="tnmt-item-info">
           <div class="tnmt-item-name">${t.label}</div>
           <div class="tnmt-item-meta">${meta}${isActive?' · <span style="color:var(--teal)">Active</span>':''}</div>
         </div>
-        <div class="tnmt-item-actions" onclick="event.stopPropagation()">
-          <button class="tnmt-act-btn" onclick="showTournamentWizard('${key}')">✏️</button>
-          <button class="tnmt-act-btn danger" onclick="deleteTournament('${key}')">🗑</button>
+        <div class="tnmt-item-actions">
+          <button class="tnmt-act-btn" data-key="${key}" data-action="edit">✏️</button>
+          <button class="tnmt-act-btn danger" data-key="${key}" data-action="delete">🗑</button>
         </div>
       </div>`;
     }).join('');
+
+    // Single delegated listener — replaces all inline onclick handlers
+    listEl.onclick = function(e) {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      const action = btn.dataset.action;
+      if (action === 'select') selectTournamentFromList(key);
+      else if (action === 'edit')   showTournamentWizard(key);
+      else if (action === 'delete') deleteTournament(key);
+    };
   }
 
   // Results card — show if active tournament set
