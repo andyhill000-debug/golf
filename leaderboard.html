@@ -131,6 +131,30 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .lb-table thead th.sortable.sort-active{color:var(--teal);}
 .th-sort-arrow{display:inline-block;font-size:9px;margin-left:3px;opacity:.4;vertical-align:middle;transition:opacity .15s;}
 .lb-table thead th.sort-active .th-sort-arrow{opacity:1;color:var(--teal);}
+
+/* ── Individual matchplay match cards ─────────────────────────────────────── */
+.ind-match-list{display:flex;flex-direction:column;gap:8px;}
+.ind-match-card{border-radius:12px;overflow:hidden;background:#0f0f0f;border:1px solid var(--border);position:relative;}
+.ind-match-card.imc-p1{border-left:4px solid var(--teal);}
+.ind-match-card.imc-p2{border-left:4px solid var(--red);}
+.ind-match-card.imc-as{border-left:4px solid #2a2a2a;}
+.ind-match-card.imc-done{border-left:4px solid var(--gold);opacity:.88;}
+.ind-match-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 16px;gap:10px;}
+.ind-player{display:flex;flex-direction:column;gap:2px;}
+.ind-player.p2-side{text-align:right;align-items:flex-end;}
+.ind-player-name{font-weight:700;font-size:15px;line-height:1.2;}
+.ind-player-sub{font-size:10px;color:#444;font-weight:600;}
+.imc-p1 .ind-player.p1-side .ind-player-name{color:var(--teal);}
+.imc-p2 .ind-player.p2-side .ind-player-name{color:var(--red);}
+.imc-done .ind-player-name{color:var(--gold);}
+.ind-match-centre{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:84px;}
+.ind-result-badge{font-family:'Playfair Display',serif;font-size:17px;font-weight:900;padding:5px 14px;border-radius:20px;white-space:nowrap;line-height:1.2;text-align:center;}
+.ind-match-footer{height:3px;background:#161616;overflow:hidden;}
+.ind-match-prog{height:100%;border-radius:0;transition:width .6s ease;}
+.imc-p1 .ind-match-prog{background:var(--teal);}
+.imc-p2 .ind-match-prog{background:var(--red);}
+.imc-as .ind-match-prog{background:#333;}
+.imc-done .ind-match-prog{background:var(--gold);}
 /* Hole detail */
 .hole-detail{display:none;padding:10px 12px;background:#0d0d0d;border-top:1px solid var(--border);}
 .hole-detail.open{display:block;}
@@ -957,11 +981,108 @@ function renderLive(modeFilter) {
     return;
   }
 
-  // Individual play — build animated leaderboard table
+  // Individual play
   const tLabel    = entries[0].tLabel;
+  const isMatchplay = entries[0].mode === 'matchplay';
   const activeCnt = entries.filter(e=>e.status==='active').length;
   const finCnt    = entries.filter(e=>e.status==='finished').length;
 
+  // ── Matchplay: Ryder Cup–style match cards, one per game ─────────────────
+  if (isMatchplay) {
+    // Group entries by gameId — each game = one match card
+    const games = {};
+    entries.forEach(e => {
+      if (!games[e.gameId]) games[e.gameId] = [];
+      games[e.gameId].push(e);
+    });
+
+    const hlName = n => {
+      if (!filterSearch) return n;
+      const idx = n.toLowerCase().indexOf(filterSearch);
+      if (idx === -1) return `<span style="opacity:.35">${n}</span>`;
+      return n.slice(0,idx)
+        + `<mark style="background:rgba(0,232,187,.25);color:var(--teal);border-radius:3px;padding:0 2px">${n.slice(idx,idx+filterSearch.length)}</mark>`
+        + n.slice(idx+filterSearch.length);
+    };
+
+    let matchNum = 1;
+    const cards = Object.values(games).map(players => {
+      // p1-side = teamSlot 1 (leading perspective), p2-side = teamSlot 2
+      const p1e = players.find(p => !p.mpStatus?.includes('DOWN') && !p.mpStatus?.startsWith('L ')) || players[0];
+      const p2e = players.find(p => p !== p1e) || players[1];
+      if (!p1e || !p2e) return '';
+
+      const hp   = Math.max(p1e.holesPlayed, p2e?.holesPlayed || 0);
+      const pct  = Math.round((hp / 18) * 100);
+      const done = p1e.status === 'finished' || p2e?.status === 'finished';
+      const thru = done ? 'F' : hp === 0 ? 'Not started' : `Thru ${hp}`;
+
+      // Status from p1-side perspective
+      const st   = p1e.mpStatus || 'AS';
+      const p1up = st.includes('UP') || st.startsWith('W ');
+      const p2up = st.includes('DOWN') || st.startsWith('L ');
+      const as   = !p1up && !p2up;
+
+      const cardCls  = done ? 'imc-done' : p1up ? 'imc-p1' : p2up ? 'imc-p2' : 'imc-as';
+      const badgeCls = done ? 'mrbg-done' : p1up ? 'mrbg-t1' : p2up ? 'mrbg-t2' : 'mrbg-as';
+
+      // Badge text — use p1-side label (always "X UP" or "X&Y")
+      const rawLabel = st.replace(' DOWN','').replace(/^L /,'').replace(/^W /,'') || 'AS';
+      const badgeTxt = as ? 'AS' : rawLabel;
+
+      const winnerName = done
+        ? (p1up ? p1e.name : p2up ? p2e?.name : 'Halved')
+        : null;
+      const leadHtml = winnerName
+        ? `<div class="match-leading" style="color:var(--gold)">${winnerName}</div>`
+        : p1up
+          ? `<div class="match-leading" style="color:var(--teal)">${p1e.name} leads</div>`
+          : p2up
+            ? `<div class="match-leading" style="color:var(--red)">${p2e?.name} leads</div>`
+            : `<div class="match-leading" style="color:#444">All Square</div>`;
+
+      const statusDot = done
+        ? `<span style="color:var(--gold);font-size:10px;font-weight:700">✓ FINAL</span>`
+        : `<span style="color:var(--teal);font-size:10px;font-weight:700;animation:blink 1.8s ease infinite">● LIVE</span>`;
+
+      const mn = matchNum++;
+      return `
+        <div class="ind-match-card ${cardCls}">
+          <div class="ind-match-body">
+            <div class="ind-player p1-side">
+              <div class="ind-player-name">${hlName(p1e.name)}</div>
+              <div class="ind-player-sub">${p1e.course}</div>
+            </div>
+            <div class="ind-match-centre">
+              <div class="match-num">Match ${mn}</div>
+              <div class="ind-result-badge ${badgeCls}">${badgeTxt}</div>
+              ${leadHtml}
+              <div class="match-thru" style="color:#444">${thru}</div>
+              ${statusDot}
+            </div>
+            <div class="ind-player p2-side">
+              <div class="ind-player-name">${hlName(p2e?.name||'')}</div>
+              <div class="ind-player-sub">${p2e?.course||''}</div>
+            </div>
+          </div>
+          <div class="ind-match-footer"><div class="ind-match-prog" style="width:${pct}%"></div></div>
+        </div>`;
+    }).join('');
+
+    main.innerHTML = `
+      <div class="t-title">
+        <div class="t-name">${tLabel}</div>
+        <div class="t-meta">
+          <span>⛳ ${Object.keys(games).length} match${Object.keys(games).length!==1?'es':''}</span>
+          ${activeCnt?`<span style="color:var(--teal)">● ${activeCnt} live</span>`:''}
+          ${finCnt?`<span style="color:var(--gold)">✓ ${finCnt/2|0} done</span>`:''}
+        </div>
+      </div>
+      <div class="ind-match-list">${cards}</div>`;
+    return;
+  }
+
+  // ── Stroke / Stableford: standard sortable table ──────────────────────────
   let rows = '', rank = 1;
   entries.forEach((e, i) => {
     const rCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
@@ -970,12 +1091,6 @@ function renderLive(modeFilter) {
     let sh;
     if (e.mode==='stableford') {
       sh = `<div class="score-big col-teal">${e.stabTotal}</div><div class="score-lbl">PTS</div>`;
-    } else if (e.mode==='matchplay') {
-      const st=e.mpStatus||(e.holesPlayed===0?'AS':'—');
-      const sc = st.includes('DOWN') || st.startsWith('L ') ? 'col-red'
-               : st.includes('UP')   || st.startsWith('W ') ? 'col-teal'
-               : 'col-grey';
-      sh = `<div class="score-big ${sc}">${st}</div>`;
     } else {
       const d=e.netTotal-e.par;
       const sc=d<0?'col-teal':d>0?'col-red':'col-grey';
@@ -991,13 +1106,16 @@ function renderLive(modeFilter) {
       pips+=`<div class="pip ${hd?'scored':''} ${nxt?'next':''}"><span class="pip-n">${h}</span>${g!=null?g:''}</div>`;
     }
 
+    const hlName = n => {
+      if (!filterSearch || !n.toLowerCase().includes(filterSearch)) return n;
+      return n.replace(new RegExp(filterSearch,'gi'), m => `<mark style="background:rgba(0,232,187,.25);color:var(--teal);border-radius:3px;padding:0 2px">${m}</mark>`);
+    };
+
     rows += `
       <tr class="${i===0?'leader':''}" onclick="toggleDetail(${i})">
         <td><span class="rank-num ${rCls}">${rank}</span></td>
         <td>
-          <div class="p-name">${filterSearch && e.name.toLowerCase().includes(filterSearch)
-            ? e.name.replace(new RegExp(filterSearch,'gi'), m => `<mark style="background:rgba(0,232,187,.25);color:var(--teal);border-radius:3px;padding:0 2px">${m}</mark>`)
-            : e.name}</div>
+          <div class="p-name">${hlName(e.name)}</div>
           <div class="p-sub">${e.course} · ${e.mode}</div>
         </td>
         <td class="r">${sh}</td>
