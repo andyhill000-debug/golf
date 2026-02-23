@@ -1626,6 +1626,21 @@ function setTeamsMatchFormat(fmt) {
   document.getElementById('p3-card').style.display = isTeamsSingles ? 'block' : 'none';
   document.getElementById('p4-card').style.display = isTeamsSingles ? 'block' : 'none';
 
+  // CRITICAL: set fourPlayer=true so gv()/gn() read from p3-ind/p4-ind inputs
+  if (isTeamsSingles && !fourPlayer) {
+    fourPlayer = true;
+    document.getElementById('fourplayer-toggle').classList.add('on');
+    document.getElementById('fourplayer-label').textContent = 'On';
+    const _fb=document.getElementById('fourplayer-box');
+    if(_fb){_fb.style.borderColor='var(--teal)';_fb.style.background='rgba(0,232,187,.12)';}
+  } else if (!isTeamsSingles && fourPlayer && !is4bbb) {
+    fourPlayer = false;
+    document.getElementById('fourplayer-toggle').classList.remove('on');
+    document.getElementById('fourplayer-label').textContent = 'Off';
+    const _fb=document.getElementById('fourplayer-box');
+    if(_fb){_fb.style.borderColor='#2a2a2a';_fb.style.background='#141414';}
+  }
+
   // Show/hide partner dropdowns
   document.getElementById('p3-name-select-wrap').style.display = is4bbb ? 'block' : 'none';
   document.getElementById('p4-name-select-wrap').style.display = is4bbb ? 'block' : 'none';
@@ -1702,8 +1717,8 @@ function onTournamentSelect(val) {
       const t1cl = _g('t1-card-label'), t2cl = _g('t2-card-label');
       if (t1cl) t1cl.style.color = 'var(--teal)';
       if (t2cl) t2cl.style.color = 'var(--red)';
-      ['p1-select-label','p3-select-label'].forEach(id => { const e=_g(id); if(e) e.style.color='var(--teal)'; });
-      ['p2-select-label','p4-select-label'].forEach(id => { const e=_g(id); if(e) e.style.color='var(--red)'; });
+      ['p1-select-label','p3-select-label','p3-ind-select-label'].forEach(id => { const e=_g(id); if(e) e.style.color='var(--teal)'; });
+      ['p2-select-label','p4-select-label','p4-ind-select-label'].forEach(id => { const e=_g(id); if(e) e.style.color='var(--red)'; });
       // Populate player dropdowns
       populateTournamentDropdown('p1-name-select', t.team1.players);
       populateTournamentDropdown('p3-name-select', t.team1.players);
@@ -3941,12 +3956,11 @@ function renderScorecard(results, rawResults){
   const {p1,p2,p3,p4}=game.players;
   const isMatch=game.mode==='matchplay',isStab=game.mode==='stableford',team=game.team;
   const p1s=p1.name.split(' ')[0],p2s=p2.name.split(' ')[0];
-  const p3s=team?p3.name.split(' ')[0]:'',p4s=team?p4.name.split(' ')[0]:'';
+  const _fp=game.fourPlayer, _pc4=game.playerCount||2;
+  const p3s=(team||_fp)?p3.name.split(' ')[0]:'', p4s=(team||(_fp&&_pc4>=4))?p4.name.split(' ')[0]:'';
 
   const _skColors=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
   const _skActive=game.skins&&game.skinsPlayers&&game.skinsPlayers.length>=2;
-  const _fp=game.fourPlayer;
-  const _pc4=game.playerCount||2;
   const thead=_skActive
     ? `<tr>
         <th style="text-align:left">H</th><th>Par</th><th>SI</th>
@@ -3960,8 +3974,8 @@ function renderScorecard(results, rawResults){
           + (team ? `<th style="color:var(--teal)">${p3s}</th><th style="color:var(--teal);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           + `<th style="color:var(--red)">${p2s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>`
           + (team ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
-          + (_fp&&_pc4>=3 ? `<th style="color:var(--gold)">${p3s}</th><th style="color:var(--gold);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
-          + (_fp&&_pc4>=4 ? `<th style="color:#a78bfa">${p4s}</th><th style="color:#a78bfa;font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
+          + (_fp&&_pc4>=3&&!team ? `<th style="color:var(--teal)">${p3s}</th><th style="color:var(--teal);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
+          + (_fp&&_pc4>=4&&!team ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           + (isMatch ? '<th style="color:#888;font-size:9px">Res</th>' : '')
         }
       </tr>`;
@@ -4073,8 +4087,8 @@ function renderScorecard(results, rawResults){
           + (team ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(h.p3!=null?h.p3-strokesOnHole(p3.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
           + scoreCell(h.p2,h.par) + (isStab ? ptsCell(sb2) : `<td style="text-align:center">${netScoreDeco(n2,h.par)}</td>`)
           + (team ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(h.p4!=null?h.p4-strokesOnHole(p4.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
-          + (_fp&&_pc4>=3 ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(n3,h.par)}</td>`) : '')
-          + (_fp&&_pc4>=4 ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(n4,h.par)}</td>`) : '')
+          + (_fp&&!team&&_pc4>=3 ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(n3,h.par)}</td>`) : '')
+          + (_fp&&!team&&_pc4>=4 ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(n4,h.par)}</td>`) : '')
           + (isMatch ? `<td class="${resCls}">${resSym}</td>` : '')
         }
       </tr>`;
