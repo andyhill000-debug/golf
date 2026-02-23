@@ -1036,38 +1036,41 @@ function renderLive(modeFilter) {
 
     let matchNum = 1;
     const cards = Object.values(games).map(players => {
-      // p1-side = teamSlot 1 (leading perspective), p2-side = teamSlot 2
-      const p1e = players.find(p => !p.mpStatus?.includes('DOWN') && !p.mpStatus?.startsWith('L ')) || players[0];
-      const p2e = players.find(p => p !== p1e) || players[1];
+      // Use insertion order — p1 is always first from Firebase
+      const p1e = players[0];
+      const p2e = players[1];
       if (!p1e || !p2e) return '';
 
-      const hp   = Math.max(p1e.holesPlayed, p2e?.holesPlayed || 0);
+      const hp   = Math.max(p1e.holesPlayed, p2e.holesPlayed || 0);
       const pct  = Math.round((hp / 18) * 100);
-      const done = p1e.status === 'finished' || p2e?.status === 'finished';
+      const done = p1e.status === 'finished' || p2e.status === 'finished';
       const thru = done ? 'F' : hp === 0 ? 'Not started' : `Thru ${hp}`;
 
-      // Status from p1-side perspective
-      const st   = p1e.mpStatus || 'AS';
-      const p1up = st.includes('UP') || st.startsWith('W ');
-      const p2up = st.includes('DOWN') || st.startsWith('L ');
-      const as   = !p1up && !p2up;
+      // mpLeading: 1 = p1 ahead (teal), 2 = p2 ahead (red), 0 = AS
+      // Read from whichever player has a value — both store the same mpLeading number
+      const mpLeading = p1e.mpLeading || p2e.mpLeading || 0;
+      const p1leads = mpLeading === 1;
+      const p2leads = mpLeading === 2;
+      const as      = mpLeading === 0;
 
-      const cardCls  = done ? 'imc-done' : p1up ? 'imc-p1' : p2up ? 'imc-p2' : 'imc-as';
-      const badgeCls = done ? 'mrbg-done' : p1up ? 'mrbg-t1' : p2up ? 'mrbg-t2' : 'mrbg-as';
+      // Badge label — strip direction suffix, keep the number e.g. "2 UP", "3&2"
+      const anyStatus = p1e.mpStatus || p2e.mpStatus || '';
+      const rawLabel  = anyStatus
+        .replace(/ DOWN$/,'').replace(/^L /,'').replace(/^W /,'') || 'AS';
+      const badgeTxt  = as && !done ? 'AS' : rawLabel || 'AS';
 
-      // Badge text — use p1-side label (always "X UP" or "X&Y")
-      const rawLabel = st.replace(' DOWN','').replace(/^L /,'').replace(/^W /,'') || 'AS';
-      const badgeTxt = as ? 'AS' : rawLabel;
+      const cardCls  = done ? 'imc-done' : p1leads ? 'imc-p1' : p2leads ? 'imc-p2' : 'imc-as';
+      const badgeCls = done ? 'mrbg-done' : p1leads ? 'mrbg-t1' : p2leads ? 'mrbg-t2' : 'mrbg-as';
 
       const winnerName = done
-        ? (p1up ? p1e.name : p2up ? p2e?.name : 'Halved')
+        ? (p1leads ? p1e.name : p2leads ? p2e.name : 'Halved')
         : null;
       const leadHtml = winnerName
         ? `<div class="match-leading" style="color:var(--gold)">${winnerName}</div>`
-        : p1up
+        : p1leads
           ? `<div class="match-leading" style="color:var(--teal)">${p1e.name} leads</div>`
-          : p2up
-            ? `<div class="match-leading" style="color:var(--red)">${p2e?.name} leads</div>`
+          : p2leads
+            ? `<div class="match-leading" style="color:var(--red)">${p2e.name} leads</div>`
             : `<div class="match-leading" style="color:#444">All Square</div>`;
 
       const statusDot = done
