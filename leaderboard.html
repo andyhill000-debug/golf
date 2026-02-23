@@ -129,7 +129,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .lb-table thead th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
 .lb-table thead th.sortable:hover{color:var(--text);}
 .lb-table thead th.sortable.sort-active{color:var(--teal);}
-.th-sort-arrow{display:inline-block;font-size:9px;margin-left:3px;opacity:.4;vertical-align:middle;transition:opacity .15s;}
+.th-sort-arrow{display:inline-block;font-size:9px;margin-left:3px;opacity:.2;vertical-align:middle;transition:opacity .2s,color .2s;}
 .lb-table thead th.sort-active .th-sort-arrow{opacity:1;color:var(--teal);}
 
 /* ── Individual matchplay match cards ─────────────────────────────────────── */
@@ -471,9 +471,15 @@ window.setSort = function(key) {
     const arrEl = document.getElementById('arr-' + k);
     const isActive = k === filterSort;
     if (thEl)  thEl.classList.toggle('sort-active', isActive);
-    if (arrEl) arrEl.textContent = isActive
-      ? ((sortDir[k] ?? sortDefaults[k]) === 1 ? '↑' : '↓')
-      : '';
+    if (arrEl) {
+      if (isActive) {
+        arrEl.textContent = (sortDir[k] ?? sortDefaults[k]) === 1 ? '↑' : '↓';
+        arrEl.style.opacity = '1';
+      } else {
+        arrEl.textContent = '↕';
+        arrEl.style.opacity = '0.2';
+      }
+    }
   });
   render();
 };
@@ -489,9 +495,26 @@ function applyFilterSort(entries) {
   out = [...out].sort((a, b) => {
     switch (filterSort) {
       case 'score': {
-        if (a.mode === 'stableford') return dir * (b.stabTotal - a.stabTotal);
-        if (a.mode === 'matchplay')  return dir * ((a.mpLeading||0) - (b.mpLeading||0));
-        return dir * (a.netTotal - b.netTotal);
+        if (a.mode === 'stableford') {
+          // Higher stableford = better; push 0-pointers to bottom
+          const aZero = a.stabTotal === 0 && a.holesPlayed === 0;
+          const bZero = b.stabTotal === 0 && b.holesPlayed === 0;
+          if (aZero && !bZero) return 1;
+          if (bZero && !aZero) return -1;
+          return dir * (b.stabTotal - a.stabTotal);
+        }
+        if (a.mode === 'matchplay') {
+          // Sort by holes played desc first, then leading status
+          if (a.holesPlayed !== b.holesPlayed) return b.holesPlayed - a.holesPlayed;
+          return dir * ((a.mpLeading||0) - (b.mpLeading||0));
+        }
+        // Stroke: sort by net-to-par differential (lower = better)
+        // Push unstarted players to the bottom
+        const aUnstarted = a.holesPlayed === 0;
+        const bUnstarted = b.holesPlayed === 0;
+        if (aUnstarted && !bUnstarted) return 1;
+        if (bUnstarted && !aUnstarted) return -1;
+        return dir * ((a.netTotal - a.par) - (b.netTotal - b.par));
       }
       case 'holes':
         return dir * (a.holesPlayed - b.holesPlayed);
@@ -571,8 +594,15 @@ function parseEntries(modeFilter) {
     });
   });
   entries.sort((a,b) => {
-    if (a.mode === 'stableford') return b.stabTotal - a.stabTotal;
-    return a.netTotal - b.netTotal;
+    if (a.mode === 'stableford') {
+      if (a.holesPlayed === 0 && b.holesPlayed > 0) return 1;
+      if (b.holesPlayed === 0 && a.holesPlayed > 0) return -1;
+      return b.stabTotal - a.stabTotal;
+    }
+    // Push unstarted players to the bottom
+    if (a.holesPlayed === 0 && b.holesPlayed > 0) return 1;
+    if (b.holesPlayed === 0 && a.holesPlayed > 0) return -1;
+    return (a.netTotal - a.par) - (b.netTotal - b.par);
   });
   return entries;
 }
@@ -1092,9 +1122,14 @@ function renderLive(modeFilter) {
     if (e.mode==='stableford') {
       sh = `<div class="score-big col-teal">${e.stabTotal}</div><div class="score-lbl">PTS</div>`;
     } else {
-      const d=e.netTotal-e.par;
-      const sc=d<0?'col-teal':d>0?'col-red':'col-grey';
-      sh = `<div class="score-big ${sc}">${d===0?'E':(d>0?'+':'')+d}</div><div class="score-lbl">NET ${e.netTotal}</div>`;
+      const d  = e.netTotal - e.par;
+      const sc = d < 0 ? 'col-teal' : d > 0 ? 'col-red' : 'col-grey';
+      if (e.holesPlayed === 0) {
+        sh = `<div class="score-big col-grey">—</div><div class="score-lbl">NOT STARTED</div>`;
+      } else {
+        const lbl = e.holesPlayed === 18 ? `NET ${e.netTotal}` : `NET ${e.netTotal} · Thru ${e.holesPlayed}`;
+        sh = `<div class="score-big ${sc}">${d===0?'E':(d>0?'+':'')+d}</div><div class="score-lbl">${lbl}</div>`;
+      }
     }
 
     let pips='';
