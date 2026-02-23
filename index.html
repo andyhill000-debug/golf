@@ -3834,7 +3834,7 @@ function renderHoleEntry(){
   const sb4=(isStab&&(game.team||(game.fourPlayer&&_pc_sb>=4)))?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
 
   // Stroke labels
-  const strokeLbl=(s)=>{ return s>0?`<span style="color:var(--teal);font-size:10px;font-weight:700">+${s} stroke${s>1?'s':''}</span>`:'<span style="color:#888;font-size:9px">no strokes</span>'; }
+  const strokeLbl=(s,col='var(--teal)')=>{ return s>0?`<span style="color:${col};font-size:10px;font-weight:700">+${s} stroke${s>1?'s':''}</span>`:'<span style="color:#888;font-size:9px">no strokes</span>'; }
 
   // Net score decoration helper (inline for hole entry — mirrors scorecard version)
   const holeNetDeco=(net,par)=>{
@@ -3892,16 +3892,16 @@ function renderHoleEntry(){
   }
 
   /** Render stroke dots: one dot per stroke the player gets on this hole */
-  const strokeDots=(strokes)=>{
+  const strokeDots=(strokes,col='var(--teal)')=>{
     if(!strokes) return '';
-    const dots = Array.from({length:strokes}, (_,i)=>`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:2px;opacity:${i===0?1:0.6}"></span>`).join('');
+    const dots = Array.from({length:strokes}, (_,i)=>`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:2px;opacity:${i===0?1:0.6}"></span>`).join('');
     return `<span style="display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle">${dots}</span>`;
   }
 
   const playerBlock=(player,field,gross,strokes,sbCalc,color)=>{
     return `<div>
       <div class="score-player-label" style="color:${color}">${player.name}</div>
-      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes)}${strokeDots(strokes)}</div>
+      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes,color)}${strokeDots(strokes,color)}</div>
       <div class="score-stepper">
         <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
         <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
