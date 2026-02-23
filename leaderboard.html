@@ -464,12 +464,11 @@ function applyFilterSort(entries) {
   const dir = sortDir[filterSort] ?? sortDefaults[filterSort];
   out = [...out].sort((a, b) => {
     switch (filterSort) {
-      case 'score':
-        // Sort by score (mode-aware) — default is already done by parseEntries;
-        // re-sort here to respect direction override
+      case 'score': {
         if (a.mode === 'stableford') return dir * (b.stabTotal - a.stabTotal);
         if (a.mode === 'matchplay')  return dir * ((a.mpLeading||0) - (b.mpLeading||0));
         return dir * (a.netTotal - b.netTotal);
+      }
       case 'holes':
         return dir * (a.holesPlayed - b.holesPlayed);
       case 'name':
@@ -547,7 +546,10 @@ function parseEntries(modeFilter) {
       });
     });
   });
-  entries.sort((a,b) => a.mode==='stableford' ? b.stabTotal-a.stabTotal : a.netTotal-b.netTotal);
+  entries.sort((a,b) => {
+    if (a.mode === 'stableford') return b.stabTotal - a.stabTotal;
+    return a.netTotal - b.netTotal;
+  });
   return entries;
 }
 
