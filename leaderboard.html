@@ -373,6 +373,7 @@ let filterSearch  = '';
 let filterSort    = 'score';   // 'score' | 'holes' | 'name' | 'status'
 let sortDir       = {};        // { score: 1, holes: -1, ... } — 1=asc, -1=desc
 // Defaults: score asc (low=good), holes desc (most played first), name asc, status asc
+// score dir=1: stroke → lowest net-to-par first; stableford → highest points first
 const sortDefaults = { score:1, holes:-1, name:1, status:1 };
 // Sort arrows initialised in renderLive after table is injected
 
@@ -426,6 +427,8 @@ window.onTournamentChange = function(key) {
     `<div class="state-msg"><div class="icon">⏳</div><h3>Loading…</h3></div>`;
   // Show filter bar, reset search on new tournament
   filterSearch = '';
+  sortDir = {};   // reset sort directions on each new tournament
+  filterSort = 'score';
   const inp = document.getElementById('filter-search');
   if (inp) inp.value = '';
   const clr = document.getElementById('filter-search-clear');
@@ -495,24 +498,24 @@ function applyFilterSort(entries) {
     switch (filterSort) {
       case 'score': {
         if (a.mode === 'stableford') {
-          // Higher stableford = better; push 0-pointers to bottom
+          // Stableford: higher = better. Default dir=1 → highest first (best first).
           const aZero = a.stabTotal === 0 && a.holesPlayed === 0;
           const bZero = b.stabTotal === 0 && b.holesPlayed === 0;
           if (aZero && !bZero) return 1;
           if (bZero && !aZero) return -1;
+          // dir=1 → highest first (b-a); dir=-1 → lowest first (a-b)
           return dir * (b.stabTotal - a.stabTotal);
         }
         if (a.mode === 'matchplay') {
-          // Sort by holes played desc first, then leading status
           if (a.holesPlayed !== b.holesPlayed) return b.holesPlayed - a.holesPlayed;
           return dir * ((a.mpLeading||0) - (b.mpLeading||0));
         }
-        // Stroke: sort by net-to-par differential (lower = better)
-        // Push unstarted players to the bottom
+        // Stroke: lower net-to-par = better. Default dir=1 → lowest first (a-b).
         const aUnstarted = a.holesPlayed === 0;
         const bUnstarted = b.holesPlayed === 0;
         if (aUnstarted && !bUnstarted) return 1;
         if (bUnstarted && !aUnstarted) return -1;
+        // dir=1 → lowest diff first (a-b); dir=-1 → highest first (b-a)
         return dir * ((a.netTotal - a.par) - (b.netTotal - b.par));
       }
       case 'holes':
