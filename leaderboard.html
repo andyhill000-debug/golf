@@ -4,6 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#0a0a0a"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>Hillfred Golf · Live Leaderboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -27,6 +30,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .live-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:blink 1.8s ease infinite;}
 .live-dot.off{background:var(--red);animation:none;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.refresh-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:rgba(0,232,187,.07);border:1.5px solid rgba(0,232,187,.2);border-radius:8px;color:var(--teal);font-size:15px;cursor:pointer;transition:background .15s,transform .3s;-webkit-tap-highlight-color:transparent;}
+.refresh-btn:hover{background:rgba(0,232,187,.13);}
+.refresh-btn.spinning{animation:spin .7s linear;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.offline-bar{background:rgba(255,90,90,.08);border-bottom:1px solid rgba(255,90,90,.2);padding:8px 20px;display:none;align-items:center;justify-content:space-between;gap:10px;}
+.offline-bar.visible{display:flex;}
+.offline-msg{font-size:12px;color:#ff5a5a;font-weight:700;letter-spacing:.3px;}
+.reconnect-btn{padding:5px 12px;background:rgba(255,90,90,.12);border:1.5px solid rgba(255,90,90,.3);border-radius:7px;color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.reconnect-btn:active{background:rgba(255,90,90,.25);}
 
 /* ── Live banner ───────────────────────────────────────────────────────────── */
 #live-banner{background:linear-gradient(180deg,#0d0d0d 0%,#080808 100%);border-bottom:2px solid var(--border);overflow:hidden;transition:height .4s ease;}
@@ -305,10 +317,19 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
     <a class="back-btn" id="back-btn" href="index.html">← Scorecard</a>
     <div class="header-brand">Hill<span>fred</span></div>
   </div>
-  <div class="live-badge">
-    <div class="live-dot" id="live-dot"></div>
-    <span id="live-lbl">CONNECTING</span>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()" title="Refresh">↻</button>
+    <div class="live-badge">
+      <div class="live-dot" id="live-dot"></div>
+      <span id="live-lbl">CONNECTING</span>
+    </div>
   </div>
+</div>
+
+<!-- Offline bar -->
+<div class="offline-bar" id="offline-bar">
+  <span class="offline-msg">⚡ No connection — data may be stale</span>
+  <button class="reconnect-btn" onclick="manualRefresh()">↻ Reconnect</button>
 </div>
 
 <!-- Live Banner -->
@@ -382,11 +403,30 @@ const sortDefaults = { score:1, holes:-1, name:1, status:1 };
 const prevRanks = {};
 
 // ── Connection ─────────────────────────────────────────────────────────────
+let _wasConnected = false;
 onValue(ref(db, '.info/connected'), snap => {
   const on = snap.val() === true;
   document.getElementById('live-dot').className = 'live-dot' + (on ? '' : ' off');
   document.getElementById('live-lbl').textContent = on ? 'LIVE' : 'OFFLINE';
+  const offlineBar = document.getElementById('offline-bar');
+  if (offlineBar) offlineBar.classList.toggle('visible', !on);
+  // If we reconnected after being offline, re-subscribe to refresh data
+  if (on && !_wasConnected && currentKey) {
+    onTournamentChange(currentKey);
+  }
+  _wasConnected = on;
 });
+
+// ── Manual refresh ────────────────────────────────────────────────────────────
+window.manualRefresh = function() {
+  const btn = document.getElementById('refresh-btn');
+  if (btn) {
+    btn.classList.add('spinning');
+    setTimeout(() => btn.classList.remove('spinning'), 700);
+  }
+  // Hard reload clears PWA cache and re-establishes Firebase connection
+  window.location.reload(true);
+};
 
 // ── Dropdown ───────────────────────────────────────────────────────────────
 onValue(ref(db, 'tournaments'), snap => {
