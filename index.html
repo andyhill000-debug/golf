@@ -3958,6 +3958,27 @@ function renderHoleEntry(){
     }
   }
 
+  // Hole result badge(s) — matchplay only
+  let badgeHtml = '';
+  if(isMatch && !game.skins){
+    const {p1,p2,p3,p4} = game.players;
+    const si = isMP ? msi(h) : gsi1(h);
+    const _fp2match = game.fourPlayer && !game.team && (game.playerCount||2) >= 4;
+    const res = game.team
+      ? matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,msi(h),null,null)
+      : matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
+    const _m1suffix = _fp2match ? ' (M1)' : '';
+    if(res===1)       badgeHtml += `<div class="hole-result-badge badge-win">▲ ${game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name}${_m1suffix} wins this hole</div>`;
+    else if(res===-1) badgeHtml += `<div class="hole-result-badge badge-lose">▼ ${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name}${_m1suffix} wins this hole</div>`;
+    else if(res===0)  badgeHtml += `<div class="hole-result-badge badge-halve">● Hole Halved${_fp2match?' — Match 1':''}</div>`;
+    if(_fp2match){
+      const res2 = matchHole1v1(h.p3,h.p4,p3.hcp,p4.hcp,msi(h),null,null);
+      if(res2===1)       badgeHtml += `<div class="hole-result-badge badge-win">▲ ${p3.name} (M2) wins this hole</div>`;
+      else if(res2===-1) badgeHtml += `<div class="hole-result-badge badge-lose">▼ ${p4.name} (M2) wins this hole</div>`;
+      else if(res2===0)  badgeHtml += `<div class="hole-result-badge badge-halve">● Hole Halved — Match 2</div>`;
+    }
+  }
+
   const _holeComplete = game.team
     ? (h.p1!=null && h.p2!=null && h.p3!=null && h.p4!=null)
     : game.fourPlayer
