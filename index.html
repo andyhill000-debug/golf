@@ -164,7 +164,13 @@
   @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .animate-in{animation:slideIn .2s ease-out}
   .logo-svg{height:30px}
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+  .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #333;background:transparent;transition:background .15s,border-color .15s;}
+  .pin-dot.filled{background:var(--teal);border-color:var(--teal);}
+  .pin-dot.error{background:#ff5a5a;border-color:#ff5a5a;}
+  .pin-btn{padding:16px;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;cursor:pointer;transition:background .12s,border-color .12s;-webkit-tap-highlight-color:transparent;}
+  .pin-btn:hover{background:#222;border-color:#333;}
+  .pin-btn:active{background:rgba(0,232,187,.12);border-color:var(--teal);}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
   .modal-overlay.hidden{display:none}
   .modal-box{background:#1c1c1c;border:2px solid var(--teal);border-radius:18px;padding:28px 22px;max-width:400px;width:100%;animation:slideIn .25s ease-out}
   .modal-logo{display:flex;justify-content:center;margin-bottom:20px}
@@ -318,6 +324,109 @@
       <button class="btn btn-primary" style="width:100%;font-size:15px" onclick="resumeGame()">▶ Continue Game</button>
       <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="discardAndNew()">✕ Discard &amp; Start New Game</button>
     </div>
+  </div>
+</div>
+
+<!-- Admin PIN modal -->
+<div class="modal-overlay hidden" id="admin-modal">
+  <div class="modal-box" style="max-width:320px">
+    <div class="modal-logo">
+      <svg style="height:28px" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,60)"><g transform="rotate(45 28 28)">
+          <rect x="0" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="0" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="0" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="20" y="20" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="40" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="0" y="40" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="40" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="40" width="16" height="16" fill="#c9a961" rx="1"/>
+        </g></g>
+        <text x="130" y="70" font-family="Georgia,serif" font-size="48" font-weight="700" fill="white" letter-spacing="-0.3">Hillfred</text>
+        <rect x="130" y="76" width="120" height="2" fill="#00d4aa"/>
+      </svg>
+    </div>
+    <div class="modal-icon" id="admin-modal-icon">🔐</div>
+    <div class="modal-title" id="admin-modal-title">Administrator Access</div>
+    <div class="modal-sub" id="admin-modal-sub">Enter your PIN.</div>
+
+    <!-- VIEW: PIN pad -->
+    <div id="admin-view-pin">
+      <div style="display:flex;justify-content:center;gap:12px;margin:18px 0 6px">
+        <div class="pin-dot" id="pin-dot-0"></div>
+        <div class="pin-dot" id="pin-dot-1"></div>
+        <div class="pin-dot" id="pin-dot-2"></div>
+        <div class="pin-dot" id="pin-dot-3"></div>
+      </div>
+      <div id="admin-pw-error" style="color:#ff5a5a;font-size:12px;font-weight:700;text-align:center;min-height:18px;letter-spacing:.3px;margin-bottom:8px"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+        <button class="pin-btn" onclick="pinPress('1')">1</button>
+        <button class="pin-btn" onclick="pinPress('2')">2</button>
+        <button class="pin-btn" onclick="pinPress('3')">3</button>
+        <button class="pin-btn" onclick="pinPress('4')">4</button>
+        <button class="pin-btn" onclick="pinPress('5')">5</button>
+        <button class="pin-btn" onclick="pinPress('6')">6</button>
+        <button class="pin-btn" onclick="pinPress('7')">7</button>
+        <button class="pin-btn" onclick="pinPress('8')">8</button>
+        <button class="pin-btn" onclick="pinPress('9')">9</button>
+        <button class="pin-btn" onclick="closeAdminModal()" style="color:#555;font-size:12px">Cancel</button>
+        <button class="pin-btn" onclick="pinPress('0')">0</button>
+        <button class="pin-btn" onclick="pinBackspace()" style="font-size:18px">⌫</button>
+      </div>
+      <div id="admin-forgot-wrap" style="text-align:center;display:none">
+        <button onclick="showForgotPin()" style="background:none;border:none;color:#444;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px 0">Forgot PIN?</button>
+      </div>
+    </div>
+
+    <!-- VIEW: Security question setup (shown after PIN confirmed on first time) -->
+    <div id="admin-view-sq" style="display:none;margin-top:8px">
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;display:block;margin-bottom:6px">Security Question</label>
+        <select id="sq-question" style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box">
+          <option value="pet">What was the name of your first pet?</option>
+          <option value="school">What primary school did you attend?</option>
+          <option value="town">What town were you born in?</option>
+          <option value="mother">What is your mother's maiden name?</option>
+          <option value="car">What was your first car?</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;display:block;margin-bottom:6px">Your Answer</label>
+        <input id="sq-answer" type="text" autocomplete="off" placeholder="Answer (not case sensitive)"
+          style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box"/>
+      </div>
+      <div id="sq-error" style="color:#ff5a5a;font-size:12px;font-weight:700;min-height:18px;margin-top:6px;letter-spacing:.3px"></div>
+      <div class="modal-btns" style="margin-top:12px">
+        <button class="btn btn-primary" style="width:100%;font-size:14px" onclick="submitSqSetup()">Save &amp; Continue →</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="closeAdminModal()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- VIEW: Forgot PIN — answer security question -->
+    <div id="admin-view-forgot" style="display:none;margin-top:8px">
+      <div style="background:#111;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:10px">
+        <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase">Security Question</div>
+        <div id="forgot-question-text" style="font-size:13px;color:#ccc;line-height:1.4"></div>
+      </div>
+      <input id="forgot-answer" type="text" autocomplete="off" placeholder="Your answer"
+        style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box"/>
+      <div id="forgot-error" style="color:#ff5a5a;font-size:12px;font-weight:700;min-height:18px;margin-top:6px;letter-spacing:.3px"></div>
+      <div class="modal-btns" style="margin-top:12px">
+        <button class="btn btn-primary" style="width:100%;font-size:14px" onclick="submitForgotAnswer()">Verify Answer</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="showPinView()">← Back to PIN</button>
+      </div>
+    </div>
+
+    <!-- VIEW: Post-auth options -->
+    <div id="admin-view-options" style="display:none;margin-top:8px">
+      <div class="modal-btns">
+        <button class="btn btn-primary" style="width:100%;font-size:15px;background:rgba(255,90,90,.12);border-color:rgba(255,90,90,.4);color:#ff5a5a" onclick="optionClearData()">🗑 Clear Firebase Data</button>
+        <button class="btn btn-primary" style="width:100%;font-size:14px" onclick="optionResetPin()">🔢 Reset PIN</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="closeAdminModal()">Cancel</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2743,18 +2852,245 @@ function _buildAndStoreResults(tournamentKey) {
   }
 }
 
+// ── Admin PIN system ──────────────────────────────────────────────────────────
+const LS_ADMIN_HASH = 'hf_admin_pin_hash';
+const LS_ADMIN_SQ   = 'hf_admin_sq';   // { q: 'pet', a: <hash> }
+
+let _pinBuffer  = '';
+let _pinMode    = 'verify'; // 'verify'|'set'|'confirm'|'reset-set'|'reset-confirm'
+let _pinFirst   = '';
+let _adminAuthed = false;   // true after successful PIN verify
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function _getAdminHash() { try { return localStorage.getItem(LS_ADMIN_HASH)||null; }catch(e){return null;} }
+function _getAdminSq()   { try { return JSON.parse(localStorage.getItem(LS_ADMIN_SQ)||'null'); }catch(e){return null;} }
+
+// ── Entry point ───────────────────────────────────────────────────────────────
 function confirmClearFirebase() {
   const key = activeTournament;
   if (!key) { alert('No active tournament selected.'); return; }
+  _pinBuffer = ''; _pinFirst = ''; _adminAuthed = false;
+  _showView('pin');
+  const hasPin = !!_getAdminHash();
+  _pinMode = hasPin ? 'verify' : 'set';
+  _updatePinHeader();
+  // Show forgot link only if pin exists and security question is set
+  const forgotWrap = document.getElementById('admin-forgot-wrap');
+  if (forgotWrap) forgotWrap.style.display = (hasPin && !!_getAdminSq()) ? 'block' : 'none';
+  document.getElementById('admin-modal').classList.remove('hidden');
+}
+
+// ── View switcher ─────────────────────────────────────────────────────────────
+function _showView(name) {
+  ['pin','sq','forgot','options'].forEach(v => {
+    const el = document.getElementById('admin-view-' + v);
+    if (el) el.style.display = v === name ? 'block' : 'none';
+  });
+}
+
+function showPinView() {
+  _pinBuffer = '';
+  _showView('pin');
+  _updatePinHeader();
+  _renderPinDots();
+  document.getElementById('admin-pw-error').textContent = '';
+}
+
+function showForgotPin() {
+  const sq = _getAdminSq();
+  if (!sq) { alert('No security question set. Please contact your administrator.'); return; }
+  const questions = {
+    pet:'What was the name of your first pet?',
+    school:'What primary school did you attend?',
+    town:'What town were you born in?',
+    mother:"What is your mother's maiden name?",
+    car:'What was your first car?'
+  };
+  document.getElementById('forgot-question-text').textContent = questions[sq.q] || sq.q;
+  document.getElementById('forgot-answer').value = '';
+  document.getElementById('forgot-error').textContent = '';
+  document.getElementById('admin-modal-title').textContent = 'Forgot PIN';
+  document.getElementById('admin-modal-sub').textContent = 'Answer your security question to reset your PIN.';
+  document.getElementById('admin-modal-icon').textContent = '🔑';
+  _showView('forgot');
+}
+
+// ── PIN header text ───────────────────────────────────────────────────────────
+function _updatePinHeader() {
+  const key = activeTournament;
   const tName = TOURNAMENT[key]?.label || key;
-  if (!confirm(`Clear ALL live Firebase data for:\n\n"${tName}"\n\nThis removes scores and results from the live leaderboard. Local history on this device is not affected.\n\nThis cannot be undone.`)) return;
+  const titleEl = document.getElementById('admin-modal-title');
+  const subEl   = document.getElementById('admin-modal-sub');
+  const iconEl  = document.getElementById('admin-modal-icon');
+  document.getElementById('admin-pw-error').textContent = '';
+  _renderPinDots();
+  if (_pinMode === 'set') {
+    titleEl.textContent = 'Create Admin PIN'; iconEl.textContent = '🔐';
+    subEl.innerHTML = `<span style="color:var(--teal)">First time setup</span> — choose a 4-digit PIN.`;
+  } else if (_pinMode === 'confirm' || _pinMode === 'reset-confirm') {
+    titleEl.textContent = 'Confirm PIN'; iconEl.textContent = '🔐';
+    subEl.textContent = 'Enter your new PIN again to confirm.';
+  } else if (_pinMode === 'reset-set') {
+    titleEl.textContent = 'New PIN'; iconEl.textContent = '🔢';
+    subEl.textContent = 'Choose a new 4-digit PIN.';
+  } else {
+    titleEl.textContent = 'Administrator Access'; iconEl.textContent = '🔐';
+    subEl.innerHTML = `Enter PIN to manage data for <strong style="color:#ccc">${tName}</strong>.`;
+  }
+}
+
+// ── PIN dots ──────────────────────────────────────────────────────────────────
+function _renderPinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pin-dot-' + i);
+    if (!dot) continue;
+    dot.classList.remove('filled','error');
+    if (i < _pinBuffer.length) dot.classList.add('filled');
+  }
+}
+
+function pinPress(digit) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += digit;
+  _renderPinDots();
+  document.getElementById('admin-pw-error').textContent = '';
+  if (_pinBuffer.length === 4) setTimeout(_pinSubmit, 140);
+}
+
+function pinBackspace() {
+  if (!_pinBuffer.length) return;
+  _pinBuffer = _pinBuffer.slice(0,-1);
+  _renderPinDots();
+  document.getElementById('admin-pw-error').textContent = '';
+}
+
+async function _pinSubmit() {
+  const hash = await sha256(_pinBuffer);
+
+  if (_pinMode === 'set') {
+    _pinFirst = _pinBuffer; _pinBuffer = '';
+    _pinMode  = 'confirm';
+    _updatePinHeader();
+
+  } else if (_pinMode === 'confirm') {
+    if (_pinBuffer !== _pinFirst) {
+      _pinError("PINs don't match. Try again."); _pinMode = 'set'; _pinFirst = '';
+    } else {
+      try { localStorage.setItem(LS_ADMIN_HASH, hash); } catch(e) {}
+      _pinBuffer = ''; _pinFirst = '';
+      // First time — now set security question before proceeding
+      document.getElementById('admin-modal-title').textContent = 'Security Question';
+      document.getElementById('admin-modal-sub').textContent = 'Set a recovery question in case you forget your PIN.';
+      document.getElementById('admin-modal-icon').textContent = '🛡️';
+      document.getElementById('sq-answer').value = '';
+      document.getElementById('sq-error').textContent = '';
+      _showView('sq');
+    }
+
+  } else if (_pinMode === 'reset-set') {
+    _pinFirst = _pinBuffer; _pinBuffer = '';
+    _pinMode  = 'reset-confirm';
+    _updatePinHeader();
+
+  } else if (_pinMode === 'reset-confirm') {
+    if (_pinBuffer !== _pinFirst) {
+      _pinError("PINs don't match. Try again."); _pinMode = 'reset-set'; _pinFirst = '';
+    } else {
+      try { localStorage.setItem(LS_ADMIN_HASH, hash); } catch(e) {}
+      closeAdminModal();
+      alert('PIN has been reset successfully.');
+    }
+
+  } else {
+    // verify
+    const stored = _getAdminHash();
+    if (hash !== stored) {
+      _pinError('Incorrect PIN.');
+    } else {
+      _adminAuthed = true;
+      // Show options: clear data OR reset PIN
+      document.getElementById('admin-modal-title').textContent = 'What would you like to do?';
+      document.getElementById('admin-modal-sub').textContent   = '';
+      document.getElementById('admin-modal-icon').textContent  = '✅';
+      _showView('options');
+    }
+  }
+}
+
+function _pinError(msg) {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pin-dot-' + i);
+    if (dot) { dot.classList.remove('filled'); dot.classList.add('error'); }
+  }
+  document.getElementById('admin-pw-error').textContent = msg;
+  setTimeout(() => { _pinBuffer = ''; _renderPinDots(); }, 700);
+}
+
+// ── Security question setup ───────────────────────────────────────────────────
+async function submitSqSetup() {
+  const q   = document.getElementById('sq-question').value;
+  const ans = document.getElementById('sq-answer').value.trim().toLowerCase();
+  if (!ans) { document.getElementById('sq-error').textContent = 'Please enter an answer.'; return; }
+  const hash = await sha256(ans);
+  try { localStorage.setItem(LS_ADMIN_SQ, JSON.stringify({ q, a: hash })); } catch(e) {}
+  closeAdminModal();
+  _doFirebaseClear(activeTournament);
+}
+
+// ── Forgot PIN — security question answer ─────────────────────────────────────
+async function submitForgotAnswer() {
+  const sq  = _getAdminSq();
+  if (!sq) return;
+  const ans  = document.getElementById('forgot-answer').value.trim().toLowerCase();
+  const hash = await sha256(ans);
+  if (hash !== sq.a) {
+    document.getElementById('forgot-error').textContent = '✕ Incorrect answer.';
+    document.getElementById('forgot-answer').value = '';
+    return;
+  }
+  // Answer correct — go to reset PIN flow
+  document.getElementById('forgot-error').textContent = '';
+  _pinBuffer = ''; _pinFirst = '';
+  _pinMode = 'reset-set';
+  _showView('pin');
+  _updatePinHeader();
+}
+
+// ── Post-auth options ─────────────────────────────────────────────────────────
+function optionClearData() {
+  if (!_adminAuthed) return;
+  closeAdminModal();
+  _doFirebaseClear(activeTournament);
+}
+
+function optionResetPin() {
+  if (!_adminAuthed) return;
+  _pinBuffer = ''; _pinFirst = '';
+  _pinMode = 'reset-set';
+  _showView('pin');
+  _updatePinHeader();
+}
+
+// ── Close ─────────────────────────────────────────────────────────────────────
+function closeAdminModal() {
+  document.getElementById('admin-modal').classList.add('hidden');
+  _pinBuffer = ''; _pinFirst = ''; _adminAuthed = false;
+  const errEl = document.getElementById('admin-pw-error');
+  if (errEl) errEl.textContent = '';
+  _renderPinDots();
+}
+
+// ── Firebase clear ────────────────────────────────────────────────────────────
+function _doFirebaseClear(key) {
+  const tName = TOURNAMENT[key]?.label || key;
   if (!window._fbClearTournament) { alert('Firebase not connected. Try again in a moment.'); return; }
   window._fbClearTournament(key, (err) => {
-    if (err) {
-      alert('Error clearing data: ' + err.message);
-    } else {
-      alert(`Live data for "${tName}" has been cleared from Firebase.`);
-    }
+    if (err) { alert('Error clearing data: ' + err.message); }
+    else     { alert(`Live data for "${tName}" has been cleared from Firebase.`); }
   });
 }
 
