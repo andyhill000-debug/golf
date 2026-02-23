@@ -1385,12 +1385,7 @@ function onTournamentSelect(val) {
   badge.style.display = t ? 'block' : 'none';
   if(t) badge.textContent = '🏆 ' + t.label.toUpperCase() + (t.type==='teams'?' · Teams':' · Singles');
 
-  if(val) renderTournamentActions(val);
-  else {
-    const actEl = document.getElementById('tournament-actions');
-    if(actEl) actEl.style.display = 'none';
-    /* add-tournament-btn-wrap removed */
-  }
+  // tournament actions now handled by Tournament tab
 
   if (t) {
     if (t.type === 'teams') {
@@ -1887,9 +1882,13 @@ function _wizSave() {
 }
 
 function showTournamentForm(editKey) {
+  // Redirected to new wizard
+  showTournamentWizard(editKey);
+  return;
   const form = document.getElementById('tournament-form');
   const title = document.getElementById('tournament-form-title');
   const msg = document.getElementById('tournament-form-msg');
+  if (!form) return;
   form._editKey = editKey || null;
   msg.style.display = 'none';
 
@@ -1927,15 +1926,19 @@ function showTournamentForm(editKey) {
 }
 
 function hideTournamentForm() {
-  document.getElementById('tournament-form').style.display = 'none';
+  const f = document.getElementById('tournament-form');
+  if (f) f.style.display = 'none';
   /* add-tournament-btn-wrap removed */
   document.getElementById('tournament-form')._editKey = null;
 }
 
 function saveTournament() {
+  // Legacy — redirected to wizard save
+  _wizSave();
+  return;
   const label = document.getElementById('t-name').value.trim();
   const form  = document.getElementById('tournament-form');
-  const editKey = form._editKey;
+  const editKey = form ? form._editKey : null;
   if (!label) { showTournamentMsg('Enter a tournament name.', 'error'); return; }
 
   let rec;
@@ -1971,6 +1974,7 @@ function saveTournament() {
 
 function showTournamentMsg(text, type) {
   const el = document.getElementById('tournament-form-msg');
+  if (!el) { _wizMsg(text, type); return; }
   el.textContent = text; el.style.display = 'block';
   el.style.background = type === 'error' ? 'rgba(255,90,90,.12)' : 'rgba(0,232,187,.12)';
   el.style.color = type === 'error' ? 'var(--red)' : 'var(--teal)';
