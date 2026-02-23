@@ -386,7 +386,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBg_tfMOtzhcpMlTl-2o_2bfs0Dos8EHPM",
@@ -455,6 +455,8 @@ onValue(ref(db, 'tournaments'), snap => {
   const seen = new Set(Array.from(sel.options).map(o => o.value).filter(Boolean));
   Object.entries(data).forEach(([key, val]) => {
     if (seen.has(key)) return;
+    // Skip non-tournament entries (e.g. stray 'status', 'closedAt' keys)
+    if (!val || typeof val !== 'object' || (!val.scores && !val.gameCount && !val.results)) return;
     const scores = val.scores || {};
     const meta   = Object.values(scores).map(g => g && g._meta).find(Boolean) || {};
     const lbl    = (val.results && val.results.label) || meta.tournamentLabel || key;
@@ -463,6 +465,13 @@ onValue(ref(db, 'tournaments'), snap => {
     sel.appendChild(opt);
   });
   if (cur && data[cur]) sel.value = cur;
+
+  // Clean up any stray non-tournament keys written by old finalise code
+  Object.entries(data).forEach(([key, val]) => {
+    if (!val || typeof val !== 'object' || (!val.scores && !val.gameCount && !val.results)) {
+      remove(ref(db, `tournaments/${key}`)).catch(()=>{});
+    }
+  });
 });
 
 // ── Tournament change ──────────────────────────────────────────────────────
