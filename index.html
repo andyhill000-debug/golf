@@ -192,6 +192,23 @@
   .course-action-btn{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:6px;transition:opacity .15s;min-height:36px;min-width:36px}
   .course-action-btn:hover{opacity:.75}
 
+  /* ── Tutorial overlay ──────────────────────────────────────────────────── */
+  #tut-overlay{position:fixed;inset:0;z-index:2000;pointer-events:none;}
+  #tut-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:2001;transition:opacity .3s;}
+  #tut-spotlight{position:fixed;z-index:2002;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.82);border:2px solid rgba(0,232,187,.6);transition:all .35s cubic-bezier(.4,0,.2,1);pointer-events:none;}
+  #tut-card{position:fixed;z-index:2003;background:#181818;border:1.5px solid var(--teal);border-radius:16px;padding:18px 20px;max-width:300px;width:calc(100vw - 40px);box-shadow:0 8px 40px rgba(0,0,0,.7);pointer-events:all;transition:all .35s cubic-bezier(.4,0,.2,1);}
+  #tut-card .tut-step{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--teal);margin-bottom:4px;}
+  #tut-card .tut-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:900;color:var(--text);margin-bottom:6px;}
+  #tut-card .tut-body{font-size:13px;color:#aaa;line-height:1.55;}
+  #tut-card .tut-btns{display:flex;gap:8px;margin-top:14px;}
+  #tut-card .tut-next{flex:2;padding:11px;border-radius:10px;border:none;background:var(--teal);color:#000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:900;cursor:pointer;}
+  #tut-card .tut-skip{flex:1;padding:11px;border-radius:10px;border:1.5px solid #333;background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+  #tut-dots{display:flex;gap:5px;justify-content:center;margin-top:12px;}
+  #tut-dots span{width:6px;height:6px;border-radius:50%;background:#333;transition:background .2s;}
+  #tut-dots span.active{background:var(--teal);}
+  #tut-help-btn{position:fixed;bottom:20px;right:20px;z-index:500;width:44px;height:44px;border-radius:50%;background:rgba(0,232,187,.12);border:1.5px solid rgba(0,232,187,.3);color:var(--teal);font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;box-shadow:0 2px 12px rgba(0,0,0,.4);transition:background .15s;-webkit-tap-highlight-color:transparent;}
+  #tut-help-btn:hover{background:rgba(0,232,187,.22);}
+
   /* ── Tournament wizard & list ──────────────────────────────────────────── */
   .wiz-type-box{background:#141414;border:2px solid #2e2e2e;border-radius:12px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:all .2s;text-align:center}
   .wiz-type-box.active-box{background:rgba(0,232,187,.1);border-color:var(--teal)}
@@ -313,6 +330,25 @@
   </script>
 </head>
 <body>
+
+<!-- TUTORIAL OVERLAY -->
+<div id="tut-overlay" style="display:none">
+  <div id="tut-backdrop"></div>
+  <div id="tut-spotlight"></div>
+  <div id="tut-card">
+    <div class="tut-step" id="tut-step-lbl">STEP 1 OF 6</div>
+    <div class="tut-title" id="tut-title">Welcome to Hillfred</div>
+    <div class="tut-body"  id="tut-body">Let's take a quick look around so you can get started.</div>
+    <div id="tut-dots"></div>
+    <div class="tut-btns">
+      <button class="tut-skip" onclick="endTutorial()">Skip</button>
+      <button class="tut-next" id="tut-next-btn" onclick="tutNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating help button -->
+<button id="tut-help-btn" onclick="startTutorial(true)" title="Quick start guide">?</button>
 
 <!-- RESUME MODAL -->
 <div class="modal-overlay hidden" id="resume-modal">
@@ -502,8 +538,9 @@
 
   <div class="card">
     <div class="card-label">Game Mode</div>
+    <div id="mode-choose-prompt" style="text-align:center;padding:8px 4px 10px;font-size:12px;color:#555;font-weight:600;letter-spacing:.3px">👆 Choose a game mode to begin</div>
     <div class="mode-row">
-      <button class="mode-btn active" id="mode-matchplay"  onclick="setMode('matchplay')">🏆 Matchplay</button>
+      <button class="mode-btn" id="mode-matchplay"  onclick="setMode('matchplay')">🏆 Matchplay</button>
       <button class="mode-btn"        id="mode-stroke"     onclick="setMode('stroke')">✏️ Stroke Play</button>
       <button class="mode-btn"        id="mode-stableford" onclick="setMode('stableford')">⭐ Stableford</button>
     </div>
@@ -672,7 +709,13 @@
   <!-- Player 3 card — shown for 4-player individual mode -->
   <div id="p3-card" style="display:none">
     <div class="card">
-      <div class="card-label">Player 3</div>
+      <div class="card-label" id="p3-card-label">Player 3</div>
+      <div id="p3-ind-name-select-wrap" style="display:none">
+        <div class="field-label" style="margin-top:0" id="p3-ind-select-label">Select Player</div>
+        <select class="input" id="p3-ind-name-select" onchange="onP3IndSelectChange(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111;cursor:pointer">
+          <option value="">— Select player —</option>
+        </select>
+      </div>
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p3-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
@@ -680,10 +723,16 @@
     </div>
   </div>
 
-  <!-- Player 4 card — shown for 4-player individual mode -->
+  <!-- Player 4 card — shown for 4-player individual mode / teams match 2 -->
   <div id="p4-card" style="display:none">
     <div class="card">
-      <div class="card-label">Player 4</div>
+      <div class="card-label" id="p4-card-label">Player 4</div>
+      <div id="p4-ind-name-select-wrap" style="display:none">
+        <div class="field-label" style="margin-top:0" id="p4-ind-select-label">Select Player</div>
+        <select class="input" id="p4-ind-name-select" onchange="onP4IndSelectChange(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111;cursor:pointer">
+          <option value="">— Select player —</option>
+        </select>
+      </div>
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p4-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
@@ -991,7 +1040,7 @@ let activeTournament = null;
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
-let gameMode='matchplay', teamPlay=false, skinsPlay=false, fourPlayer=false, game=null, activeHole=1;
+let gameMode=null, teamPlay=false, skinsPlay=false, fourPlayer=false, game=null, activeHole=1;
 let coursePars={...STD72}, courseSI1={...DEFAULT_SI1}, courseSI2={...DEFAULT_SI2}, courseSI3={...DEFAULT_SI3}, savedCourses=[], history=[];
 try{
   const stored = JSON.parse(localStorage.getItem(LS_COURSES)||'[]');
@@ -1299,6 +1348,8 @@ function showTab(name) {
 function setMode(m) {
   gameMode=m;
   ['matchplay','stroke','stableford'].forEach(id=>document.getElementById('mode-'+id).classList.toggle('active',id===m));
+  const prompt=document.getElementById('mode-choose-prompt');
+  if(prompt) prompt.style.display='none';
   updateSIDisplay();
   checkCanStart();
 }
@@ -1354,6 +1405,19 @@ function toggleTeam() {
   document.getElementById('p4-fields').style.display=teamPlay?'block':'none';
   document.getElementById('p3-card').style.display='none';
   document.getElementById('p4-card').style.display='none';
+  checkCanStart();
+}
+function onP3IndSelectChange(val) {
+  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
+  if (!val || !t) return;
+  const player = [...(t.team1.players||[]),...(t.team2.players||[])].find(p=>p===val);
+  if (player) { document.getElementById('p3-ind-name').value = val; }
+  checkCanStart();
+}
+function onP4IndSelectChange(val) {
+  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
+  if (!val || !t) return;
+  document.getElementById('p4-ind-name').value = val;
   checkCanStart();
 }
 function _syncPlayerLabels(){
@@ -1422,14 +1486,17 @@ function checkCanStart() {
   const hasCourse=gv('course-name').trim().length>0;
   const hasP1=gv('p1-name'), hasP2=gv('p2-name');
   let hasPlayers=hasP1&&hasP2;
-  if(teamPlay) hasPlayers=hasPlayers&&gv('p3-name')&&gv('p4-name');
+  const _isTeamsSingles = activeTournament && TOURNAMENT[activeTournament]?.type === 'teams' && _teamsMatchFmt === 'singles';
+  if(teamPlay && !_isTeamsSingles) hasPlayers=hasPlayers&&gv('p3-name')&&gv('p4-name');
   if(fourPlayer && gameMode!=='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
   // Matchplay + 3-player: allow button but warn on attempt (handled in startGame)
   if(fourPlayer && gameMode==='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
-  const ok=hasCourse&&hasPlayers;
+  const hasMode = !!gameMode;
+  const ok=hasMode&&hasCourse&&hasPlayers;
   btn.disabled=!ok;
   if(!ok){
     const msgs=[];
+    if(!hasMode) msgs.push('🏆 Choose a game mode above');
     if(!hasCourse) msgs.push('⛳ Select or enter a course to continue');
     if(!hasP1||!hasP2) msgs.push('👤 Enter names for Player 1 and Player 2');
     else if(!hasPlayers) msgs.push('👥 Enter all required player names');
@@ -1482,8 +1549,12 @@ function setTeamsMatchFormat(fmt) {
   // Show/hide partner slots
   document.getElementById('p3-fields').style.display = is4bbb ? 'block' : 'none';
   document.getElementById('p4-fields').style.display = is4bbb ? 'block' : 'none';
-  document.getElementById('p3-card').style.display = 'none';
-  document.getElementById('p4-card').style.display = 'none';
+
+  // For singles teams: show p3/p4 as standalone "Match 2" player cards
+  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
+  const isTeamsSingles = !is4bbb && t && t.type === 'teams';
+  document.getElementById('p3-card').style.display = isTeamsSingles ? 'block' : 'none';
+  document.getElementById('p4-card').style.display = isTeamsSingles ? 'block' : 'none';
 
   // Show/hide partner dropdowns
   document.getElementById('p3-name-select-wrap').style.display = is4bbb ? 'block' : 'none';
@@ -1497,14 +1568,48 @@ function setTeamsMatchFormat(fmt) {
   });
 
   // Update card labels for the active tournament
-  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
   if (t && t.type === 'teams') {
-    document.getElementById('t1-card-label').textContent = is4bbb ? t.team1.name + ' — Player A' : t.team1.name;
-    document.getElementById('t2-card-label').textContent = is4bbb ? t.team2.name + ' — Player A' : t.team2.name;
+    document.getElementById('t1-card-label').textContent = is4bbb ? t.team1.name + ' — Player A' : t.team1.name + ' — Match 1';
+    document.getElementById('t2-card-label').textContent = is4bbb ? t.team2.name + ' — Player A' : t.team2.name + ' — Match 1';
     const p3nl=document.getElementById('p3-name-label'),p3sl=document.getElementById('p3-select-label');
     const p4nl=document.getElementById('p4-name-label'),p4sl=document.getElementById('p4-select-label');
-    if(p3nl)p3nl.textContent='Partner Name'; if(p3sl)p3sl.textContent='Select Partner';
-    if(p4nl)p4nl.textContent='Partner Name'; if(p4sl)p4sl.textContent='Select Partner';
+    if(isTeamsSingles){
+      // Match 2 standalone cards — label them clearly
+      const p3card=document.getElementById('p3-card'),p4card=document.getElementById('p4-card');
+      const p3title=p3card?p3card.querySelector('.card-label,label,[class*="label"]'):null;
+      // Update card headings directly
+      const p3cl=document.getElementById('p3-card-label'),p4cl=document.getElementById('p4-card-label');
+      if(p3cl) p3cl.textContent = t.team1.name + ' — Match 2';
+      if(p4cl) p4cl.textContent = t.team2.name + ' — Match 2';
+      // Populate match 2 dropdowns from tournament roster
+      populateTournamentDropdown('p3-ind-name-select', t.team1.players);
+      populateTournamentDropdown('p4-ind-name-select', t.team2.players);
+      const p3sw=document.getElementById('p3-ind-name-select-wrap'),p4sw=document.getElementById('p4-ind-name-select-wrap');
+      if(p3sw) p3sw.style.display='block';
+      if(p4sw) p4sw.style.display='block';
+      const p3in=document.getElementById('p3-ind-name'),p4in=document.getElementById('p4-ind-name');
+      if(p3in) p3in.style.display='none';
+      if(p4in) p4in.style.display='none';
+    } else {
+      if(p3nl)p3nl.textContent='Partner Name'; if(p3sl)p3sl.textContent='Select Partner';
+      if(p4nl)p4nl.textContent='Partner Name'; if(p4sl)p4sl.textContent='Select Partner';
+    }
+  }
+
+  // Show info note for teams singles with 4 players
+  let noteEl = document.getElementById('teams-singles-note');
+  if (!noteEl) {
+    noteEl = document.createElement('div');
+    noteEl.id = 'teams-singles-note';
+    noteEl.style.cssText = 'margin:8px 14px 0;padding:10px 14px;background:rgba(0,232,187,.06);border:1px solid rgba(0,232,187,.15);border-radius:10px;font-size:12px;color:#888;line-height:1.5;display:none';
+    const fmtRow = document.getElementById('match-fmt-row');
+    if(fmtRow) fmtRow.after(noteEl);
+  }
+  if (isTeamsSingles) {
+    noteEl.style.display = 'block';
+    noteEl.innerHTML = '⚡ <strong style="color:var(--teal)">Two singles matches</strong> — start each match separately. Match 1: top two players. Match 2: bottom two players.';
+  } else {
+    noteEl.style.display = 'none';
   }
   checkCanStart();
   _syncMatchFmtTiles();   // keep match tab format tiles in sync
@@ -2687,9 +2792,11 @@ function startGame(){
     }
   }
   clearAutosave();
-  const _p3name=(teamPlay||fourPlayer)?gv('p3-name'):'';
-  const _p4name=(teamPlay||fourPlayer)?gv('p4-name'):'';
-  const playerCount=teamPlay?4:fourPlayer?(_p4name?4:_p3name?3:2):2;
+  // Teams singles: p3/p4 belong to Match 2 (started separately) — not part of this game
+  const isTeamsSingles = activeTournament && TOURNAMENT[activeTournament]?.type === 'teams' && _teamsMatchFmt === 'singles';
+  const _p3name = isTeamsSingles ? '' : (teamPlay||fourPlayer) ? gv('p3-name') : '';
+  const _p4name = isTeamsSingles ? '' : (teamPlay||fourPlayer) ? gv('p4-name') : '';
+  const playerCount = teamPlay ? 4 : fourPlayer ? (_p4name?4:_p3name?3:2) : 2;
   const players={
     p1:{name:gv('p1-name'),hcp:gn('p1-hcp')},
     p2:{name:gv('p2-name'),hcp:gn('p2-hcp')},
@@ -4347,6 +4454,153 @@ buildParGrids();
 renderTournamentDropdown();
 renderCourseDropdown();
 renderTournamentTab();   // populate new tournament tab list
+
+// ── Tutorial ──────────────────────────────────────────────────────────────────
+const LS_TUTORIAL = 'hf_tutorial_done';
+
+const TUT_STEPS = [
+  {
+    target: null,  // centred — no spotlight
+    title: 'Welcome to Hillfred ⛳',
+    body:  'This quick guide will show you the key parts of the app. It only takes 30 seconds — or tap Skip to jump straight in.',
+    tab:   'match',
+  },
+  {
+    target: '.nav',
+    title: 'Navigation Tabs',
+    body:  '<strong style="color:var(--teal)">Match</strong> — set up and play a game.<br><strong style="color:var(--gold)">Tournament</strong> — create and manage tournaments.<br><strong style="color:#aaa">History</strong> — view past rounds.<br><strong style="color:var(--teal)">📡 Live</strong> — opens the live leaderboard.',
+    tab:   'match',
+  },
+  {
+    target: '.mode-row',
+    title: 'Choose Your Game Mode',
+    body:  'Tap one of the three modes before starting a game — <strong style="color:var(--teal)">Matchplay</strong>, <strong style="color:var(--teal)">Stroke Play</strong> or <strong style="color:var(--teal)">Stableford</strong>. No mode is pre-selected.',
+    tab:   'match',
+  },
+  {
+    target: '#course-select',
+    title: 'Course Setup',
+    body:  'Choose from a preset course or type your own. You can customise par and stroke index for each hole. Your courses are saved for next time.',
+    tab:   'match',
+  },
+  {
+    target: '#tab-tournament',
+    title: 'Tournaments',
+    body:  'Tap <strong style="color:var(--gold)">+ New</strong> to create a tournament. Once active, your players appear as dropdown selects in the Match tab — no typing needed.',
+    tab:   'tournament',
+  },
+  {
+    target: '#start-btn',
+    title: "You're Ready! 🎉",
+    body:  'Fill in players and handicaps, choose a course and mode, then tap <strong style="color:var(--teal)">Start Game</strong>. Scores sync live to the leaderboard for everyone to follow.',
+    tab:   'match',
+    isLast: true,
+  },
+];
+
+let _tutStep = 0;
+
+function startTutorial(manual) {
+  const done = localStorage.getItem(LS_TUTORIAL);
+  if (done && !manual) return;  // auto-start only on first visit
+  _tutStep = 0;
+  document.getElementById('tut-overlay').style.display = 'block';
+  document.addEventListener('keydown', _tutKeyHandler);
+  _tutRender();
+}
+
+function _tutKeyHandler(e) {
+  if (e.key === 'Escape') endTutorial();
+  if (e.key === 'ArrowRight' || e.key === 'Enter') tutNext();
+}
+
+function endTutorial() {
+  document.getElementById('tut-overlay').style.display = 'none';
+  document.removeEventListener('keydown', _tutKeyHandler);
+  try { localStorage.setItem(LS_TUTORIAL, '1'); } catch(e) {}
+}
+
+function tutNext() {
+  if (_tutStep >= TUT_STEPS.length - 1) { endTutorial(); return; }
+  _tutStep++;
+  _tutRender();
+}
+
+function _tutRender() {
+  const step  = TUT_STEPS[_tutStep];
+  const total = TUT_STEPS.length;
+
+  // Switch to the right tab silently
+  if (step.tab) showTab(step.tab);
+
+  // Update text
+  document.getElementById('tut-step-lbl').textContent = `STEP ${_tutStep + 1} OF ${total}`;
+  document.getElementById('tut-title').textContent     = step.title;
+  document.getElementById('tut-body').innerHTML        = step.body;
+  const nextBtn = document.getElementById('tut-next-btn');
+  if (nextBtn) nextBtn.textContent = step.isLast ? '🎉 Let's Play!' : 'Next →';
+
+  // Dots
+  const dotsEl = document.getElementById('tut-dots');
+  dotsEl.innerHTML = TUT_STEPS.map((_,i) =>
+    `<span class="${i===_tutStep?'active':''}"></span>`).join('');
+
+  // Spotlight
+  const spotlight = document.getElementById('tut-spotlight');
+  const card      = document.getElementById('tut-card');
+
+  if (!step.target) {
+    // No target — hide spotlight, centre card
+    spotlight.style.display = 'none';
+    _positionCardCentred(card);
+    return;
+  }
+
+  // Wait one frame for tab switch to render
+  requestAnimationFrame(() => {
+    const el = document.querySelector(step.target);
+    if (!el) { spotlight.style.display='none'; _positionCardCentred(card); return; }
+
+    spotlight.style.display = 'block';
+    const r = el.getBoundingClientRect();
+    const pad = 8;
+    spotlight.style.left   = (r.left   - pad) + 'px';
+    spotlight.style.top    = (r.top    - pad) + 'px';
+    spotlight.style.width  = (r.width  + pad*2) + 'px';
+    spotlight.style.height = (r.height + pad*2) + 'px';
+
+    // Position card below or above spotlight
+    _positionCardNearSpotlight(card, r);
+  });
+}
+
+function _positionCardCentred(card) {
+  card.style.left      = '50%';
+  card.style.top       = '50%';
+  card.style.transform = 'translate(-50%,-50%)';
+  card.style.bottom    = '';
+}
+
+function _positionCardNearSpotlight(card, targetRect) {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const cw = Math.min(300, vw - 40);
+  card.style.width     = cw + 'px';
+  card.style.transform = '';
+  card.style.left      = Math.max(16, Math.min(vw - cw - 16, targetRect.left + targetRect.width/2 - cw/2)) + 'px';
+
+  // Prefer below; flip above if not enough room
+  const spaceBelow = vh - (targetRect.bottom + 16);
+  if (spaceBelow >= 180) {
+    card.style.top    = (targetRect.bottom + 16) + 'px';
+    card.style.bottom = '';
+  } else {
+    card.style.bottom = (vh - targetRect.top + 16) + 'px';
+    card.style.top    = '';
+  }
+}
+
+// Auto-start for first-time visitors
+setTimeout(() => startTutorial(false), 800);
 renderMatchBanner();     // show active tournament on match tab
 checkCanStart();
 checkForSavedGame();
