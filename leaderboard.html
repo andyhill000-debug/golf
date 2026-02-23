@@ -707,37 +707,42 @@ function computeTeamScores(entries) {
       const rawLabel   = anyEntry?.mpStatus || 'AS';
       const leading    = anyEntry?.mpLeading ?? 0;  // 0=AS, 1=Team1, 2=Team2
 
+      const done = g.status === 'finished';
       if (leading === 1) {
-        res = 1; resCls = 't1'; t1pts++;
+        res = 1; resCls = 't1';
+        if (done) t1pts++;          // only count points when match is finished
         resultLabel = rawLabel;
       } else if (leading === 2) {
-        res = 2; resCls = 't2'; t2pts++;
+        res = 2; resCls = 't2';
+        if (done) t2pts++;          // only count points when match is finished
         resultLabel = rawLabel;
       } else if (rawLabel.includes('&')) {
         // Finished match — closed with no leading (winner in label e.g. "3&2")
-        // Determine winner from mpLeading on the winning side's players
         const t1win = g.t1.find(p => (p.mpLeading === 1));
         const t2win = g.t2.find(p => (p.mpLeading === 2));
-        if (t1win)      { res = 1; resCls = 't1'; t1pts++; }
-        else if (t2win) { res = 2; resCls = 't2'; t2pts++; }
-        else            { res = 0; resCls = 'as'; halved++; }
+        if (t1win)      { res = 1; resCls = 't1'; if (done) t1pts++; }
+        else if (t2win) { res = 2; resCls = 't2'; if (done) t2pts++; }
+        else            { res = 0; resCls = 'as';  if (done) halved++; }
         resultLabel = rawLabel;
       } else {
-        res = 0; resCls = 'as'; halved++;
+        res = 0; resCls = 'as';
+        if (done) halved++;
         resultLabel = rawLabel === 'All Square' || !rawLabel ? 'AS' : rawLabel;
       }
     } else if (isStab) {
       const s1 = Math.max(...g.t1.map(p=>p.stabTotal));
       const s2 = Math.max(...g.t2.map(p=>p.stabTotal));
-      if (s1 > s2)      { res=1; resCls='t1'; t1pts++; resultLabel=`${s1} pts`; }
-      else if (s2 > s1) { res=2; resCls='t2'; t2pts++; resultLabel=`${s2} pts`; }
-      else              { res=0; resCls='as'; halved++;  resultLabel='AS'; }
+      const done = g.status === 'finished';
+      if (s1 > s2)      { res=1; resCls='t1'; if(done) t1pts++; resultLabel=`${s1} pts`; }
+      else if (s2 > s1) { res=2; resCls='t2'; if(done) t2pts++; resultLabel=`${s2} pts`; }
+      else              { res=0; resCls='as';  if(done) halved++;  resultLabel='AS'; }
     } else {
       const s1 = Math.min(...g.t1.map(p=>p.netTotal));
       const s2 = Math.min(...g.t2.map(p=>p.netTotal));
-      if (s1 < s2)      { res=1; resCls='t1'; t1pts++; resultLabel=`Net ${s1}`; }
-      else if (s2 < s1) { res=2; resCls='t2'; t2pts++; resultLabel=`Net ${s2}`; }
-      else              { res=0; resCls='as'; halved++;  resultLabel='AS'; }
+      const done = g.status === 'finished';
+      if (s1 < s2)      { res=1; resCls='t1'; if(done) t1pts++; resultLabel=`Net ${s1}`; }
+      else if (s2 < s1) { res=2; resCls='t2'; if(done) t2pts++; resultLabel=`Net ${s2}`; }
+      else              { res=0; resCls='as';  if(done) halved++;  resultLabel='AS'; }
     }
 
     matchRows.push({
