@@ -374,8 +374,7 @@ let filterSort    = 'score';   // 'score' | 'holes' | 'name' | 'status'
 let sortDir       = {};        // { score: 1, holes: -1, ... } — 1=asc, -1=desc
 // Defaults: score asc (low=good), holes desc (most played first), name asc, status asc
 const sortDefaults = { score:1, holes:-1, name:1, status:1 };
-// Init column header active state to match default sort
-setTimeout(() => setSort('score'), 0);
+// Sort arrows initialised in renderLive after table is injected
 
 // ── Rank history for movement arrows ──────────────────────────────────────
 // playerKey -> previous rank (1-based)
@@ -1187,12 +1186,14 @@ function renderLive(modeFilter) {
       <thead><tr>
         <th style="width:32px">#</th>
         <th class="sortable" id="th-name"   onclick="setSort('name')"  >Player <span class="th-sort-arrow" id="arr-name"></span></th>
-        <th class="sortable r" id="th-score"  onclick="setSort('score')" >Score  <span class="th-sort-arrow" id="arr-score">↑</span></th>
+        <th class="sortable r" id="th-score"  onclick="setSort('score')" >Score  <span class="th-sort-arrow" id="arr-score"></span></th>
         <th class="sortable r" id="th-holes"  onclick="setSort('holes')" style="width:68px">Holes <span class="th-sort-arrow" id="arr-holes"></span></th>
         <th class="sortable r" id="th-status" onclick="setSort('status')" style="width:74px">Status <span class="th-sort-arrow" id="arr-status"></span></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
+  // Initialise all sort arrows now that headers are in the DOM
+  setSort(filterSort);
 }
 
 
