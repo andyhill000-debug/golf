@@ -3620,24 +3620,26 @@ function renderBanner(results, rawResults){
     }
 
   } else if(game.mode==='stableford' && !game.skins){
-    // For 4BBB: best ball = highest stableford points from either partner per hole
-    let t1=0,t2=0,t3=0,t4=0,bb1=0,bb2=0;
+    // Individual running totals (shown as sub-lines)
+    let t1=0,t2=0,t3=0,t4=0;
+    // 4BBB best ball totals — best (highest) stableford points of either partner per hole
+    let bb1=0,bb2=0;
     game.holes.forEach(h=>{
       const c1=stablefordCalc(h.p1,h.par,p1.hcp,gsi1(h),gsi2(h),gsi3(h));
       const c2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
-      if(c1)t1+=c1.points; if(c2)t2+=c2.points;
-      if(game.team||game.fourPlayer){
-        const c3=stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h));
-        const c4=stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h));
-        if(c3)t3+=c3.points; if(c4)t4+=c4.points;
-        // 4BBB team score = best (highest) stableford points of either partner
-        if(game.team){
-          const best1 = Math.max(c1?c1.points:0, c3?c3.points:0);
-          const best2 = Math.max(c2?c2.points:0, c4?c4.points:0);
-          // Only add if at least one partner has scored this hole
-          if(h.p1!=null||h.p3!=null) bb1+=best1;
-          if(h.p2!=null||h.p4!=null) bb2+=best2;
-        }
+      const c3=stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h));
+      const c4=stablefordCalc(h.p4,h.par,p4.hcp,gsi1(h),gsi2(h),gsi3(h));
+      if(c1) t1+=c1.points;
+      if(c2) t2+=c2.points;
+      if(c3) t3+=c3.points;
+      if(c4) t4+=c4.points;
+      if(game.team){
+        // Team 1 best ball: highest of p1 or p3 on this hole (only if at least one scored)
+        if(h.p1!=null || h.p3!=null)
+          bb1 += Math.max(c1 ? c1.points : 0, c3 ? c3.points : 0);
+        // Team 2 best ball: highest of p2 or p4 on this hole (only if at least one scored)
+        if(h.p2!=null || h.p4!=null)
+          bb2 += Math.max(c2 ? c2.points : 0, c4 ? c4.points : 0);
       }
     });
     const _colors4=['var(--teal)','var(--red)','var(--gold)','#a78bfa'];
@@ -3659,15 +3661,15 @@ function renderBanner(results, rawResults){
           <div class="stroke-player">
             <div class="stroke-name" style="color:var(--teal)">${t1n}</div>
             <div class="stroke-total" style="color:var(--teal)">${game.team?bb1:t1}</div>
-            ${game.team?`<div class="stroke-sub" style="font-size:10px">${p1.name}: ${t1} · ${p3.name}: ${t3}</div>`:''}
-            <div class="stroke-sub">points</div>
+            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#555">${p1.name} ${t1}pt · ${p3.name} ${t3}pt</div>`:''}
+            <div class="stroke-sub">best ball pts</div>
           </div>
           <div class="stroke-vs">vs</div>
           <div class="stroke-player">
             <div class="stroke-name" style="color:var(--red)">${t2n}</div>
             <div class="stroke-total" style="color:var(--red)">${game.team?bb2:t2}</div>
-            ${game.team?`<div class="stroke-sub" style="font-size:10px">${p2.name}: ${t2} · ${p4.name}: ${t4}</div>`:''}
-            <div class="stroke-sub">points</div>
+            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#555">${p2.name} ${t2}pt · ${p4.name} ${t4}pt</div>`:''}
+            <div class="stroke-sub">best ball pts</div>
           </div>
         </div>`;
     }
