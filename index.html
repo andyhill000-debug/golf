@@ -4162,11 +4162,13 @@ function renderHoleEntry(){
        :                             'Picked up · concedes hole')
       : '';
     return `<div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-        <div class="score-player-label" style="color:${_sc};margin-bottom:0">${player.name}</div>
-        <button class="pickup-btn${isPickup?' active':''}" onclick="togglePickup('${field}')" title="${pickupNote||'Picked up'}">P</button>
+      <div class="score-player-label" style="color:${_sc}">${player.name}</div>
+      <div style="position:relative">
+        <div class="score-hcp-sub" style="padding-right:30px">Hcp ${player.hcp} · ${strokeLbl(strokes,_sc)}${strokeDots(strokes,_sc)}</div>
+        <button class="pickup-btn${isPickup?' active':''}" onclick="togglePickup('${field}')"
+          title="${pickupNote||'Picked up'}"
+          style="position:absolute;right:0;top:50%;transform:translateY(-50%)">P</button>
       </div>
-      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes,_sc)}${strokeDots(strokes,_sc)}</div>
       <div class="score-stepper" style="${isPickup?'opacity:0.35;pointer-events:none':''}">
         <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
         <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
