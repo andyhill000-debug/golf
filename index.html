@@ -3097,18 +3097,29 @@ function checkForSavedGame(){
   }
   if(!saved || !saved.game){
     // No local save — check Firebase cloud backup for this device
-    if(window._fbRestoreGameState){
-      console.log('[Hillfred] No local save — checking Firebase cloud backup...');
-      window._fbRestoreGameState(DEVICE_ID, function(cloudSave){
-        if(cloudSave && cloudSave.gameState && cloudSave.gameState.game){
-          console.log('[Hillfred] Cloud save found — restoring to localStorage');
-          try{ localStorage.setItem(LS_AUTOSAVE, JSON.stringify(cloudSave.gameState)); }catch(e){}
-          checkForSavedGame(); // re-run now localStorage is populated
-        } else {
-          console.log('[Hillfred] No cloud save found for this device');
-        }
-      });
+    // Firebase module loads asynchronously so retry up to 3s if not ready yet
+    function _tryCloudRestore(attemptsLeft){
+      if(window._fbRestoreGameState){
+        console.log('[Hillfred] No local save — checking Firebase cloud backup...');
+        window._fbRestoreGameState(DEVICE_ID, function(cloudSave){
+          if(cloudSave && cloudSave.gameState && cloudSave.gameState.game){
+            console.log('[Hillfred] Cloud save found — restoring');
+            try{ localStorage.setItem(LS_AUTOSAVE, JSON.stringify(cloudSave.gameState)); }catch(e){}
+            // Clear sessionStorage flag so resume modal shows (not silent resume)
+            sessionStorage.removeItem('hf_session_active');
+            checkForSavedGame();
+          } else {
+            console.log('[Hillfred] No cloud save found for this device');
+          }
+        });
+      } else if(attemptsLeft > 0){
+        // Firebase not ready yet — retry in 500ms
+        setTimeout(()=> _tryCloudRestore(attemptsLeft - 1), 500);
+      } else {
+        console.log('[Hillfred] Firebase not available for cloud restore');
+      }
     }
+    _tryCloudRestore(6); // retry up to 6 times = 3 seconds total
     return;
   }
   const g = saved.game;
