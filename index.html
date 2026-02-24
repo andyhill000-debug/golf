@@ -108,7 +108,7 @@
   .step-val{flex:1;height:60px;background:transparent;border:none;color:var(--text);font-size:32px;font-weight:700;text-align:center;font-family:'DM Sans',sans-serif;outline:none;caret-color:var(--teal)}
   .step-val::-webkit-outer-spin-button,.step-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .score-result-row{margin-top:8px;font-size:13px;font-weight:700;line-height:1.4}
-  .pickup-btn{width:28px;height:28px;border-radius:6px;border:1.5px solid #555;background:transparent;color:#777;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .pickup-btn{width:22px;height:22px;border-radius:4px;border:1.5px solid #555;background:transparent;color:#777;font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;line-height:1}
   .pickup-btn.active{border-color:#f97316;background:rgba(249,115,22,.15);color:#f97316}
   .pickup-btn:active{opacity:.7}
   .hole-result-badge{text-align:center;margin:16px 0 4px;padding:15px;border-radius:12px;font-weight:700;font-size:17px;letter-spacing:.5px}
@@ -4030,13 +4030,16 @@ function renderDots(results, rawResults){
   });
 
   // Auto-scroll the active hole tile into the centre of the strip
+  // requestAnimationFrame ensures DOM is fully painted before measuring offsets
   const activeBtn = el.querySelector('.hole-dot.active');
   if(activeBtn){
-    const strip = el.closest('.hole-selector') || el.parentElement;
-    if(strip){
-      const targetScroll = activeBtn.offsetLeft - (strip.clientWidth / 2) + (activeBtn.offsetWidth / 2);
-      strip.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
-    }
+    requestAnimationFrame(()=>{
+      const strip = el.closest('.hole-selector') || el.parentElement;
+      if(strip){
+        const targetScroll = activeBtn.offsetLeft - (strip.clientWidth / 2) + (activeBtn.offsetWidth / 2);
+        strip.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+      }
+    });
   }
 }
 
@@ -4159,18 +4162,18 @@ function renderHoleEntry(){
        :                             'Picked up · concedes hole')
       : '';
     return `<div>
-      <div class="score-player-label" style="color:${_sc}">${player.name}</div>
-      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes,_sc)}${strokeDots(strokes,_sc)}</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="score-stepper" style="flex:1;${isPickup?'opacity:0.35;pointer-events:none':''}">
-          <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
-          <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
-            value="${displayVal}" placeholder="${isPickup?'P':'—'}"
-            oninput="onScoreInput('${field}',this.value)"
-            onchange="onScoreInput('${field}',this.value)"/>
-          <button class="step-btn" onclick="stepScore('${field}',1)">+</button>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <div class="score-player-label" style="color:${_sc};margin-bottom:0">${player.name}</div>
         <button class="pickup-btn${isPickup?' active':''}" onclick="togglePickup('${field}')" title="${pickupNote||'Picked up'}">P</button>
+      </div>
+      <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes,_sc)}${strokeDots(strokes,_sc)}</div>
+      <div class="score-stepper" style="${isPickup?'opacity:0.35;pointer-events:none':''}">
+        <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
+        <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
+          value="${displayVal}" placeholder="${isPickup?'P':'—'}"
+          oninput="onScoreInput('${field}',this.value)"
+          onchange="onScoreInput('${field}',this.value)"/>
+        <button class="step-btn" onclick="stepScore('${field}',1)">+</button>
       </div>
       ${isPickup ? `<div class="score-result-row" style="color:#f97316;font-size:10px">${pickupNote}</div>` : resultLbl(gross,strokes,sbCalc)}
     </div>`;
