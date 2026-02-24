@@ -2126,9 +2126,9 @@ function _sggRenderScores() {
         </div>
         <div style="text-align:center;flex:1;padding:0 12px">
           <div style="font-size:10px;color:#ccc;margin-bottom:4px">${totalMatches} pts total</div>
-          <div style="height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;display:flex">
-            <div style="width:${rowPct}%;background:var(--teal);border-radius:3px 0 0 3px;transition:width .5s"></div>
-            <div style="width:${ausPct}%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s"></div>
+          <div style="height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;display:flex;justify-content:space-between">
+            <div style="width:${rowPct}%;background:var(--teal);border-radius:3px 0 0 3px;transition:width .5s;flex-shrink:0"></div>
+            <div style="width:${ausPct}%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s;flex-shrink:0;margin-left:auto"></div>
           </div>
           <div style="font-size:9px;color:#777;margin-top:3px">── 11.5 to win ──</div>
         </div>
