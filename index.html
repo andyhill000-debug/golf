@@ -106,6 +106,9 @@
   .step-val{flex:1;height:60px;background:transparent;border:none;color:var(--text);font-size:32px;font-weight:700;text-align:center;font-family:'DM Sans',sans-serif;outline:none;caret-color:var(--teal)}
   .step-val::-webkit-outer-spin-button,.step-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .score-result-row{margin-top:8px;font-size:13px;font-weight:700;line-height:1.4}
+  .pickup-btn{width:100%;margin-top:7px;padding:7px 0;border-radius:8px;border:2px solid #f97316;background:transparent;color:#f97316;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.5px;transition:background .15s}
+  .pickup-btn.active{background:rgba(249,115,22,.18)}
+  .pickup-btn:active{background:rgba(249,115,22,.28)}
   .hole-result-badge{text-align:center;margin:16px 0 4px;padding:15px;border-radius:12px;font-weight:700;font-size:17px;letter-spacing:.5px}
   .badge-win{background:rgba(0,232,187,.18);color:var(--teal);border:2px solid rgba(0,232,187,.4)}
   .badge-lose{background:rgba(255,90,90,.15);color:var(--red);border:2px solid rgba(255,90,90,.35)}
@@ -1236,6 +1239,7 @@ function strokesOnHole(hcp, baseHcp, si1, si2, si3) {
  */
 function stablefordCalc(gross, par, hcp, si1, si2, si3) {
   if (gross == null) return null;
+  if (gross === 'P') return { gross:'P', strokes:0, net:null, diff:null, points:0, pickup:true };
   const strokes = strokesOnHole(hcp, 0, si1, si2, si3);
   const net     = gross - strokes;
   const diff    = net - par;          // negative = under par
@@ -1349,9 +1353,12 @@ function getSkinsResults() {
  */
 function matchHole1v1(gross1, gross2, hcp1, hcp2, si1, si2, si3) {
   if (gross1 == null || gross2 == null) return null;
+  // Pickup = concede: treat as 99 gross (worst possible net)
+  const g1 = gross1 === 'P' ? 99 : gross1;
+  const g2 = gross2 === 'P' ? 99 : gross2;
   const base = Math.min(hcp1, hcp2);
-  const net1 = gross1 - strokesOnHole(hcp1, base, si1, si2, si3);
-  const net2 = gross2 - strokesOnHole(hcp2, base, si1, si2, si3);
+  const net1 = g1 - strokesOnHole(hcp1, base, si1, si2, si3);
+  const net2 = g2 - strokesOnHole(hcp2, base, si1, si2, si3);
   return net1 < net2 ? 1 : net2 < net1 ? -1 : 0;
 }
 
@@ -1370,7 +1377,7 @@ function matchHole4BBB(g1a, g1b, g2a, g2b, hcp1a, hcp1b, hcp2a, hcp2b, si1, si2,
   const hasT2 = g2a != null || g2b != null;
   if (!hasT1 || !hasT2) return null;
   const base = Math.min(hcp1a, hcp1b, hcp2a, hcp2b);
-  const net = (g, h) => g != null ? g - strokesOnHole(h, base, si1, si2, si3) : 99;
+  const net = (g, h) => (g != null && g !== 'P') ? g - strokesOnHole(h, base, si1, si2, si3) : 99;
   const best1 = Math.min(net(g1a,hcp1a), net(g1b,hcp1b));
   const best2 = Math.min(net(g2a,hcp2a), net(g2b,hcp2b));
   return best1 < best2 ? 1 : best2 < best1 ? -1 : 0;
@@ -4081,6 +4088,7 @@ function renderHoleEntry(){
   // Score result line beneath each stepper
   const resultLbl=(gross,strokes,sbCalc)=>{
     if(gross==null) return '';
+    if(gross==='P') return ''; // pickup — handled separately in playerBlock
     const net=gross-strokes;
     if(isStab&&sbCalc){
       const d=sbCalc.diff; const ds=d<0?d:'+'+d;
@@ -4128,19 +4136,31 @@ function renderHoleEntry(){
   }
 
   const playerBlock=(player,field,gross,strokes,sbCalc,color)=>{
-    const _sc=color||'var(--teal)';  // stroke indicator colour = player colour
+    const _sc=color||'var(--teal)';
+    const isPickup = gross === 'P';
+    const displayVal = isPickup ? '' : (gross!=null?gross:'');
+    const pickupMode = game.mode;
+    const pickupNote = isPickup
+      ? (pickupMode==='stroke'     ? 'Picked up · counts as 10'
+       : pickupMode==='stableford' ? 'Picked up · 0 pts'
+       : game.team                 ? 'Picked up · partner scores for team'
+       :                             'Picked up · concedes hole')
+      : '';
     return `<div>
       <div class="score-player-label" style="color:${_sc}">${player.name}</div>
       <div class="score-hcp-sub">Hcp ${player.hcp} · ${strokeLbl(strokes,_sc)}${strokeDots(strokes,_sc)}</div>
-      <div class="score-stepper">
+      <div class="score-stepper" style="${isPickup?'opacity:0.4;pointer-events:none':''}">
         <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
         <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
-          value="${gross!=null?gross:''}" placeholder="—"
+          value="${displayVal}" placeholder="${isPickup?'P':'—'}"
           oninput="onScoreInput('${field}',this.value)"
           onchange="onScoreInput('${field}',this.value)"/>
         <button class="step-btn" onclick="stepScore('${field}',1)">+</button>
       </div>
-      ${resultLbl(gross,strokes,sbCalc)}
+      ${isPickup ? `<div class="score-result-row" style="color:#f97316">${pickupNote}</div>` : resultLbl(gross,strokes,sbCalc)}
+      <button class="pickup-btn${isPickup?' active':''}" onclick="togglePickup('${field}')">
+        ${isPickup ? '✕ Clear Pickup' : 'P · Picked Up'}
+      </button>
     </div>`;
   }
 
@@ -4298,7 +4318,7 @@ function renderScorecard(results, rawResults){
     return dblSq('#ff5a5a');                     // Triple+ — double red square
   }
 
-  const scoreCell=(g,par)=>{if(g==null)return'<td>—</td>';const c=g<par?'sc-under':g>par?'sc-over':'sc-par-c';return`<td class="${c}">${g}</td>`;}
+  const scoreCell=(g,par)=>{if(g==null)return'<td>—</td>';if(g==='P')return'<td style="color:#f97316;font-weight:700">P</td>';const c=g<par?'sc-under':g>par?'sc-over':'sc-par-c';return`<td class="${c}">${g}</td>`;}
   const ptsCell=(sb)=>{
     if(!sb) return '<td style="text-align:center">—</td>';
     const pts=sb.points;
@@ -4332,7 +4352,7 @@ function renderScorecard(results, rawResults){
     const resCls=isPostMatch?'sc-posterity':res===1?'sc-win':res===-1?'sc-lose':res===0?'sc-halve':'';
 
     // Accumulate for nine summary
-    if(h.p1)nGross.p1+=h.p1; if(h.p2)nGross.p2+=h.p2; if((team||_fp)&&h.p3)nGross.p3+=h.p3||0; if((team||_fp)&&h.p4)nGross.p4+=h.p4||0;
+    if(h.p1&&h.p1!=='P')nGross.p1+=h.p1; if(h.p2&&h.p2!=='P')nGross.p2+=h.p2; if((team||_fp)&&h.p3&&h.p3!=='P')nGross.p3+=h.p3; if((team||_fp)&&h.p4&&h.p4!=='P')nGross.p4+=h.p4;
     if(sb1)nPts.p1+=sb1.points; if(sb2)nPts.p2+=sb2.points; if(sb3)nPts.p3+=sb3.points; if(sb4)nPts.p4+=sb4.points;
     nPar+=h.par;
 
@@ -4485,6 +4505,17 @@ function renderScorecard(results, rawResults){
 // ═══════════════════════════════════════════
 // SCORE ENTRY
 // ═══════════════════════════════════════════
+/** Convert stored score to effective gross for calculation.
+ *  'P' (pickup) → 99 for matchplay (concedes hole), 10 for stroke, null for stableford (0 pts handled separately)
+ */
+function effectiveGross(val, mode){
+  if(val === 'P'){
+    if(mode === 'matchplay') return 99;   // concedes — worst possible net
+    if(mode === 'stroke')    return 10;   // max stroke score
+    return null;                          // stableford: 0 pts, handled in stablefordCalc
+  }
+  return val;
+}
 
 function clearScore(field){
   game.holes[activeHole-1][field]=null;
@@ -4493,8 +4524,28 @@ function clearScore(field){
 }
 function stepScore(field,delta){
   const el=document.getElementById('score-'+field); if(!el)return;
+  // Clear pickup if stepping
+  if(game.holes[activeHole-1][field]==='P') game.holes[activeHole-1][field]=null;
   let v=parseInt(el.value)||0; v=Math.max(1,Math.min(15,v+delta));
   el.value=v; onScoreInput(field,v);
+}
+function togglePickup(field){
+  if(!game)return;
+  const h=game.holes[activeHole-1];
+  if(h[field]==='P'){
+    // Un-pickup: clear the score
+    h[field]=null;
+  } else {
+    // Set pickup
+    h[field]='P';
+  }
+  autosave();
+  if(game.tournament){
+    const _pc=game.playerCount||2;
+    const _af=['p1','p2',...(game.team||(_pc>=3)?['p3']:[]),...(game.team||(_pc>=4)?['p4']:[])];
+    if(_af.every(f=>h[f]!=null)) _syncHoleToFirebase(activeHole);
+  }
+  renderPlay();
 }
 function onScoreInput(field,value){
   if(!game)return;
@@ -4505,7 +4556,7 @@ function onScoreInput(field,value){
   if(game.tournament){
     const _pc=game.playerCount||2;
     const _af=['p1','p2',...(game.team||(_pc>=3)?['p3']:[]),...(game.team||(_pc>=4)?['p4']:[])];
-    if(_af.every(f=>game.holes[activeHole-1][f]!=null)) _syncHoleToFirebase(activeHole);
+    if(_af.every(f=>game.holes[activeHole-1][f]!=null)) _syncHoleToFirebase(activeHole); // P counts as scored
   }
   renderPlay();
 }
