@@ -1206,6 +1206,7 @@ const PRESET_TOURNAMENTS = {
     sgg: true, sggDay: 1, sggCourse: 'Bonnie Doon',
     sggTotalPoints: 7, sggPointsToWin: 11.5, sggPointsToRetain: 11,
     sggDefender: 'AUS',
+    rules: { scratchBase: true }, // SGG uses full handicap vs scratch, not lowest-handicapper base
     team1: { name: 'ROW', players: ['Carlos','DP','Hilly','Lerchie','Donal','Bede','Posh','Benny','AB','Stan','Justin','Bucko','Kate','Tubby'] },
     team2: { name: 'AUS', players: ['Clarkey','Pokee','TG','Doyley','Josko','Freddy','Simmo','Overs','Balda','Dermott','Scotty','Fred V','Wes','Cam'] },
     sggMatches: [
@@ -1442,22 +1443,50 @@ function matchHole1v1(gross1, gross2, hcp1, hcp2, si1, si2, si3) {
 
 /**
  * Matchplay result for 4-Ball Better-Ball (4BBB).
- * Base = lowest handicap among ALL FOUR players.
- * Each player nets: gross - strokesOnHole(playerHcp, lowestHcpOfAll4, si)
- * Each team plays their BEST (lowest) net score.
- * Returns: 1=Team1 wins, -1=Team2 wins, 0=halved, null=incomplete
  *
- * Note: if a player hasn't entered a score, they contribute 99 (worst case),
- * so the other partner's score still counts for the team.
+ * Two variants controlled by the scratchBase flag on the game:
+ *
+ * Standard (scratchBase = false, default):
+ *   Base = lowest handicap among all four players (official R&A matchplay method).
+ *   Each player gets strokes relative to the lowest handicapper.
+ *   P (pickup) = concede = 99 net (worst possible).
+ *
+ * SGG / Scratch-base (scratchBase = true):
+ *   Each player's stableford points are calculated against scratch (base = 0).
+ *   Best stableford score of each pair wins the hole.
+ *   P = 0 stableford points (not a concession — partner's score still counts).
+ *   Both teams scoring 0 points = halved hole.
+ *
+ * Returns: 1=Team1 wins, -1=Team2 wins, 0=halved, null=incomplete
  */
-function matchHole4BBB(g1a, g1b, g2a, g2b, hcp1a, hcp1b, hcp2a, hcp2b, si1, si2, si3) {
+function matchHole4BBB(g1a, g1b, g2a, g2b, hcp1a, hcp1b, hcp2a, hcp2b, si1, si2, si3, scratchBase, par) {
   // All four players must have entered a score before we compute the hole result.
-  // This prevents a premature match-won detection when only one partner has scored.
   if (g1a == null || g1b == null || g2a == null || g2b == null) return null;
+
+  if (scratchBase) {
+    // SGG mode: compare stableford points (higher = better), P = 0 points
+    const pts = (g, h) => {
+      if (g === 'P') return 0;
+      const strokes = strokesOnHole(h, 0, si1, si2, si3);
+      const net = g - strokes;
+      const diff = net - par;
+      if (diff <= -3) return 5;
+      if (diff === -2) return 4;
+      if (diff === -1) return 3;
+      if (diff === 0)  return 2;
+      if (diff === 1)  return 1;
+      return 0;
+    };
+    const best1 = Math.max(pts(g1a, hcp1a), pts(g1b, hcp1b));
+    const best2 = Math.max(pts(g2a, hcp2a), pts(g2b, hcp2b));
+    return best1 > best2 ? 1 : best2 > best1 ? -1 : 0;
+  }
+
+  // Standard matchplay: compare net strokes (lower = better), P = 99 (concede)
   const base = Math.min(hcp1a, hcp1b, hcp2a, hcp2b);
   const net = (g, h) => (g !== 'P') ? g - strokesOnHole(h, base, si1, si2, si3) : 99;
-  const best1 = Math.min(net(g1a,hcp1a), net(g1b,hcp1b));
-  const best2 = Math.min(net(g2a,hcp2a), net(g2b,hcp2b));
+  const best1 = Math.min(net(g1a, hcp1a), net(g1b, hcp1b));
+  const best2 = Math.min(net(g2a, hcp2a), net(g2b, hcp2b));
   return best1 < best2 ? 1 : best2 < best1 ? -1 : 0;
 }
 
@@ -1465,9 +1494,14 @@ function matchHole4BBB(g1a, g1b, g2a, g2b, hcp1a, hcp1b, hcp2a, hcp2b, si1, si2,
 function getHoleResults() {
   if (!game) return Array(18).fill(null);
   const {p1,p2,p3,p4} = game.players;
+  const scratchBase = !!(game.rules && game.rules.scratchBase);
   return game.holes.map(h => {
     if (game.mode !== 'matchplay') return null;
-    if (game.team) return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,msi(h),null,null);
+    if (game.team) {
+      // Use course SI (gsi1) if scratchBase rule is on, otherwise matchplay SI (msi)
+      const si = scratchBase ? gsi1(h) : msi(h);
+      return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),null,scratchBase,h.par);
+    }
     return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
   });
 }
@@ -3346,7 +3380,9 @@ function startGame(){
     team1name: TOURNAMENT[activeTournament].type==='teams' ? TOURNAMENT[activeTournament].team1.name : null,
     team2name: TOURNAMENT[activeTournament].type==='teams' ? TOURNAMENT[activeTournament].team2.name : null,
   } : null;
-  game={mode:gameMode,team:teamPlay,fourPlayer:fourPlayer,playerCount,skins:skinsPlay,skinsPlayers,courseName:gv('course-name'),tournament:_tCtx,players,
+  // Carry tournament house rules into the game so scoring logic can respect them
+  const _tRules = activeTournament ? (TOURNAMENT[activeTournament].rules || {}) : {};
+  game={mode:gameMode,team:teamPlay,fourPlayer:fourPlayer,playerCount,skins:skinsPlay,skinsPlayers,courseName:gv('course-name'),tournament:_tCtx,rules:_tRules,players,
     holes:Array.from({length:18},(_,i)=>({
       hole:i+1,
       par:coursePars[i+1]||4,
