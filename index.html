@@ -3837,7 +3837,7 @@ function renderPlay(){
   // Focus next player input synchronously (must be in same call stack as user event on iOS)
   if(_pendingField){
     const _nextEl = document.getElementById('score-' + _pendingField);
-    if(_nextEl){ _nextEl.focus(); _nextEl.select(); }
+    if(_nextEl){ _nextEl.focus(); }
   }
   // Show finish bar if: all 18 played, OR matchplay game is closed (won)
   let _mpStatus=game.mode==='matchplay'?matchStatus(results):null;
