@@ -1796,20 +1796,32 @@ function _buildWormSVG(data, results, isLive) {
   const midY = PAD.top + iH / 2;
   const xS = i => PAD.left + (i / 17) * iW;
   const yS = v => midY - (v / maxD) * (iH / 2);
+  const holeCol = res => res==='W' ? '#00e8bb' : res==='L' ? '#ff5a5a' : '#e2b84a';
 
-  // Build path points
-  const validPts = data.map((v, i) => v !== null ? { x: xS(i), y: yS(v), v } : null).filter(Boolean);
+  // Build path points — each point tagged with its hole result colour
+  const validPts = data.map((v, i) => v !== null ? { x: xS(i), y: yS(v), v, res: results[i] } : null).filter(Boolean);
   if (!validPts.length) return '<svg viewBox="0 0 560 200" style="width:100%;height:auto"><text x="280" y="100" text-anchor="middle" fill="#333" font-family="sans-serif" font-size="14">No data yet</text></svg>';
 
   const origin = { x: xS(0) - (iW / 17), y: midY };
   const allPts = [origin, ...validPts];
-  const pathD = allPts.map((p, i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  // ── Per-segment coloured lines ──────────────────────────────────────────────
+  // Each segment from point[i] → point[i+1] is coloured by the result of hole i+1
+  // (the destination hole — the one that caused the position change)
+  const segments = allPts.slice(0,-1).map((p, i) => {
+    const next = allPts[i+1];
+    // Segment colour = destination point's hole result; first segment (origin→hole1) uses hole1's colour
+    const col = next.res ? holeCol(next.res) : '#333';
+    return `<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${next.x.toFixed(1)}" y2="${next.y.toFixed(1)}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>`;
+  }).join('');
+
+  // ── Subtle fill — neutral grey so it doesn't fight the multi-colour line ───
   const fillD = allPts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
     + ` L${validPts[validPts.length-1].x.toFixed(1)},${midY} L${origin.x.toFixed(1)},${midY} Z`;
 
-  const lastV = validPts[validPts.length-1]?.v ?? 0;
-  const lineCol = lastV > 0 ? '#00e8bb' : lastV < 0 ? '#ff5a5a' : '#e2b84a';
-  const ticks = [-maxD, -2, -1, 0, 1, 2, maxD].filter((v,i,a)=>a.indexOf(v)===i);
+  const lastPt  = validPts[validPts.length-1];
+  const lastCol = lastPt ? holeCol(lastPt.res) : '#e2b84a';
+  const ticks   = [-maxD, -2, -1, 0, 1, 2, maxD].filter((v,i,a)=>a.indexOf(v)===i);
 
   const gridLines = ticks.map(v => {
     const y = yS(v);
@@ -1821,16 +1833,14 @@ function _buildWormSVG(data, results, isLive) {
     `<line x1="${xS(i).toFixed(1)}" y1="${PAD.top}" x2="${xS(i).toFixed(1)}" y2="${H-PAD.bottom}" stroke="${i===8?'#252525':'#1a1a1a'}" stroke-width="${i===8?1.5:.5}"/>`
   ).join('');
 
+  // Dots coloured by hole result — drawn on top of segments
   const dots = validPts.map((p, i) => {
-    const res = results[i];
-    const col = res==='W'?'#00e8bb':res==='L'?'#ff5a5a':'#e2b84a';
+    const col = holeCol(p.res);
     return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="${col}" stroke="#0a0a0a" stroke-width="1.5"/>`;
   }).join('');
 
-  const liveRing = isLive && validPts.length ? (() => {
-    const lp = validPts[validPts.length-1];
-    return `<circle cx="${lp.x.toFixed(1)}" cy="${lp.y.toFixed(1)}" r="9" fill="none" stroke="${lineCol}" stroke-width="1.5" opacity="0.3"><animate attributeName="r" values="9;15;9" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="1.5s" repeatCount="indefinite"/></circle>`;
-  })() : '';
+  // Live pulse ring uses the colour of the most recent hole result
+  const liveRing = isLive && lastPt ? `<circle cx="${lastPt.x.toFixed(1)}" cy="${lastPt.y.toFixed(1)}" r="9" fill="none" stroke="${lastCol}" stroke-width="1.5" opacity="0.3"><animate attributeName="r" values="9;15;9" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="1.5s" repeatCount="indefinite"/></circle>` : '';
 
   const yLabels = ticks.map(v => {
     const y = yS(v);
@@ -1849,8 +1859,8 @@ function _buildWormSVG(data, results, isLive) {
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" id="worm-svg">
   <rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/>
   ${gridLines}${holeLines}${f9}${b9}
-  <path d="${fillD}" fill="${lineCol}" opacity="0.07"/>
-  <path d="${pathD}" fill="none" stroke="${lineCol}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="${fillD}" fill="#ffffff" opacity="0.02"/>
+  ${segments}
   ${liveRing}${dots}${yLabels}${xLabels}
   <text x="14" y="${H/2}" text-anchor="middle" fill="#222" font-size="9" font-family="sans-serif" transform="rotate(-90,14,${H/2})">POSITION</text>
   <text x="${W/2}" y="${H-3}" text-anchor="middle" fill="#222" font-size="9" font-family="sans-serif">HOLE</text>
