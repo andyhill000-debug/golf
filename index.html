@@ -418,6 +418,12 @@
     };
 
     // Subscribe to all scores for a tournament — calls cb(scoresObj) on every change
+    // Subscribe to completedCount for a tournament
+    window._fbSubscribeCompletedCount = function(tournamentKey, cb) {
+      const r = ref(db, 'tournaments/' + tournamentKey + '/completedCount');
+      return onValue(r, snap => cb(snap.exists() ? snap.val() : 0));
+    };
+
     window._fbSubscribeScores = function(tournamentKey, cb) {
       const r = ref(db, 'tournaments/' + tournamentKey + '/scores');
       return onValue(r, snap => cb(snap.exists() ? snap.val() : {}));
@@ -1714,7 +1720,20 @@ function checkCanStart() {
     warn.style.border='1px solid rgba(255,90,90,0.2)';
     warn.textContent=msgs.join(' · ');
   } else {
-    warn.style.display='none';
+    // Check if this tournament's match quota is already reached
+    const _at = activeTournament ? TOURNAMENT[activeTournament] : null;
+    const _maxMatches = _at && _at.totalMatches ? _at.totalMatches : null;
+    if (_maxMatches && _tnmtCompletedCount >= _maxMatches) {
+      warn.style.display = 'block';
+      warn.style.background = 'rgba(226,184,74,.08)';
+      warn.style.color = 'var(--gold)';
+      warn.style.border = '1px solid rgba(226,184,74,.2)';
+      warn.textContent = `⚠️ Day complete — ${_tnmtCompletedCount} of ${_maxMatches} matches already finished`;
+      btn.disabled = true;
+    } else {
+      warn.style.display = 'none';
+      btn.disabled = false;
+    }
   }
 }
 
@@ -1834,6 +1853,15 @@ function setTournamentType(type) {
 function onTournamentSelect(val) {
   activeTournament = val || null;
   const t = val ? TOURNAMENT[val] : null;
+  // Subscribe to Firebase completedCount for this tournament
+  if (_tnmtCompletedUnsub) { window._fbUnsubscribe && window._fbUnsubscribe(_tnmtCompletedUnsub); _tnmtCompletedUnsub = null; }
+  _tnmtCompletedCount = 0;
+  if (val && window._fbSubscribeCompletedCount) {
+    _tnmtCompletedUnsub = window._fbSubscribeCompletedCount(val, count => {
+      _tnmtCompletedCount = count || 0;
+      checkCanStart();
+    });
+  }
 
   const _g = id => document.getElementById(id); // safe getter used below
 
@@ -2021,6 +2049,7 @@ function _syncMatchFmtTiles() {
 // ── SGG International 2026 — Combined scoreboard ─────────────────────────────
 // SGG Firebase subscriptions — kept alive while tournament tab is open
 let _sggUnsub1 = null, _sggUnsub2 = null;
+let _tnmtCompletedUnsub = null, _tnmtCompletedCount = 0;
 let _sggScores1 = {}, _sggScores2 = {};
 
 function _sggTallyFirebase(scores) {
@@ -5268,6 +5297,13 @@ function _tutRender(forward) {
 
 // Auto-start for first-time visitors
 setTimeout(() => startTutorial(false), 600);
+// Auto-select tournament if only one exists
+(function autoSelectTournament(){
+  const keys = Object.keys(TOURNAMENT);
+  if (keys.length === 1 && !activeTournament) {
+    selectTournamentFromList(keys[0]);
+  }
+})();
 renderMatchBanner();     // show active tournament on match tab
 checkCanStart();
 checkForSavedGame();

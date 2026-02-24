@@ -477,6 +477,13 @@ onValue(ref(db, 'tournaments'), snap => {
   });
   if (cur && data[cur]) sel.value = cur;
 
+  // Auto-select if only one tournament and none currently selected
+  const realOpts = Array.from(sel.options).filter(o => o.value);
+  if (!cur && realOpts.length === 1) {
+    sel.value = realOpts[0].value;
+    window.onTournamentChange(realOpts[0].value);
+  }
+
   // Clean up any stray non-tournament keys written by old finalise code
   Object.entries(data).forEach(([key, val]) => {
     if (!val || typeof val !== 'object' || (!val.scores && !val.gameCount && !val.results)) {
