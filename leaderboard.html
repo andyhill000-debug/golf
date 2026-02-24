@@ -360,7 +360,10 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
     <div class="header-brand">Hill<span>fred</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()" title="Refresh">↻</button>
+    <div style="display:flex;align-items:center;gap:5px">
+      <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">↻</button>
+      <span id="refresh-countdown" style="font-size:10px;font-weight:700;color:#555;letter-spacing:.5px;min-width:28px;text-align:right"></span>
+    </div>
     <div class="live-badge">
       <div class="live-dot" id="live-dot"></div>
       <span id="live-lbl">CONNECTING</span>
@@ -530,6 +533,7 @@ window.manualRefresh = function() {
     btn.classList.add('spinning');
     setTimeout(() => btn.classList.remove('spinning'), 700);
   }
+  _startAutoRefresh(); // reset the 30s countdown
   // Hard reload clears PWA cache and re-establishes Firebase connection
   window.location.reload(true);
 };
@@ -1917,27 +1921,34 @@ window.render = function() {
 };
 
 // ── 30-second auto-refresh ─────────────────────────────────────────────────
-// Firebase onValue already streams live — this catches any edge-case drift
-// and keeps the graph tab updated without user interaction.
 let _autoRefreshTimer = null;
 let _countdownTimer   = null;
 let _nextRefreshAt    = 0;
 
+function _updateCountdown() {
+  const secs = Math.max(0, Math.ceil((_nextRefreshAt - Date.now()) / 1000));
+  const el   = document.getElementById('refresh-countdown');
+  if (!el) return;
+  el.textContent = `${secs}s`;
+  // Colour: teal when nearly due, muted otherwise
+  el.style.color = secs <= 5 ? 'var(--teal)' : '#666';
+}
+
 function _startAutoRefresh() {
   _stopAutoRefresh();
   _nextRefreshAt = Date.now() + 30000;
+  _updateCountdown();
+
   _autoRefreshTimer = setInterval(() => {
-    // Re-trigger render — Firebase data is already current via onValue
     window.render();
     _nextRefreshAt = Date.now() + 30000;
+    // Flash countdown teal briefly to indicate refresh fired
+    const el = document.getElementById('refresh-countdown');
+    if (el) { el.style.color = 'var(--teal)'; el.textContent = '✓'; }
+    setTimeout(() => _updateCountdown(), 600);
   }, 30000);
 
-  // Countdown tick in the refresh button tooltip every second
-  _countdownTimer = setInterval(() => {
-    const secs = Math.max(0, Math.ceil((_nextRefreshAt - Date.now()) / 1000));
-    const btn  = document.getElementById('refresh-btn');
-    if (btn) btn.title = `Auto-refresh in ${secs}s`;
-  }, 1000);
+  _countdownTimer = setInterval(_updateCountdown, 1000);
 }
 
 function _stopAutoRefresh() {
