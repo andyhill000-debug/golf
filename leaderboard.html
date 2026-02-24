@@ -374,6 +374,9 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
   <div class="filter-results-bar" id="filter-results-bar"></div>
 </div>
 
+<!-- SGG Combined Scoreboard (shown when SGG tournament selected) -->
+<div id="sgg-banner" style="display:none;padding:0 14px 4px"></div>
+
 <!-- Main content -->
 <div class="main" id="main-content">
   <div class="state-msg">
@@ -403,6 +406,14 @@ const db  = getDatabase(app);
 
 let currentKey    = '';
 let liveScores    = {};
+// SGG combined: also subscribe to sibling day scores
+let sggSiblingScores = {};
+let unsubSibling  = null;
+const SGG_KEYS    = ['sgg_2026_day1','sgg_2026_day2'];
+const SGG_DAY_INFO = {
+  'sgg_2026_day1': { day:1, course:'Bonnie Doon',       fmt:'4BBB',   total:7  },
+  'sgg_2026_day2': { day:2, course:'Stonecutters Ridge', fmt:'Singles',total:15 }
+};
 let unsubScores   = null;
 let unsubCounts   = null;
 let _gameCount    = 0;
@@ -502,6 +513,17 @@ window.onTournamentChange = function(key) {
   const clr = document.getElementById('filter-search-clear');
   if (clr) clr.classList.remove('visible');
   showFilterBar(true);
+
+  // If this is an SGG day, also subscribe to the sibling day's scores
+  if (unsubSibling) { unsubSibling(); unsubSibling = null; }
+  sggSiblingScores = {};
+  if (SGG_KEYS.includes(key)) {
+    const sibKey = key === 'sgg_2026_day1' ? 'sgg_2026_day2' : 'sgg_2026_day1';
+    unsubSibling = onValue(ref(db, `tournaments/${sibKey}/scores`), snap => {
+      sggSiblingScores = snap.val() || {};
+      renderSGGBanner();
+    });
+  }
 
   unsubScores = onValue(ref(db, `tournaments/${key}/scores`), snap => {
     liveScores = snap.val() || {};
@@ -661,7 +683,125 @@ function showFilterBar(visible) {
 }
 
 // ── Master render — always shows live scores ──────────────────────────────
+// ── SGG International 2026 Combined Banner ────────────────────────────────────
+function renderSGGBanner() {
+  const el = document.getElementById('sgg-banner');
+  if (!el) return;
+  if (!SGG_KEYS.includes(currentKey)) { el.style.display='none'; return; }
+
+  // Tally finished games from this day's scores
+  const tallyScores = (scores) => {
+    let row=0, aus=0, played=0;
+    if (!scores) return {row,aus,played};
+    Object.values(scores).forEach(gd => {
+      if (!gd || !gd._meta) return;
+      if (gd._meta.status !== 'finished') return;
+      // Find any player entry that has mpLeading/mpStatus from last hole
+      const players = Object.entries(gd).filter(([k])=>k!=='_meta');
+      if (!players.length) return;
+      // Use p1-side player (first in team1) to read match result
+      // mpLeading: 1 = team1/ROW wins, 2 = team2/AUS wins, 0 = halved
+      let leading = 0;
+      players.forEach(([,pd]) => {
+        const hp = pd.holesPlayed||0;
+        if (hp>0) {
+          const last = pd[`h${hp}`]||{};
+          if (last.mpLeading !== undefined && leading === 0) leading = last.mpLeading||0;
+        }
+      });
+      // Check if halved via mpStatus
+      const anyStatus = players.map(([,pd])=>{ const hp=pd.holesPlayed||0; return hp>0?(pd[`h${hp}`]||{}).mpStatus||'':''; }).join(' ');
+      const halved = anyStatus.includes('All Square') || anyStatus.includes('Halved');
+      if (halved && leading===0) { row+=0.5; aus+=0.5; played++; }
+      else if (leading===1) { row+=1; played++; }
+      else if (leading===2) { aus+=1; played++; }
+      else if (players.some(([,pd])=>(pd.holesPlayed||0)>0)) played++; // finished but no result
+    });
+    return {row,aus,played};
+  };
+
+  const isCurrDay1 = currentKey === 'sgg_2026_day1';
+  const currInfo  = SGG_DAY_INFO[currentKey];
+  const sibInfo   = SGG_DAY_INFO[isCurrDay1 ? 'sgg_2026_day2' : 'sgg_2026_day1'];
+
+  const currT = tallyScores(liveScores);
+  const sibT  = tallyScores(sggSiblingScores);
+
+  const d1t = isCurrDay1 ? currT : sibT;
+  const d2t = isCurrDay1 ? sibT  : currT;
+
+  const rowTotal = d1t.row + d2t.row;
+  const ausTotal = d1t.aus + d2t.aus;
+  const totalPlayed = d1t.played + d2t.played;
+  const totalMatches = 22;
+
+  const rowPct = Math.round((rowTotal/totalMatches)*100);
+  const ausPct = Math.round((ausTotal/totalMatches)*100);
+
+  // Status message
+  let statusHtml = '';
+  const pToWin=11.5, pToRetain=11;
+  if (rowTotal>=pToWin) {
+    statusHtml=`<div style="text-align:center;padding:10px;background:rgba(0,232,187,.1);border-top:1px solid rgba(0,232,187,.15);border-radius:0 0 14px 14px;font-weight:800;color:var(--teal);font-size:13px;letter-spacing:.5px">🏆 ROW WIN THE SGG INTERNATIONAL!</div>`;
+  } else if (ausTotal>=pToWin) {
+    statusHtml=`<div style="text-align:center;padding:10px;background:rgba(255,90,90,.1);border-top:1px solid rgba(255,90,90,.15);border-radius:0 0 14px 14px;font-weight:800;color:var(--red);font-size:13px;letter-spacing:.5px">🏆 AUS WIN THE SGG INTERNATIONAL!</div>`;
+  } else if (ausTotal>=pToRetain && totalPlayed>=totalMatches) {
+    statusHtml=`<div style="text-align:center;padding:10px;background:rgba(226,184,74,.1);border-top:1px solid rgba(226,184,74,.15);border-radius:0 0 14px 14px;font-weight:800;color:var(--gold);font-size:13px;letter-spacing:.5px">🏆 AUS RETAIN THE SGG INTERNATIONAL!</div>`;
+  } else {
+    const rowNeeds=Math.max(0,pToWin-rowTotal).toFixed(1).replace('.0','');
+    const ausNeeds=Math.max(0,pToRetain-ausTotal).toFixed(1).replace('.0','');
+    statusHtml=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px 10px;border-top:1px solid #111">
+      <div style="text-align:center;font-size:10px;color:#555">ROW need <span style="color:var(--teal);font-weight:700">${rowNeeds}</span> to win</div>
+      <div style="text-align:center;font-size:10px;color:#555">AUS need <span style="color:var(--red);font-weight:700">${ausNeeds}</span> to retain</div>
+    </div>`;
+  }
+
+  el.style.display = 'block';
+  el.innerHTML = `<div style="background:linear-gradient(135deg,#0a0a0a,#111);border:1.5px solid #1e1e1e;border-radius:16px;overflow:hidden;margin-bottom:4px">
+    <div style="padding:14px 14px 10px">
+      <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#444;margin-bottom:10px">⛳ SGG INTERNATIONAL 2026 · COMBINED</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="text-align:center">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--teal);margin-bottom:2px">ROW</div>
+          <div style="font-size:40px;font-weight:900;color:var(--teal);line-height:1">${rowTotal}</div>
+        </div>
+        <div style="flex:1">
+          <div style="height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden;display:flex;margin-bottom:5px">
+            <div style="width:${rowPct}%;background:var(--teal);transition:width .6s;border-radius:4px 0 0 4px"></div>
+            <div style="width:${ausPct}%;background:var(--red);transition:width .6s;border-radius:0 4px 4px 0"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+            <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
+              <div style="color:#444;font-weight:700;letter-spacing:1px;margin-bottom:3px">D1 · 4BBB</div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--teal);font-weight:800">${d1t.row}</span>
+                <span style="color:#333;font-size:9px">${d1t.played}/7</span>
+                <span style="color:var(--red);font-weight:800">${d1t.aus}</span>
+              </div>
+            </div>
+            <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
+              <div style="color:#444;font-weight:700;letter-spacing:1px;margin-bottom:3px">D2 · SINGLES</div>
+              <div style="display:flex;justify-content:space-between">
+                <span style="color:var(--teal);font-weight:800">${d2t.row}</span>
+                <span style="color:#333;font-size:9px">${d2t.played}/15</span>
+                <span style="color:var(--red);font-weight:800">${d2t.aus}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--red);margin-bottom:2px">AUS 🏆</div>
+          <div style="font-size:40px;font-weight:900;color:var(--red);line-height:1">${ausTotal}</div>
+        </div>
+      </div>
+    </div>
+    ${statusHtml}
+  </div>`;
+}
+
+
 function render() {
+  renderSGGBanner();
   renderLive('all');
   const ts = new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   document.getElementById('last-updated').textContent = `Updated ${ts}`;
