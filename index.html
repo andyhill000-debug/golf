@@ -2177,8 +2177,8 @@ function renderTournamentTab() {
           <div class="tnmt-item-meta">${meta}${isActive?' · <span style="color:var(--teal)">Active</span>':''}</div>
         </div>
         <div class="tnmt-item-actions">
-          <button class="tnmt-act-btn" data-key="${key}" data-action="edit">✏️</button>
-          <button class="tnmt-act-btn danger" data-key="${key}" data-action="delete">🗑</button>
+          ${t.preset ? '' : `<button class="tnmt-act-btn" data-key="${key}" data-action="edit">✏️</button>`}
+          ${t.preset ? '' : `<button class="tnmt-act-btn danger" data-key="${key}" data-action="delete">🗑</button>`}
         </div>
       </div>`;
     }).join('');
