@@ -1057,6 +1057,9 @@ function computeTeamScores(entries) {
   return { t1name, t2name, t1pts, t2pts, halved, matchRows, mode, isStab, isMatch };
 }
 
+// Format points: integer → "2", half → "2.5"
+function fmtPts(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
+
 // ══════════════════════════════════════════════════════════════════════════
 // LIVE BANNER
 // ══════════════════════════════════════════════════════════════════════════
@@ -1223,8 +1226,10 @@ function renderTeamsLive(entries, main, allEntries) {
   hideBanner();
   const ts     = computeTeamScores(entries);
   const tLabel = entries[0]?.tLabel || '';
-  const t1Lead = ts.t1pts > ts.t2pts;
-  const t2Lead = ts.t2pts > ts.t1pts;
+  const t1Total = ts.t1pts + ts.halved * 0.5;
+  const t2Total = ts.t2pts + ts.halved * 0.5;
+  const t1Lead = t1Total > t2Total;
+  const t2Lead = t2Total > t1Total;
   const hasPairs = ts.matchRows.some(m => m.isPairs);
   const liveCnt  = ts.matchRows.filter(m => m.status !== 'finished').length;
   const doneCnt  = ts.matchRows.filter(m => m.status === 'finished').length;
@@ -1238,13 +1243,13 @@ function renderTeamsLive(entries, main, allEntries) {
       <div class="teams-scoreline">
         <div class="team-block t1 ${t1Lead?'leading-t1':''}">
           <div class="team-lbl" style="color:var(--teal)">${ts.t1name}</div>
-          <div class="team-pts" style="color:${t1Lead?'var(--teal)':'#ccc'}">${ts.t1pts}</div>
+          <div class="team-pts" style="color:${t1Lead?'var(--teal)':'#ccc'}">${fmtPts(ts.t1pts + ts.halved * 0.5)}</div>
           <div class="team-record">${ts.t1pts}W · ${ts.halved}H</div>
         </div>
         <div class="score-divider">—</div>
         <div class="team-block t2 ${t2Lead?'leading-t2':''}">
           <div class="team-lbl" style="color:var(--red)">${ts.t2name}</div>
-          <div class="team-pts" style="color:${t2Lead?'var(--red)':'#ccc'}">${ts.t2pts}</div>
+          <div class="team-pts" style="color:${t2Lead?'var(--red)':'#ccc'}">${fmtPts(ts.t2pts + ts.halved * 0.5)}</div>
           <div class="team-record">${ts.t2pts}W · ${ts.halved}H</div>
         </div>
       </div>
@@ -1893,6 +1898,45 @@ window.render = function() {
     _rebuildMatchDropdown();
     if (_selectedMatchKey) _renderMatchGraph(_selectedMatchKey);
   }
+};
+
+// ── 30-second auto-refresh ─────────────────────────────────────────────────
+// Firebase onValue already streams live — this catches any edge-case drift
+// and keeps the graph tab updated without user interaction.
+let _autoRefreshTimer = null;
+let _countdownTimer   = null;
+let _nextRefreshAt    = 0;
+
+function _startAutoRefresh() {
+  _stopAutoRefresh();
+  _nextRefreshAt = Date.now() + 30000;
+  _autoRefreshTimer = setInterval(() => {
+    // Re-trigger render — Firebase data is already current via onValue
+    window.render();
+    _nextRefreshAt = Date.now() + 30000;
+  }, 30000);
+
+  // Countdown tick in the refresh button tooltip every second
+  _countdownTimer = setInterval(() => {
+    const secs = Math.max(0, Math.ceil((_nextRefreshAt - Date.now()) / 1000));
+    const btn  = document.getElementById('refresh-btn');
+    if (btn) btn.title = `Auto-refresh in ${secs}s`;
+  }, 1000);
+}
+
+function _stopAutoRefresh() {
+  if (_autoRefreshTimer) { clearInterval(_autoRefreshTimer); _autoRefreshTimer = null; }
+  if (_countdownTimer)   { clearInterval(_countdownTimer);   _countdownTimer   = null; }
+}
+
+// Start auto-refresh as soon as the page loads
+_startAutoRefresh();
+
+// Also restart when a tournament is selected so the 30s resets from that point
+const _origOnTournamentChange = window.onTournamentChange;
+window.onTournamentChange = function(val) {
+  _origOnTournamentChange && _origOnTournamentChange(val);
+  _startAutoRefresh();
 };
 
 // Hole detail toggle
