@@ -3892,7 +3892,14 @@ function renderPlay(){
   const _all18 = game.mode==='matchplay'
     ? game.holes.filter(h=>h.p1!=null).length===18
     : game.holes.every(h=>_activeFields.every(f=>h[f]!=null));
-  const _showFinish=_gameWon||_all18;
+  // Current hole must be fully complete before showing finish bar
+  const _curH = game.holes[activeHole-1];
+  const _curHoleComplete = game.team
+    ? (_curH.p1!=null && _curH.p2!=null && _curH.p3!=null && _curH.p4!=null)
+    : game.fourPlayer
+      ? (_curH.p1!=null && _curH.p2!=null && (_pc<3||_curH.p3!=null) && (_pc<4||_curH.p4!=null))
+      : (_curH.p1!=null && _curH.p2!=null);
+  const _showFinish=(_gameWon && _curHoleComplete)||_all18;
   document.getElementById('finish-bar').classList.toggle('visible',_showFinish);
   if(_showFinish) renderFinishBar(_mpStatus,_all18);
 }

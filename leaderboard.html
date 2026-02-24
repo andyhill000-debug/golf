@@ -1170,11 +1170,11 @@ function renderTeamsLive(entries, main, allEntries) {
     const pct      = Math.round((m.hp / 18) * 100);
     const thruTxt  = done ? 'F' : m.hp === 0 ? 'Not started' : `Thru ${m.hp}`;
 
-    // Card accent class
-    const cardCls  = done ? 'mc-done' : m.resCls === 't1' ? 'mc-t1' : m.resCls === 't2' ? 'mc-t2' : 'mc-as';
+    // Card accent class — use winner colour when done, gold only for halved
+    const cardCls  = done ? (m.resCls === 't1' ? 'mc-t1' : m.resCls === 't2' ? 'mc-t2' : 'mc-done') : m.resCls === 't1' ? 'mc-t1' : m.resCls === 't2' ? 'mc-t2' : 'mc-as';
 
-    // Result badge
-    const badgeCls = done ? 'mrbg-done' : m.resCls === 't1' ? 'mrbg-t1' : m.resCls === 't2' ? 'mrbg-t2' : 'mrbg-as';
+    // Result badge — use winner colour when done, gold only for halved
+    const badgeCls = done ? (m.resCls === 't1' ? 'mrbg-t1' : m.resCls === 't2' ? 'mrbg-t2' : 'mrbg-done') : m.resCls === 't1' ? 'mrbg-t1' : m.resCls === 't2' ? 'mrbg-t2' : 'mrbg-as';
     const resultTxt = m.resultLabel || 'AS';
 
     // Leading team name under badge (for live matches)
@@ -1310,8 +1310,10 @@ function renderLive(modeFilter) {
         .replace(/ DOWN$/,'').replace(/^L /,'').replace(/^W /,'') || 'AS';
       const badgeTxt  = as && !done ? 'AS' : rawLabel || 'AS';
 
-      const cardCls  = done ? 'imc-done' : p1leads ? 'imc-p1' : p2leads ? 'imc-p2' : 'imc-as';
-      const badgeCls = done ? 'mrbg-done' : p1leads ? 'mrbg-t1' : p2leads ? 'mrbg-t2' : 'mrbg-as';
+      const _idone = p1leads ? 'imc-p1' : p2leads ? 'imc-p2' : 'imc-done';
+      const cardCls  = done ? _idone : p1leads ? 'imc-p1' : p2leads ? 'imc-p2' : 'imc-as';
+      const _ibadge  = p1leads ? 'mrbg-t1' : p2leads ? 'mrbg-t2' : 'mrbg-done';
+      const badgeCls = done ? _ibadge : p1leads ? 'mrbg-t1' : p2leads ? 'mrbg-t2' : 'mrbg-as';
 
       const winnerName = done ? (p1leads ? p1e.name : p2leads ? p2e.name : 'Halved') : null;
       const winnerCol  = done ? (p1leads ? 'var(--teal)' : p2leads ? 'var(--red)' : 'var(--gold)') : null;
