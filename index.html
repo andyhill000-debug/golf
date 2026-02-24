@@ -4228,8 +4228,8 @@ function renderHoleEntry(){
         <button class="step-btn" onclick="stepScore('${field}',-1)">−</button>
         <input class="step-val" id="score-${field}" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="15"
           value="${displayVal}" placeholder="${isPickup?'P':'—'}"
-          oninput="onScoreInput('${field}',this.value)"
-          onchange="onScoreInput('${field}',this.value);onScoreDone('${field}')"/>
+          oninput="onScoreInput('${field}',this.value);if(parseInt(this.value)>=1&&parseInt(this.value)<=15)onScoreDone('${field}')"
+          onchange="onScoreInput('${field}',this.value)"/>
         <button class="step-btn" onclick="stepScore('${field}',1)">+</button>
       </div>
       ${isPickup ? `<div class="score-result-row" style="color:#f97316;font-size:10px">${pickupNote}</div>` : resultLbl(gross,strokes,sbCalc)}
@@ -4655,7 +4655,7 @@ function onScoreDone(field){
       setTimeout(()=>{
         const el = document.getElementById('score-' + nextField);
         if(el){ el.focus(); el.select(); }
-      }, 80);
+      }, 120);
       return;
     }
   }
