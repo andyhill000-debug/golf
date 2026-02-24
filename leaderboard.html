@@ -362,7 +362,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
   <div style="display:flex;align-items:center;gap:8px">
     <div style="display:flex;align-items:center;gap:5px">
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">↻</button>
-      <span id="refresh-countdown" style="font-size:10px;font-weight:700;color:#555;letter-spacing:.5px;min-width:28px;text-align:right"></span>
+      <span id="refresh-countdown" style="font-size:10px;font-weight:700;color:#aaa;letter-spacing:.5px;min-width:28px;text-align:right"></span>
     </div>
     <div class="live-badge">
       <div class="live-dot" id="live-dot"></div>
@@ -1931,7 +1931,7 @@ function _updateCountdown() {
   if (!el) return;
   el.textContent = `${secs}s`;
   // Colour: teal when nearly due, muted otherwise
-  el.style.color = secs <= 5 ? 'var(--teal)' : '#666';
+  el.style.color = secs <= 5 ? 'var(--teal)' : '#aaa';
 }
 
 function _startAutoRefresh() {
