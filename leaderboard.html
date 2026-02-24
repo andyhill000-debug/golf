@@ -1757,16 +1757,21 @@ function _renderMatchGraph(key) {
     wormData.push(pos);
   }
 
-  // Clamp display values; stop line at match close
-  const displayData = wormData.map(v =>
-    v === null || v >= 99 || v <= -99 ? null : Math.max(-6, Math.min(6, v))
-  );
+  // Clamp display values; for closed holes (99/-99) use the last real position
+  // so the line terminates at the correct hole rather than stopping one hole early
+  let lastReal = 0;
+  const displayData = wormData.map(v => {
+    if (v === null) return null;
+    if (v >= 99 || v <= -99) return lastReal; // closed — keep line at last position
+    lastReal = Math.max(-6, Math.min(6, v));
+    return lastReal;
+  });
   let lastRealIdx = -1;
-  wormData.forEach((v, i) => { if (v !== null && v < 99 && v > -99) lastRealIdx = i; });
+  displayData.forEach((v, i) => { if (v !== null) lastRealIdx = i; });
   const playedDisplay = lastRealIdx + 1;
 
   // ── Result badge ──────────────────────────────────────────────────────────
-  const lastVal     = lastRealIdx >= 0 ? (wormData[lastRealIdx] ?? 0) : 0;
+  const lastVal     = lastRealIdx >= 0 ? (displayData[lastRealIdx] ?? 0) : 0;
   const finalStatus = refPlayer?.[`h${holesPlayed}`]?.mpStatus || '';
   const isLive      = g.status === 'live' || g.status === 'active';
   let resultLabel = '', resultClass = 'done';
