@@ -3027,7 +3027,7 @@ function clearAutosave(){
   try{localStorage.removeItem(LS_AUTOSAVE);}catch(e){}
 }
 
-/** On app open: check for a saved in-progress game and show the resume modal */
+/** On app open: check for a saved in-progress game and resume or prompt */
 function checkForSavedGame(){
   let saved;
   try{ saved=JSON.parse(localStorage.getItem(LS_AUTOSAVE)); }catch(e){
@@ -3035,13 +3035,31 @@ function checkForSavedGame(){
   }
   if(!saved || !saved.game){
     console.log('[Hillfred] No autosave found');
-    return; // nothing to resume
+    return;
   }
-  console.log('[Hillfred] Autosave found — showing resume modal', saved.savedAt);
+  const g = saved.game;
+  const played = g.holes.filter(h=>h.p1!=null).length;
+  // Use sessionStorage to distinguish a mid-session reload (e.g. returning from leaderboard
+  // on iOS PWA) from a genuine app re-open (new session). sessionStorage is cleared when
+  // the app is fully closed but persists across same-session reloads.
+  const sessionActive = sessionStorage.getItem('hf_session_active') === '1';
+  if(played > 0 && sessionActive){
+    // Same session reload — silent resume, no modal
+    console.log('[Hillfred] Same-session reload — auto-resuming at hole', played+1);
+    game       = g;
+    gameMode   = g.mode   || 'matchplay';
+    teamPlay   = g.team   || false;
+    fourPlayer = (g.playerCount||2) >= 3;
+    const nextHole = g.holes.find(h=>h.p1==null);
+    activeHole = nextHole ? nextHole.hole : 18;
+    showTab('play');
+    renderPlay();
+    return;
+  }
+  // New session or unstarted game — show confirm modal
+  console.log('[Hillfred] New session or unstarted game — showing resume modal', saved.savedAt);
 
-  const g=saved.game;
   const {p1,p2,p3,p4}=g.players;
-  const played=g.holes.filter(h=>h.p1!=null).length;
   const pct=Math.round((played/18)*100);
   const savedAt=new Date(saved.savedAt).toLocaleString('en-AU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const modeLabel=(g.mode==='matchplay'?'🏆 Matchplay':g.mode==='stableford'?'⭐ Stableford':'✏️ Stroke Play')+(g.skins?' + 💰 Skins':'');
@@ -5015,6 +5033,8 @@ setTimeout(() => startTutorial(false), 600);
 renderMatchBanner();     // show active tournament on match tab
 checkCanStart();
 checkForSavedGame();
+// Mark this as an active session so reloads within the same session don't show the resume modal
+sessionStorage.setItem('hf_session_active', '1');
 
 // ═══════════════════════════════════════════
 // TOURNAMENT RESULTS CONSOLIDATION
