@@ -1457,7 +1457,7 @@ function showTab(name) {
   if(name==='play')       renderPlay();
   if(name==='history')    renderHistory();
   if(name==='tournament') renderTournamentTab();
-  if(name==='match')      renderMatchBanner();
+  if(name==='match')      { renderMatchBanner(); renderCourseDropdown(); }
 }
 function setMode(m) {
   gameMode=m;
@@ -1792,8 +1792,18 @@ function onTournamentSelect(val) {
 
     // Auto-load the pre-set course if the tournament specifies one
     if (t.sggCourse) {
-      const courseIdx = savedCourses.findIndex(c => c.name === t.sggCourse);
-      if (courseIdx >= 0) loadCourse(courseIdx);
+      const _ci = savedCourses.findIndex(c => c.name === t.sggCourse);
+      if (_ci >= 0) {
+        loadCourse(_ci);
+        // Force the dropdown to reflect the selection visually
+        const _sel = document.getElementById('course-select');
+        if (_sel) {
+          const _match = [..._sel.options].find(o => o.textContent === t.sggCourse);
+          if (_match) _sel.value = _match.value;
+        }
+        updateParTotals();
+        checkCanStart();
+      }
     }
 
     if (t.type === 'teams') {
