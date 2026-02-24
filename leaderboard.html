@@ -772,6 +772,9 @@ function renderSGGBanner() {
   if (!el) return;
   if (!SGG_KEYS.includes(currentKey)) { el.style.display='none'; return; }
 
+  // Format points: whole numbers show as integer, halves show as X.5
+  const pts = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+
   // Tally finished games from this day's scores
   const tallyScores = (scores) => {
     let row=0, aus=0, played=0;
@@ -779,26 +782,32 @@ function renderSGGBanner() {
     Object.values(scores).forEach(gd => {
       if (!gd || !gd._meta) return;
       if (gd._meta.status !== 'finished') return;
-      // Find any player entry that has mpLeading/mpStatus from last hole
       const players = Object.entries(gd).filter(([k])=>k!=='_meta');
       if (!players.length) return;
-      // Use p1-side player (first in team1) to read match result
-      // mpLeading: 1 = team1/ROW wins, 2 = team2/AUS wins, 0 = halved
+
+      // Collect mpStatus and mpLeading from the last hole of every player
+      // Use ALL players to avoid relying on any single one
       let leading = 0;
+      let allStatuses = [];
       players.forEach(([,pd]) => {
-        const hp = pd.holesPlayed||0;
-        if (hp>0) {
-          const last = pd[`h${hp}`]||{};
-          if (last.mpLeading !== undefined && leading === 0) leading = last.mpLeading||0;
+        const hp = pd.holesPlayed || 0;
+        if (hp > 0) {
+          const last = pd[`h${hp}`] || {};
+          allStatuses.push(last.mpStatus || '');
+          // Only take mpLeading from a player where it's non-zero (a decisive result)
+          if ((last.mpLeading||0) !== 0 && leading === 0) leading = last.mpLeading;
         }
       });
-      // Check if halved via mpStatus
-      const anyStatus = players.map(([,pd])=>{ const hp=pd.holesPlayed||0; return hp>0?(pd[`h${hp}`]||{}).mpStatus||'':''; }).join(' ');
-      const halved = anyStatus.includes('All Square') || anyStatus.includes('Halved');
-      if (halved && leading===0) { row+=0.5; aus+=0.5; played++; }
-      else if (leading===1) { row+=1; played++; }
-      else if (leading===2) { aus+=1; played++; }
-      else if (players.some(([,pd])=>(pd.holesPlayed||0)>0)) played++; // finished but no result
+
+      const anyStatus = allStatuses.join(' ');
+      // A match is halved if ANY player's status says All Square or Halved
+      // AND no player has a non-zero mpLeading (which would indicate a winner)
+      const halved = (anyStatus.includes('All Square') || anyStatus.includes('Halved')) && leading === 0;
+
+      if      (halved)      { row += 0.5; aus += 0.5; played++; }
+      else if (leading===1) { row += 1;                played++; }
+      else if (leading===2) { aus += 1;                played++; }
+      else if (players.some(([,pd])=>(pd.holesPlayed||0)>0)) played++;
     });
     return {row,aus,played};
   };
@@ -846,7 +855,7 @@ function renderSGGBanner() {
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div style="text-align:center">
           <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--teal);margin-bottom:2px">ROW</div>
-          <div style="font-size:40px;font-weight:900;color:var(--teal);line-height:1">${rowTotal}</div>
+          <div style="font-size:40px;font-weight:900;color:var(--teal);line-height:1">${pts(rowTotal)}</div>
         </div>
         <div style="flex:1">
           <div style="height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden;display:flex;margin-bottom:5px">
@@ -857,24 +866,24 @@ function renderSGGBanner() {
             <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
               <div style="color:#ccc;font-weight:700;letter-spacing:1px;margin-bottom:3px">D1 · 4BBB</div>
               <div style="display:flex;justify-content:space-between">
-                <span style="color:var(--teal);font-weight:800">${d1t.row}</span>
+                <span style="color:var(--teal);font-weight:800">${pts(d1t.row)}</span>
                 <span style="color:#777;font-size:9px">${d1t.played}/7</span>
-                <span style="color:var(--red);font-weight:800">${d1t.aus}</span>
+                <span style="color:var(--red);font-weight:800">${pts(d1t.aus)}</span>
               </div>
             </div>
             <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
               <div style="color:#ccc;font-weight:700;letter-spacing:1px;margin-bottom:3px">D2 · SINGLES</div>
               <div style="display:flex;justify-content:space-between">
-                <span style="color:var(--teal);font-weight:800">${d2t.row}</span>
+                <span style="color:var(--teal);font-weight:800">${pts(d2t.row)}</span>
                 <span style="color:#777;font-size:9px">${d2t.played}/15</span>
-                <span style="color:var(--red);font-weight:800">${d2t.aus}</span>
+                <span style="color:var(--red);font-weight:800">${pts(d2t.aus)}</span>
               </div>
             </div>
           </div>
         </div>
         <div style="text-align:center">
           <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--red);margin-bottom:2px">AUS 🏆</div>
-          <div style="font-size:40px;font-weight:900;color:var(--red);line-height:1">${ausTotal}</div>
+          <div style="font-size:40px;font-weight:900;color:var(--red);line-height:1">${pts(ausTotal)}</div>
         </div>
       </div>
     </div>

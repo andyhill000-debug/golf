@@ -2089,28 +2089,30 @@ function _sggTallyFirebase(scores) {
     if (!meta || meta.status !== 'finished') return;
     const players = Object.entries(gd).filter(([k]) => k !== '_meta');
     if (!players.length) return;
-    // Read mpLeading from last scored hole — same logic as leaderboard
+    // Collect mpLeading and mpStatus from ALL players' last hole
+    // Only treat as a win if a player explicitly has non-zero mpLeading
     let leading = 0;
+    let allStatuses = [];
     players.forEach(([, pd]) => {
       const hp = pd.holesPlayed || 0;
       if (hp > 0) {
         const last = pd[`h${hp}`] || {};
-        if (last.mpLeading !== undefined && leading === 0) leading = last.mpLeading || 0;
+        allStatuses.push(last.mpStatus || '');
+        if ((last.mpLeading || 0) !== 0 && leading === 0) leading = last.mpLeading;
       }
     });
-    // Check mpStatus for halve — same as leaderboard
-    const anyStatus = players.map(([, pd]) => {
-      const hp = pd.holesPlayed || 0;
-      return hp > 0 ? (pd[`h${hp}`] || {}).mpStatus || '' : '';
-    }).join(' ');
-    const halved = anyStatus.includes('All Square') || anyStatus.includes('Halved');
-    if (halved && leading === 0) { row += 0.5; aus += 0.5; played++; }
-    else if (leading === 1)      { row += 1; played++; }
-    else if (leading === 2)      { aus += 1; played++; }
+    const anyStatus = allStatuses.join(' ');
+    const halved = (anyStatus.includes('All Square') || anyStatus.includes('Halved')) && leading === 0;
+    if (halved)           { row += 0.5; aus += 0.5; played++; }
+    else if (leading === 1) { row += 1; played++; }
+    else if (leading === 2) { aus += 1; played++; }
     else if (players.some(([, pd]) => (pd.holesPlayed || 0) > 0)) played++;
   });
   return { row, aus, played };
 }
+
+// Format points cleanly: 2 → "2", 2.5 → "2.5"
+function _sggPts(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
 
 function _sggRenderScores() {
   const el = document.getElementById('sgg-scoreboard');
@@ -2130,19 +2132,19 @@ function _sggRenderScores() {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(0,232,187,.1);border:2px solid var(--teal);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--teal);font-size:16px;letter-spacing:.5px">ROW WIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#ccc;font-size:11px;margin-top:4px">${rowTotal}–${ausTotal}</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${_sggPts(rowTotal)}–${_sggPts(ausTotal)}</div>
       </div>`;
     } else if (ausTotal >= pToWin) {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(255,90,90,.1);border:2px solid var(--red);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--red);font-size:16px;letter-spacing:.5px">AUS WIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#ccc;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal}</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${_sggPts(ausTotal)}–${_sggPts(rowTotal)}</div>
       </div>`;
     } else if (ausTotal >= pToRetain) {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(226,184,74,.1);border:2px solid var(--gold);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--gold);font-size:16px;letter-spacing:.5px">AUS RETAIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#ccc;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal} · Defending champions hold on</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${_sggPts(ausTotal)}–${_sggPts(rowTotal)} · Defending champions hold on</div>
       </div>`;
     }
   } else {
@@ -2181,7 +2183,7 @@ function _sggRenderScores() {
       <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px">
         <div style="text-align:left">
           <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--teal)">ROW</div>
-          <div style="font-size:36px;font-weight:900;color:var(--teal);line-height:1">${rowTotal}</div>
+          <div style="font-size:36px;font-weight:900;color:var(--teal);line-height:1">${_sggPts(rowTotal)}</div>
         </div>
         <div style="text-align:center;flex:1;padding:0 12px">
           <div style="font-size:10px;color:#ccc;margin-bottom:4px">${totalMatches} pts total</div>
@@ -2193,7 +2195,7 @@ function _sggRenderScores() {
         </div>
         <div style="text-align:right">
           <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--red)">AUS 🏆</div>
-          <div style="font-size:36px;font-weight:900;color:var(--red);line-height:1">${ausTotal}</div>
+          <div style="font-size:36px;font-weight:900;color:var(--red);line-height:1">${_sggPts(ausTotal)}</div>
         </div>
       </div>
 
@@ -2202,17 +2204,17 @@ function _sggRenderScores() {
         <div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:10px">
           <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:6px">DAY 1 · BONNIE DOON · 4BBB</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="color:var(--teal);font-weight:800;font-size:18px">${d1t.row}</span>
+            <span style="color:var(--teal);font-weight:800;font-size:18px">${_sggPts(d1t.row)}</span>
             <span style="color:#ccc;font-size:11px">${d1t.played}/7</span>
-            <span style="color:var(--red);font-weight:800;font-size:18px">${d1t.aus}</span>
+            <span style="color:var(--red);font-weight:800;font-size:18px">${_sggPts(d1t.aus)}</span>
           </div>
         </div>
         <div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:10px">
           <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:6px">DAY 2 · STONECUTTERS · SINGLES</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="color:var(--teal);font-weight:800;font-size:18px">${d2t.row}</span>
+            <span style="color:var(--teal);font-weight:800;font-size:18px">${_sggPts(d2t.row)}</span>
             <span style="color:#ccc;font-size:11px">${d2t.played}/15</span>
-            <span style="color:var(--red);font-weight:800;font-size:18px">${d2t.aus}</span>
+            <span style="color:var(--red);font-weight:800;font-size:18px">${_sggPts(d2t.aus)}</span>
           </div>
         </div>
       </div>
