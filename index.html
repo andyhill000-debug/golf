@@ -34,20 +34,20 @@
   .header{background:linear-gradient(135deg,#0a0a0a,#0c2018);border-bottom:2px solid var(--teal);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
   .header-title{font-family:'Playfair Display',Georgia,serif;font-size:13px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;font-weight:700}
   .nav{display:flex;gap:4px;padding:8px 10px;background:#141414;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:99}
-  .nav-btn{flex:1;padding:12px 4px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;transition:all .2s;background:#252525;color:#999;min-height:48px}
+  .nav-btn{flex:1;padding:12px 4px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;transition:all .2s;background:#252525;color:#ccc;min-height:48px}
   .nav-btn.active{background:var(--teal);color:#000;font-size:14px}
   .tab{display:none;padding-bottom:calc(100px + env(safe-area-inset-bottom))}.tab.active{display:block}
   .card{background:var(--card);border-radius:14px;margin:12px 14px;padding:18px;border:1px solid var(--border)}
   .card-label{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:12px}
   .input{width:100%;background:#141414;border:1.5px solid #3a3a3a;border-radius:10px;color:var(--text);font-size:16px;padding:13px 14px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;min-height:48px}
   .input:focus{border-color:var(--teal)}
-  .input::placeholder{color:#555}
+  .input::placeholder{color:#ccc}
   select.input option{background:#1c1c1c;color:var(--text)}
   select.input optgroup{color:var(--teal);font-size:11px;letter-spacing:1px}
-  .field-label{font-size:11px;color:#bbb;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;margin-top:12px}
+  .field-label{font-size:11px;color:#ccc;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;margin-top:12px}
   .divider{height:1px;background:var(--border);margin:14px 0}
   .mode-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-  .mode-btn{flex:1;min-width:100px;padding:12px 6px;border-radius:10px;border:2px solid #333;cursor:pointer;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;background:#141414;color:#888;transition:all .2s;text-align:center;min-height:48px}
+  .mode-btn{flex:1;min-width:100px;padding:12px 6px;border-radius:10px;border:2px solid #333;cursor:pointer;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;background:#141414;color:#ccc;transition:all .2s;text-align:center;min-height:48px}
   .mode-btn.active{border-color:var(--teal);background:rgba(0,232,187,.12);color:var(--teal)}
   .toggle-row{display:flex;align-items:center;gap:12px;margin-top:14px}
   .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none}
@@ -64,24 +64,24 @@
   .score-banner-title{font-size:13px;color:var(--teal);letter-spacing:2px;font-weight:700;text-align:center;margin-bottom:8px}
   .match-status{font-family:'Playfair Display',serif;font-size:26px;text-align:center;font-weight:700;line-height:1.2}
   .status-p1{color:var(--teal)}.status-p2{color:var(--red)}.status-draw{color:var(--gold)}
-  .score-sub{font-size:12px;color:#bbb;text-align:center;margin-top:5px;font-weight:600}
+  .score-sub{font-size:12px;color:#ccc;text-align:center;margin-top:5px;font-weight:600}
   .stroke-scores{display:flex;justify-content:space-around;align-items:center}
   .stroke-player{text-align:center}
   .stroke-name{font-size:12px;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;margin-bottom:6px}
   .stroke-total{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1}
-  .stroke-vs{color:#555;font-size:20px;font-weight:700}
-  .stroke-sub{font-size:12px;color:#bbb;margin-top:3px;font-weight:600}
+  .stroke-vs{color:#ccc;font-size:20px;font-weight:700}
+  .stroke-sub{font-size:12px;color:#ccc;margin-top:3px;font-weight:600}
   .stroke-pts{font-size:14px;color:var(--gold);margin-top:4px;font-weight:700}
   .hole-selector{padding:12px;border-bottom:1px solid #222;background:#141414;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px;scrollbar-width:none}
   .hole-selector::-webkit-scrollbar{display:none}
     .hole-dots{display:flex;gap:6px;width:max-content}
-  .hole-dot{width:44px;height:44px;border-radius:9px;border:2px solid #333;background:#1a1a1a;color:#888;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;min-width:44px;min-height:44px}
+  .hole-dot{width:44px;height:44px;border-radius:9px;border:2px solid #333;background:#1a1a1a;color:#ccc;font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif;min-width:44px;min-height:44px}
   .hole-dot.active{border-color:var(--teal);background:var(--teal);color:#000;font-size:14px;font-weight:900}
   .hole-dot.done-win{background:#1a3028;border-color:rgba(0,232,187,.4);color:var(--teal)}
   .hole-dot.done-lose{background:#2e1a1a;border-color:rgba(255,90,90,.35);color:var(--red)}
   .hole-dot.done-halve{background:#1e1e2e;border-color:rgba(100,100,200,.4);color:#99aaff}
   .hole-dot.done-scored{background:#1e2218;border-color:rgba(226,184,74,.35);color:var(--gold)}
-  .hole-dot.done-posterity{background:#1a1a1a;border-color:#2a2a2a;color:#444;font-style:italic}
+  .hole-dot.done-posterity{background:#1a1a1a;border-color:#2a2a2a;color:#ccc;font-style:italic}
   .hole-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
   .hole-number{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;line-height:1;color:var(--text)}
   .hole-par{color:var(--gold);font-weight:700;font-size:17px;margin-top:4px;letter-spacing:.5px}
@@ -89,10 +89,10 @@
   .hole-si-label{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;margin-bottom:2px;text-transform:uppercase}
   .hole-si-val{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--text);line-height:1}
   .calc-title{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;margin-bottom:8px;text-transform:uppercase}
-  .calc-label{color:#bbb;font-weight:600}
+  .calc-label{color:#ccc;font-weight:600}
   .calc-val{font-weight:700;color:var(--text)}
   .calc-pts{color:var(--gold);font-size:14px;font-weight:700}
-  .calc-note{font-size:10px;color:#666;margin-top:8px}
+  .calc-note{font-size:10px;color:#ccc;margin-top:8px}
   .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   .score-grid-single{grid-template-columns:1fr!important}
   .score-player-label{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
@@ -100,7 +100,7 @@
   .score-stepper{display:flex;align-items:center;background:#141414;border-radius:12px;border:2px solid #3a3a3a;overflow:hidden}
   .step-btn{width:56px;height:60px;border:none;background:transparent;color:var(--teal);font-size:32px;cursor:pointer;font-weight:300;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s;min-width:56px;min-height:56px}
   .step-btn:active{background:#222}
-  .step-clear{width:36px;height:60px;border:none;background:transparent;color:#555;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s;border-left:1px solid #2a2a2a;flex-shrink:0}
+  .step-clear{width:36px;height:60px;border:none;background:transparent;color:#ccc;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s;border-left:1px solid #2a2a2a;flex-shrink:0}
   .step-clear:active{color:var(--red)}
   .step-val{flex:1;height:60px;background:transparent;border:none;color:var(--text);font-size:32px;font-weight:700;text-align:center;font-family:'DM Sans',sans-serif;outline:none;caret-color:var(--teal)}
   .step-val::-webkit-outer-spin-button,.step-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -118,26 +118,26 @@
   .sc-table tr:hover td{background:#1a2e22;cursor:pointer}
   .sc-active td{background:rgba(0,232,187,.09)!important}
   .sc-under{color:var(--teal);font-weight:700}.sc-over{color:var(--red);font-weight:700}.sc-par-c{color:#ccc;font-weight:600}
-  .sc-posterity{color:#444;font-style:italic}
+  .sc-posterity{color:#ccc;font-style:italic}
   .sc-win{color:var(--teal);font-weight:700}.sc-lose{color:var(--red);font-weight:700}.sc-halve{color:#ccc;font-weight:600}
   .sc-total td{border-top:2px solid #444;font-weight:700;background:#141414!important;font-size:13px}
-  .sc-nine td{background:#111!important;font-size:10px;color:#999;letter-spacing:.5px;padding:4px 5px;font-weight:700}
+  .sc-nine td{background:#111!important;font-size:10px;color:#ccc;letter-spacing:.5px;padding:4px 5px;font-weight:700}
   .history-item{background:var(--card);border-radius:12px;margin:10px 14px;border:1px solid var(--border);overflow:hidden}
   .history-header{padding:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .history-title{font-weight:700;font-size:16px;color:var(--text)}
-  .history-sub{font-size:12px;color:#bbb;margin-top:3px;font-weight:600}
+  .history-sub{font-size:12px;color:#ccc;margin-top:3px;font-weight:600}
   .history-badge{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
   .hb-p1{background:rgba(0,232,187,.18);color:var(--teal)}.hb-p2{background:rgba(255,90,90,.18);color:var(--red)}.hb-draw{background:rgba(226,184,74,.18);color:var(--gold)}
   .history-detail{padding:0 16px 16px;display:none}.history-detail.open{display:block}
   .history-toggle{font-size:12px;color:var(--teal);margin-top:4px;font-weight:700}
-  .empty{padding:48px 24px;text-align:center;color:#bbb}
+  .empty{padding:48px 24px;text-align:center;color:#ccc}
   .empty-icon{font-size:56px;margin-bottom:14px}
   .empty p{font-size:15px;line-height:1.6;font-weight:600}
   .finish-bar{background:#141414;border-top:2px solid var(--border);padding:14px 16px;padding-bottom:calc(14px + env(safe-area-inset-bottom));position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:none;z-index:200}
   .finish-bar.visible{display:block}
   .par-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:10px}
   .par-hole-cell{text-align:center}
-  .par-hole-num{font-size:10px;color:#bbb;font-weight:700;margin-bottom:3px}
+  .par-hole-num{font-size:10px;color:#ccc;font-weight:700;margin-bottom:3px}
   .par-input{width:100%;background:#141414;border:1.5px solid #333;border-radius:7px;color:var(--gold);font-size:16px;font-weight:700;padding:8px 2px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .2s;-webkit-appearance:none}
   .par-input:focus{border-color:var(--teal)}
   .par-input::-webkit-outer-spin-button,.par-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -151,16 +151,16 @@
   .si-input.si-dupe,.si2-input.si-dupe,.si3-input.si-dupe{border-color:#f97316!important;color:#f97316!important}
   .par-nine-label{font-size:10px;color:var(--teal);letter-spacing:1.5px;font-weight:700;text-transform:uppercase;margin-top:14px;margin-bottom:6px}
   .par-quick-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-  .par-quick-btn{padding:7px 12px;border-radius:8px;border:1.5px solid #333;background:#141414;color:#bbb;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-height:36px}
+  .par-quick-btn{padding:7px 12px;border-radius:8px;border:1.5px solid #333;background:#141414;color:#ccc;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;min-height:36px}
   .par-quick-btn:hover{border-color:var(--teal);color:var(--teal)}
   .par-total-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-  .par-total-label{font-size:12px;color:#bbb;font-weight:600}
+  .par-total-label{font-size:12px;color:#ccc;font-weight:600}
   .par-total-val{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);font-weight:700}
-  .par-total-nine{font-size:12px;color:#888;margin-top:2px;font-weight:600}
+  .par-total-nine{font-size:12px;color:#ccc;margin-top:2px;font-weight:600}
   .saved-course-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-  .saved-course-chip{padding:7px 13px;border-radius:20px;border:1.5px solid #333;background:#141414;color:#bbb;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:5px}
+  .saved-course-chip{padding:7px 13px;border-radius:20px;border:1.5px solid #333;background:#141414;color:#ccc;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;align-items:center;gap:5px}
   .saved-course-chip:hover{border-color:var(--teal);color:var(--teal)}
-  .del-chip{color:#555;font-size:13px;line-height:1;margin-left:2px}.del-chip:hover{color:var(--red)}
+  .del-chip{color:#ccc;font-size:13px;line-height:1;margin-left:2px}.del-chip:hover{color:var(--red)}
   @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .animate-in{animation:slideIn .2s ease-out}
   .logo-svg{height:30px}
@@ -168,7 +168,7 @@
   .pin-dot.filled{background:var(--teal);border-color:var(--teal);}
   .pin-dot.error{background:#ff5a5a;border-color:#ff5a5a;}
   .pin-btn{padding:16px;background:#1a1a1a;border:1.5px solid #2a2a2a;border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:22px;font-weight:700;cursor:pointer;transition:background .12s,border-color .12s;-webkit-tap-highlight-color:transparent;}
-  .pin-btn:hover{background:#222;border-color:#333;}
+  .pin-btn:hover{background:#222;border-color:#777;}
   .pin-btn:active{background:rgba(0,232,187,.12);border-color:var(--teal);}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
   .modal-overlay.hidden{display:none}
@@ -176,10 +176,10 @@
   .modal-logo{display:flex;justify-content:center;margin-bottom:20px}
   .modal-icon{font-size:44px;text-align:center;margin-bottom:8px}
   .modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;text-align:center;margin-bottom:6px;color:var(--text)}
-  .modal-sub{font-size:14px;color:#bbb;text-align:center;margin-bottom:20px;line-height:1.6;font-weight:600}
+  .modal-sub{font-size:14px;color:#ccc;text-align:center;margin-bottom:20px;line-height:1.6;font-weight:600}
   .modal-game-card{background:#141414;border:1.5px solid #333;border-radius:11px;padding:14px 16px;margin-bottom:20px}
   .modal-game-title{font-size:16px;font-weight:700;margin-bottom:4px;color:var(--text)}
-  .modal-game-meta{font-size:12px;color:#bbb;line-height:1.8;font-weight:600}
+  .modal-game-meta{font-size:12px;color:#ccc;line-height:1.8;font-weight:600}
   .modal-game-progress{margin-top:8px}
   .progress-bar-bg{background:#252525;border-radius:99px;height:7px;overflow:hidden;margin-top:4px}
   .progress-bar-fill{background:var(--teal);height:100%;border-radius:99px;transition:width .4s}
@@ -209,7 +209,7 @@
   }
   #tut-step-lbl{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--teal);}
   #tut-close-btn{
-    background:none;border:none;color:#444;font-size:22px;
+    background:none;border:none;color:#ccc;font-size:22px;
     cursor:pointer;padding:4px 6px;line-height:1;
     -webkit-tap-highlight-color:transparent;
   }
@@ -225,7 +225,7 @@
     font-family:'Playfair Display',serif;font-size:24px;font-weight:900;
     color:var(--text);text-align:center;margin-bottom:12px;line-height:1.2;
   }
-  #tut-body{font-size:15px;color:#888;line-height:1.65;text-align:center;}
+  #tut-body{font-size:15px;color:#ccc;line-height:1.65;text-align:center;}
   /* Highlight pill — shows a mini screenshot label of what to tap */
   #tut-hint{
     margin-top:18px;
@@ -256,7 +256,7 @@
   #tut-next:active{opacity:.8;}
   #tut-skip-link{
     display:block;text-align:center;margin-top:12px;
-    font-size:13px;color:#333;font-weight:600;cursor:pointer;
+    font-size:13px;color:#777;font-weight:600;cursor:pointer;
     -webkit-tap-highlight-color:transparent;
     padding:4px;
   }
@@ -292,16 +292,16 @@
   .tnmt-item-icon{font-size:22px;flex-shrink:0}
   .tnmt-item-info{flex:1;min-width:0}
   .tnmt-item-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tnmt-item-meta{font-size:11px;color:#888;margin-top:2px;font-weight:600}
+  .tnmt-item-meta{font-size:11px;color:#ccc;margin-top:2px;font-weight:600}
   .tnmt-item-actions{display:flex;gap:6px;flex-shrink:0}
-  .tnmt-act-btn{padding:6px 10px;border-radius:8px;border:1.5px solid #2e2e2e;background:#1a1a1a;color:#888;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s}
+  .tnmt-act-btn{padding:6px 10px;border-radius:8px;border:1.5px solid #2e2e2e;background:#1a1a1a;color:#ccc;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s}
   .tnmt-act-btn:hover{border-color:var(--teal);color:var(--teal)}
   .tnmt-act-btn.danger:hover{border-color:var(--red);color:var(--red)}
   /* Tournament badge in Match tab */
   #match-tnmt-banner{margin:10px 14px 0;padding:10px 14px;border-radius:11px;background:linear-gradient(135deg,rgba(226,184,74,.1),rgba(0,232,187,.05));border:1px solid var(--gold);display:none;cursor:pointer}
   .match-tnmt-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold)}
   .match-tnmt-name{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
-  .match-tnmt-fmt{font-size:11px;color:#888;margin-top:1px}
+  .match-tnmt-fmt{font-size:11px;color:#ccc;margin-top:1px}
   /* Match format selector in Match tab */
   #match-fmt-row{display:none;margin:8px 14px 0}
 </style>
@@ -500,19 +500,19 @@
         <button class="pin-btn" onclick="pinPress('7')">7</button>
         <button class="pin-btn" onclick="pinPress('8')">8</button>
         <button class="pin-btn" onclick="pinPress('9')">9</button>
-        <button class="pin-btn" onclick="closeAdminModal()" style="color:#555;font-size:12px">Cancel</button>
+        <button class="pin-btn" onclick="closeAdminModal()" style="color:#ccc;font-size:12px">Cancel</button>
         <button class="pin-btn" onclick="pinPress('0')">0</button>
         <button class="pin-btn" onclick="pinBackspace()" style="font-size:18px">⌫</button>
       </div>
       <div id="admin-forgot-wrap" style="text-align:center;display:none">
-        <button onclick="showForgotPin()" style="background:none;border:none;color:#444;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px 0">Forgot PIN?</button>
+        <button onclick="showForgotPin()" style="background:none;border:none;color:#ccc;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px 0">Forgot PIN?</button>
       </div>
     </div>
 
     <!-- VIEW: Security question setup (shown after PIN confirmed on first time) -->
     <div id="admin-view-sq" style="display:none;margin-top:8px">
       <div style="margin-bottom:10px">
-        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;display:block;margin-bottom:6px">Security Question</label>
+        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#ccc;text-transform:uppercase;display:block;margin-bottom:6px">Security Question</label>
         <select id="sq-question" style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box">
           <option value="pet">What was the name of your first pet?</option>
           <option value="school">What primary school did you attend?</option>
@@ -522,7 +522,7 @@
         </select>
       </div>
       <div>
-        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;display:block;margin-bottom:6px">Your Answer</label>
+        <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#ccc;text-transform:uppercase;display:block;margin-bottom:6px">Your Answer</label>
         <input id="sq-answer" type="text" autocomplete="off" placeholder="Answer (not case sensitive)"
           style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box"/>
       </div>
@@ -536,7 +536,7 @@
     <!-- VIEW: Forgot PIN — answer security question -->
     <div id="admin-view-forgot" style="display:none;margin-top:8px">
       <div style="background:#111;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:10px">
-        <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase">Security Question</div>
+        <div style="font-size:10px;color:#ccc;font-weight:700;letter-spacing:.5px;margin-bottom:4px;text-transform:uppercase">Security Question</div>
         <div id="forgot-question-text" style="font-size:13px;color:#ccc;line-height:1.4"></div>
       </div>
       <input id="forgot-answer" type="text" autocomplete="off" placeholder="Your answer"
@@ -603,26 +603,26 @@
       <div id="match-fmt-singles-box" onclick="setTeamsMatchFormat('singles')" class="wiz-type-box active-box" style="padding:10px 8px">
         <div style="font-size:18px;margin-bottom:3px">🏌️</div>
         <div style="font-size:11px;font-weight:700;color:var(--teal)" id="match-fmt-singles-lbl">Singles</div>
-        <div style="font-size:9px;color:#888;margin-top:1px">1 v 1</div>
+        <div style="font-size:9px;color:#ccc;margin-top:1px">1 v 1</div>
       </div>
       <div id="match-fmt-4bbb-box" onclick="setTeamsMatchFormat('4bbb')" class="wiz-type-box" style="padding:10px 8px">
         <div style="font-size:18px;margin-bottom:3px">👥</div>
-        <div style="font-size:11px;font-weight:700;color:#888" id="match-fmt-4bbb-lbl">4BBB</div>
-        <div style="font-size:9px;color:#666;margin-top:1px">Best Ball</div>
+        <div style="font-size:11px;font-weight:700;color:#ccc" id="match-fmt-4bbb-lbl">4BBB</div>
+        <div style="font-size:9px;color:#ccc;margin-top:1px">Best Ball</div>
       </div>
     </div>
     <!-- Contextual note — shown only when Singles + Matchplay + 3-4 players -->
-    <div id="teams-singles-note" style="display:none;margin-top:10px;padding:12px 14px;background:rgba(0,232,187,.05);border:1px solid rgba(0,232,187,.15);border-radius:12px;font-size:12px;color:#888;line-height:1.6">
+    <div id="teams-singles-note" style="display:none;margin-top:10px;padding:12px 14px;background:rgba(0,232,187,.05);border:1px solid rgba(0,232,187,.15);border-radius:12px;font-size:12px;color:#ccc;line-height:1.6">
       <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--teal);margin-bottom:5px">⚡ MATCHPLAY SINGLES — 3-4 PLAYERS</div>
       With 3 or 4 players, two concurrent 1v1 matches run from a single group — no tournament required.<br>
-      <span style="color:#666">Match 1 uses the top two players. Match 2 uses the bottom two. Start each match separately.</span><br><br>
+      <span style="color:#ccc">Match 1 uses the top two players. Match 2 uses the bottom two. Start each match separately.</span><br><br>
       <span style="color:rgba(0,232,187,.5);font-size:11px">ℹ️ Does not apply to 4BBB — 4BBB plays all four together as one match.</span>
     </div>
   </div>
 
   <div class="card">
     <div class="card-label">Game Mode</div>
-    <div id="mode-choose-prompt" style="text-align:center;padding:8px 4px 10px;font-size:12px;color:#555;font-weight:600;letter-spacing:.3px">👆 Choose a game mode to begin</div>
+    <div id="mode-choose-prompt" style="text-align:center;padding:8px 4px 10px;font-size:12px;color:#ccc;font-weight:600;letter-spacing:.3px">👆 Choose a game mode to begin</div>
     <div class="mode-row">
       <button class="mode-btn" id="mode-matchplay"  onclick="setMode('matchplay')">🏆 Matchplay</button>
       <button class="mode-btn"        id="mode-stroke"     onclick="setMode('stroke')">✏️ Stroke Play</button>
@@ -630,17 +630,17 @@
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
       <div id="fourplayer-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
-        <div id="fourplayer-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">3-4 Players</div>
+        <div id="fourplayer-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px">3-4 Players</div>
         <button class="toggle" id="fourplayer-toggle" onclick="toggleFourPlayer()"></button>
         <span class="toggle-label" id="fourplayer-label" style="font-size:12px">Off</span>
       </div>
       <div id="team-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
-        <div id="team-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">4BBB</div>
+        <div id="team-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px">4BBB</div>
         <button class="toggle" id="team-toggle" onclick="toggleTeam()"></button>
         <span class="toggle-label" id="team-label" style="font-size:12px">Off</span>
       </div>
       <div id="skins-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
-        <div id="skins-box-label" style="font-size:11px;color:#888;font-weight:700;letter-spacing:.5px">💰 Skins</div>
+        <div id="skins-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px">💰 Skins</div>
         <button class="toggle" id="skins-toggle" onclick="toggleSkins()"></button>
         <span class="toggle-label" id="skins-label" style="font-size:12px">Off</span>
       </div>
@@ -663,7 +663,7 @@
     </div>
     <div id="clear-courses-step2" style="display:none;margin-top:8px;background:#1a0a0a;border:1.5px solid #3a1a1a;border-radius:10px;padding:12px 14px">
       <div style="font-size:12px;color:#ff5a5a;font-weight:700;margin-bottom:4px">Remove all saved courses?</div>
-      <div style="font-size:11px;color:#bbb;margin-bottom:10px">Built-in courses (Bonnie Doon, Stonecutters Ridge) will remain.</div>
+      <div style="font-size:11px;color:#ccc;margin-bottom:10px">Built-in courses (Bonnie Doon, Stonecutters Ridge) will remain.</div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-ghost" style="flex:1;font-size:13px;color:#ff5a5a;border-color:#3a1a1a;min-height:44px" onclick="confirmClearSavedCourses()">✓ Yes, clear them</button>
         <button class="btn btn-ghost" style="flex:1;font-size:13px;min-height:44px" onclick="hideClearConfirm()">✕ Cancel</button>
@@ -730,12 +730,12 @@
         <div class="par-grid" id="si-grid-front"></div>
         <div class="par-nine-label" style="margin-top:16px">▸ Back Nine (Holes 10–18)</div>
         <div class="par-grid" id="si-grid-back"></div>
-        <div style="margin-top:8px;font-size:10px;color:#444">Each row must have unique SI values. Duplicates shown in orange.</div>
+        <div style="margin-top:8px;font-size:10px;color:#ccc">Each row must have unique SI values. Duplicates shown in orange.</div>
       </div>
 
       <div style="display:flex;gap:8px;margin-top:16px">
         <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="saveCourse()">💾 Save Course</button>
-        <button class="btn btn-ghost" style="font-size:13px;color:#666" onclick="hideAddCourse()">✕ Cancel</button>
+        <button class="btn btn-ghost" style="font-size:13px;color:#ccc" onclick="hideAddCourse()">✕ Cancel</button>
       </div>
     </div><!-- end course-edit-form -->
   </div>
@@ -840,11 +840,11 @@
     <div id="tnmt-active-card" style="background:linear-gradient(135deg,rgba(226,184,74,.1),rgba(0,232,187,.06));border:1.5px solid var(--gold);border-radius:14px;padding:16px 18px">
       <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:6px" id="tnmt-active-badge">ACTIVE TOURNAMENT</div>
       <div id="tnmt-active-name" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--text);line-height:1.1"></div>
-      <div id="tnmt-active-meta" style="font-size:12px;color:#888;margin-top:4px;font-weight:600"></div>
+      <div id="tnmt-active-meta" style="font-size:12px;color:#ccc;margin-top:4px;font-weight:600"></div>
       <!-- Match progress (shown when totalMatches set) -->
       <div id="tnmt-match-progress" style="display:none;margin-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-          <span style="font-size:11px;font-weight:700;color:#555;letter-spacing:.5px">MATCHES COMPLETED</span>
+          <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:.5px">MATCHES COMPLETED</span>
           <span id="tnmt-progress-lbl" style="font-size:13px;font-weight:900;color:var(--teal)">0 / 0</span>
         </div>
         <div style="height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden">
@@ -870,20 +870,20 @@
     <div id="sgg-scoreboard" style="display:none"></div>
   <div id="tnmt-list-empty" style="display:none;padding:24px 0;text-align:center">
       <div style="font-size:36px;margin-bottom:10px">🏆</div>
-      <div style="font-size:14px;color:#888;font-weight:600;line-height:1.6">No tournaments yet.<br>Tap <strong style="color:var(--teal)">+ New</strong> to create one.</div>
+      <div style="font-size:14px;color:#ccc;font-weight:600;line-height:1.6">No tournaments yet.<br>Tap <strong style="color:var(--teal)">+ New</strong> to create one.</div>
     </div>
   </div>
 
   <!-- Results & Firebase section -->
   <div class="card" id="tnmt-results-card" style="display:none">
     <div class="card-label">📊 Tournament Results</div>
-    <div style="font-size:12px;color:#888;margin-bottom:12px;line-height:1.5">Consolidates all saved rounds for this tournament.</div>
+    <div style="font-size:12px;color:#ccc;margin-bottom:12px;line-height:1.5">Consolidates all saved rounds for this tournament.</div>
     <div id="tr-results" style="margin-top:4px"></div>
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid #1e1e1e">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#444;margin-bottom:8px">⚠️ DANGER ZONE</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:8px">⚠️ DANGER ZONE</div>
       <button onclick="confirmClearFirebase()" style="width:100%;padding:12px;background:rgba(255,90,90,.07);border:1.5px solid rgba(255,90,90,.25);border-radius:10px;color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;margin-bottom:8px">🗑 Clear This Tournament's Live Data</button>
       <button onclick="confirmClearAllFirebase()" style="width:100%;padding:12px;background:rgba(255,90,90,.12);border:2px solid rgba(255,90,90,.45);border-radius:10px;color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.3px">☢️ Clear ALL Firebase Data</button>
-      <div style="font-size:11px;color:#444;margin-top:6px;line-height:1.5">Removes scores from the live leaderboard. Does not affect local history.<br><span style="color:rgba(255,90,90,.5);font-weight:700">☢️ Clear ALL wipes every tournament across all devices.</span></div>
+      <div style="font-size:11px;color:#ccc;margin-top:6px;line-height:1.5">Removes scores from the live leaderboard. Does not affect local history.<br><span style="color:rgba(255,90,90,.5);font-weight:700">☢️ Clear ALL wipes every tournament across all devices.</span></div>
     </div>
   </div>
 
@@ -924,12 +924,12 @@
         <div id="wiz-singles-box" onclick="wizSetType('singles')" class="wiz-type-box active-box">
           <div style="font-size:28px;margin-bottom:6px">🏌️</div>
           <div style="font-size:13px;font-weight:700;color:var(--teal)">Singles</div>
-          <div style="font-size:10px;color:#888;margin-top:3px">Individual players</div>
+          <div style="font-size:10px;color:#ccc;margin-top:3px">Individual players</div>
         </div>
         <div id="wiz-teams-box" onclick="wizSetType('teams')" class="wiz-type-box">
           <div style="font-size:28px;margin-bottom:6px">👥</div>
-          <div style="font-size:13px;font-weight:700;color:#888" id="wiz-teams-lbl">Teams</div>
-          <div style="font-size:10px;color:#666;margin-top:3px">Two competing sides</div>
+          <div style="font-size:13px;font-weight:700;color:#ccc" id="wiz-teams-lbl">Teams</div>
+          <div style="font-size:10px;color:#ccc;margin-top:3px">Two competing sides</div>
         </div>
       </div>
 
@@ -942,12 +942,12 @@
           <div id="wiz-fmt-singles" onclick="wizSetFmt('singles')" class="wiz-type-box active-box">
             <div style="font-size:22px;margin-bottom:4px">🏌️</div>
             <div style="font-size:12px;font-weight:700;color:var(--teal)" id="wiz-fmt-singles-lbl">Singles</div>
-            <div style="font-size:10px;color:#888;margin-top:2px">1 v 1</div>
+            <div style="font-size:10px;color:#ccc;margin-top:2px">1 v 1</div>
           </div>
           <div id="wiz-fmt-4bbb" onclick="wizSetFmt('4bbb')" class="wiz-type-box">
             <div style="font-size:22px;margin-bottom:4px">👥</div>
-            <div style="font-size:12px;font-weight:700;color:#888" id="wiz-fmt-4bbb-lbl">4BBB</div>
-            <div style="font-size:10px;color:#666;margin-top:2px">Best Ball pairs</div>
+            <div style="font-size:12px;font-weight:700;color:#ccc" id="wiz-fmt-4bbb-lbl">4BBB</div>
+            <div style="font-size:10px;color:#ccc;margin-top:2px">Best Ball pairs</div>
           </div>
         </div>
 
@@ -960,7 +960,7 @@
 
       <!-- Singles roster -->
       <div id="wiz-singles-roster">
-        <div style="font-size:11px;color:#888;margin-bottom:8px;line-height:1.5">One player name per line</div>
+        <div style="font-size:11px;color:#ccc;margin-bottom:8px;line-height:1.5">One player name per line</div>
         <textarea class="input" id="wiz-singles-players" rows="10" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Eve" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
       </div>
 
@@ -969,13 +969,13 @@
         <div style="margin-bottom:14px">
           <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Name</div>
           <input class="input" id="wiz-team1-name" type="text" placeholder="e.g. Home" style="margin-bottom:10px"/>
-          <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Players <span style="color:#555;font-weight:400;font-size:10px">— one per line</span></div>
+          <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Players <span style="color:#ccc;font-weight:400;font-size:10px">— one per line</span></div>
           <textarea class="input" id="wiz-team1-players" rows="5" placeholder="Alice&#10;Bob&#10;Charlie" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
         </div>
         <div style="margin-top:4px">
           <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Name</div>
           <input class="input" id="wiz-team2-name" type="text" placeholder="e.g. Away" style="margin-bottom:10px"/>
-          <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Players <span style="color:#555;font-weight:400;font-size:10px">— one per line</span></div>
+          <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Players <span style="color:#ccc;font-weight:400;font-size:10px">— one per line</span></div>
           <textarea class="input" id="wiz-team2-players" rows="5" placeholder="Dave&#10;Eve&#10;Frank" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
         </div>
       </div>
@@ -993,7 +993,7 @@
       <button id="wiz-back-btn" onclick="wizBack()" style="flex:1;padding:14px;border-radius:12px;border:1.5px solid #3a3a3a;background:#252525;color:#ddd;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:50px;display:none">← Back</button>
       <button id="wiz-next-btn" onclick="wizNext()" style="flex:2;padding:14px;border-radius:12px;border:none;background:var(--teal);color:#000;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;min-height:50px">Next →</button>
     </div>
-    <button onclick="hideWizard()" style="width:100%;margin-top:8px;padding:12px;border-radius:12px;border:none;background:transparent;color:#555;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Cancel</button>
+    <button onclick="hideWizard()" style="width:100%;margin-top:8px;padding:12px;border-radius:12px;border:none;background:transparent;color:#ccc;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;min-height:44px">Cancel</button>
   </div>
 </div>
 <!-- PLAY -->
@@ -1004,8 +1004,8 @@
     <button class="btn btn-primary" style="margin-top:16px" onclick="showTab('setup')">Start New Game</button>
   </div>
   <div id="play-content" style="display:none">
-    <div style="text-align:right;padding:6px 16px 0;font-size:10px;color:#444;letter-spacing:1px">
-      <span class="autosave-dot"></span>AUTO-SAVING &nbsp;·&nbsp; <span id="fb-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:3px;vertical-align:middle"></span><span id="fb-status-lbl" style="color:#555;font-size:9px;letter-spacing:1px">CONNECTING</span>
+    <div style="text-align:right;padding:6px 16px 0;font-size:10px;color:#ccc;letter-spacing:1px">
+      <span class="autosave-dot"></span>AUTO-SAVING &nbsp;·&nbsp; <span id="fb-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:3px;vertical-align:middle"></span><span id="fb-status-lbl" style="color:#ccc;font-size:9px;letter-spacing:1px">CONNECTING</span>
     </div>
     <div class="score-banner" id="score-banner"></div>
     <div class="hole-selector"><div class="hole-dots" id="hole-dots"></div></div>
@@ -1013,7 +1013,7 @@
     <div class="card">
       <div class="card-label" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;min-height:44px" onclick="toggleScorecard()">
         <span>Full Scorecard</span>
-        <span id="sc-toggle-icon" style="font-size:20px;color:#555;transition:transform .25s;line-height:1">▾</span>
+        <span id="sc-toggle-icon" style="font-size:20px;color:#ccc;transition:transform .25s;line-height:1">▾</span>
       </div>
       <div id="sc-body" style="display:none">
         <table class="sc-table" id="sc-table"></table>
@@ -2003,25 +2003,25 @@ function renderSGGScoreboard() {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(0,232,187,.1);border:2px solid var(--teal);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--teal);font-size:16px;letter-spacing:.5px">ROW WIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#888;font-size:11px;margin-top:4px">${rowTotal}–${ausTotal}</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${rowTotal}–${ausTotal}</div>
       </div>`;
     } else if (ausTotal >= pToWin) {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(255,90,90,.1);border:2px solid var(--red);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--red);font-size:16px;letter-spacing:.5px">AUS WIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#888;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal}</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal}</div>
       </div>`;
     } else if (ausTotal >= pToRetain) {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(226,184,74,.1);border:2px solid var(--gold);border-radius:14px;text-align:center">
         <div style="font-size:22px;margin-bottom:4px">🏆</div>
         <div style="font-weight:800;color:var(--gold);font-size:16px;letter-spacing:.5px">AUS RETAIN THE SGG INTERNATIONAL!</div>
-        <div style="color:#888;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal} · Defending champions hold on</div>
+        <div style="color:#ccc;font-size:11px;margin-top:4px">${ausTotal}–${rowTotal} · Defending champions hold on</div>
       </div>`;
     }
   } else {
     const rowNeeds = Math.max(0, pToWin - rowTotal).toFixed(1).replace('.0','');
     const ausNeeds = Math.max(0, pToRetain - ausTotal).toFixed(1).replace('.0','');
-    statusHtml = `<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#666">
+    statusHtml = `<div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#ccc">
       <div style="background:#111;border-radius:8px;padding:8px;text-align:center">
         <div style="color:var(--teal);font-weight:700">ROW need</div>
         <div style="font-size:16px;font-weight:800;color:var(--teal)">${rowNeeds} pts</div>
@@ -2045,8 +2045,8 @@ function renderSGGScoreboard() {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
         <span style="font-size:18px">🏆</span>
         <div>
-          <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#555">SGG INTERNATIONAL 2026</div>
-          <div style="font-size:10px;color:#444;margin-top:1px">${totalPlayed} of ${totalMatches} matches complete · AUS defending</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#ccc">SGG INTERNATIONAL 2026</div>
+          <div style="font-size:10px;color:#ccc;margin-top:1px">${totalPlayed} of ${totalMatches} matches complete · AUS defending</div>
         </div>
       </div>
 
@@ -2057,12 +2057,12 @@ function renderSGGScoreboard() {
           <div style="font-size:36px;font-weight:900;color:var(--teal);line-height:1">${rowTotal}</div>
         </div>
         <div style="text-align:center;flex:1;padding:0 12px">
-          <div style="font-size:10px;color:#444;margin-bottom:4px">${totalMatches} pts total</div>
+          <div style="font-size:10px;color:#ccc;margin-bottom:4px">${totalMatches} pts total</div>
           <div style="height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;display:flex">
             <div style="width:${rowPct}%;background:var(--teal);border-radius:3px 0 0 3px;transition:width .5s"></div>
             <div style="width:${ausPct}%;background:var(--red);border-radius:0 3px 3px 0;transition:width .5s"></div>
           </div>
-          <div style="font-size:9px;color:#333;margin-top:3px">── 11.5 to win ──</div>
+          <div style="font-size:9px;color:#777;margin-top:3px">── 11.5 to win ──</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--red)">AUS 🏆</div>
@@ -2073,18 +2073,18 @@ function renderSGGScoreboard() {
       <!-- Day breakdown -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
         <div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:10px">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#555;margin-bottom:6px">DAY 1 · BONNIE DOON · 4BBB</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:6px">DAY 1 · BONNIE DOON · 4BBB</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="color:var(--teal);font-weight:800;font-size:18px">${d1t.row}</span>
-            <span style="color:#444;font-size:11px">${d1t.played}/7</span>
+            <span style="color:#ccc;font-size:11px">${d1t.played}/7</span>
             <span style="color:var(--red);font-weight:800;font-size:18px">${d1t.aus}</span>
           </div>
         </div>
         <div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:10px">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#555;margin-bottom:6px">DAY 2 · STONECUTTERS · SINGLES</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:6px">DAY 2 · STONECUTTERS · SINGLES</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="color:var(--teal);font-weight:800;font-size:18px">${d2t.row}</span>
-            <span style="color:#444;font-size:11px">${d2t.played}/15</span>
+            <span style="color:#ccc;font-size:11px">${d2t.played}/15</span>
             <span style="color:var(--red);font-weight:800;font-size:18px">${d2t.aus}</span>
           </div>
         </div>
@@ -2228,20 +2228,20 @@ function showFinaliseModal() {
     `${completed} of ${total} matches complete. Confirm to close this tournament.`;
 
   document.getElementById('finalise-score-display').innerHTML = `
-    <div style="font-size:11px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:10px">FINAL SCORE</div>
+    <div style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:1px;margin-bottom:10px">FINAL SCORE</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:16px">
       <div style="text-align:center">
         <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:4px">${t1name}</div>
         <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--teal);line-height:1">${t1pts}</div>
       </div>
-      <div style="font-size:20px;color:#333;font-weight:900">—</div>
+      <div style="font-size:20px;color:#777;font-weight:900">—</div>
       <div style="text-align:center">
         <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:4px">${t2name}</div>
         <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--red);line-height:1">${t2pts}</div>
       </div>
     </div>
-    ${halved ? `<div style="font-size:11px;color:#555;margin-top:8px">${halved} halved</div>` : ''}
-    ${winner ? `<div style="margin-top:12px;font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:var(--gold)">🏆 ${winner} wins</div>` : `<div style="margin-top:10px;font-size:13px;color:#888">Match Tied</div>`}
+    ${halved ? `<div style="font-size:11px;color:#ccc;margin-top:8px">${halved} halved</div>` : ''}
+    ${winner ? `<div style="margin-top:12px;font-family:'Playfair Display',serif;font-size:16px;font-weight:900;color:var(--gold)">🏆 ${winner} wins</div>` : `<div style="margin-top:10px;font-size:13px;color:#ccc">Match Tied</div>`}
   `;
 
   document.getElementById('finalise-modal').classList.remove('hidden');
@@ -2429,14 +2429,14 @@ function _wizRender() {
     const t2p  = document.getElementById('wiz-team2-players').value.split('\n').map(s=>s.trim()).filter(Boolean);
     const fmtLabel = _wizFmt === '4bbb' ? '4BBB' : 'Singles Matchplay';
     const summary = `
-      <div style="margin-bottom:6px"><span style="color:#555">Name:</span> <strong>${name}</strong></div>
-      <div style="margin-bottom:6px"><span style="color:#555">Type:</span> <strong>${_wizType === 'teams' ? 'Teams' : 'Singles'}</strong></div>
+      <div style="margin-bottom:6px"><span style="color:#ccc">Name:</span> <strong>${name}</strong></div>
+      <div style="margin-bottom:6px"><span style="color:#ccc">Type:</span> <strong>${_wizType === 'teams' ? 'Teams' : 'Singles'}</strong></div>
       ${_wizType === 'teams' ? `
-      <div style="margin-bottom:6px"><span style="color:#555">Format:</span> <strong>${fmtLabel}</strong></div>
+      <div style="margin-bottom:6px"><span style="color:#ccc">Format:</span> <strong>${fmtLabel}</strong></div>
       <div style="margin-bottom:6px"><span style="color:var(--teal)">${t1n}</span>: ${t1p.length} players</div>
       <div style="margin-bottom:6px"><span style="color:var(--red)">${t2n}</span>: ${t2p.length} players</div>
       ` : `
-      <div><span style="color:#555">Players:</span> <strong>${document.getElementById('wiz-singles-players').value.split('\n').map(s=>s.trim()).filter(Boolean).length} in roster</strong></div>
+      <div><span style="color:#ccc">Players:</span> <strong>${document.getElementById('wiz-singles-players').value.split('\n').map(s=>s.trim()).filter(Boolean).length} in roster</strong></div>
       `}`;
     const el = document.getElementById('wiz-summary');
     if (el) el.innerHTML = summary;
@@ -2847,7 +2847,7 @@ function renderCourseActions(idx){
 
   if(c.preset){
     actionsEl.innerHTML = `
-      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#555;display:flex;align-items:center;justify-content:space-between">
+      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#ccc;display:flex;align-items:center;justify-content:space-between">
         <span>⛳ Built-in course</span>
         <span style="display:flex;gap:8px">
           <button class="course-action-btn" id="view-toggle-btn" onclick="toggleViewCourse(${idx})" style="color:var(--teal)">👁 View</button>
@@ -2856,7 +2856,7 @@ function renderCourseActions(idx){
       </div>`;
   } else {
     actionsEl.innerHTML = `
-      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#aaa;display:flex;align-items:center;justify-content:space-between">
+      <div style="width:100%;padding:8px 12px;background:#111;border:1px solid #252525;border-radius:9px;font-size:11px;color:#ccc;display:flex;align-items:center;justify-content:space-between">
         <span style="font-weight:600;color:#ccc">${c.name}</span>
         <span style="display:flex;gap:8px">
           <button class="course-action-btn" id="view-toggle-btn" onclick="toggleViewCourse(${idx})" style="color:var(--teal)">👁 View</button>
@@ -3060,7 +3060,7 @@ function checkForSavedGame(){
     <div class="modal-game-meta">
       ${modeLabel}${teamLabel}${courseLabel}<br>
       ${hcpLine}<br>
-      <span style="color:#555">Last saved: ${savedAt}</span>
+      <span style="color:#ccc">Last saved: ${savedAt}</span>
     </div>
     <div class="modal-game-progress">
       <div class="modal-progress-label">${played} of 18 holes completed</div>
@@ -3754,7 +3754,7 @@ function renderBanner(results, rawResults){
   const cn=game.courseName?game.courseName.toUpperCase():'';
   const _modeTxt=game.mode==='matchplay'?'MATCHPLAY':game.mode==='stableford'?'STABLEFORD':'STROKE PLAY';
   const _extraTxt=game.skins?' + 💰 SKINS':game.team?' · 4BBB':game.fourPlayer?' · 4 PLAYERS':'';
-  const cnHtml=`<div style="font-size:10px;color:#555;letter-spacing:1.5px;font-weight:700;text-align:center;margin-bottom:2px">${_modeTxt}${_extraTxt}</div>${cn?`<div class="score-banner-title">${cn}</div>`:''}`; 
+  const cnHtml=`<div style="font-size:10px;color:#ccc;letter-spacing:1.5px;font-weight:700;text-align:center;margin-bottom:2px">${_modeTxt}${_extraTxt}</div>${cn?`<div class="score-banner-title">${cn}</div>`:''}`; 
 
   if(game.mode==='matchplay' && !game.skins){
     // ── Four-player: two concurrent 1v1 matches ──────────────────────────────
@@ -3775,7 +3775,7 @@ function renderBanner(results, rawResults){
         else if(st.leading===2){ ldr=`<span style="color:${colB}">${pB.name}</span> leads `; colCls='status-p2'; }
         const played1 = res1.filter(r=>r!=null).length;
         return `<div style="background:#111;border-radius:10px;padding:10px 12px;margin-bottom:8px">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#555;margin-bottom:5px">MATCH 1 · <span style="color:${colA}">${pA.name}</span> vs <span style="color:${colB}">${pB.name}</span></div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:5px">MATCH 1 · <span style="color:${colA}">${pA.name}</span> vs <span style="color:${colB}">${pB.name}</span></div>
           <div class="match-status ${colCls}" style="font-size:15px">${ldr}${st.label}</div>
           <div class="score-sub">${st.played||played1}/18 holes</div>
         </div>`;
@@ -3788,7 +3788,7 @@ function renderBanner(results, rawResults){
         else if(st.leading===2){ ldr=`<span style="color:${colB}">${pB.name}</span> leads `; colCls='status-p2'; }
         const played2 = res2.filter(r=>r!=null).length;
         return `<div style="background:#111;border-radius:10px;padding:10px 12px">
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#555;margin-bottom:5px">MATCH 2 · <span style="color:${colA}">${pA.name}</span> vs <span style="color:${colB}">${pB.name}</span></div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:5px">MATCH 2 · <span style="color:${colA}">${pA.name}</span> vs <span style="color:${colB}">${pB.name}</span></div>
           <div class="match-status ${colCls}" style="font-size:15px">${ldr}${st.label}</div>
           <div class="score-sub">${st.played||played2}/18 holes</div>
         </div>`;
@@ -3809,7 +3809,7 @@ function renderBanner(results, rawResults){
       else if(st.leading===2)ldr=`<span style="color:var(--red)">${game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name}</span> leads `;
       const posterityHoles = st.closed && rawResults ? rawResults.slice(st.closingHole||0).filter(r=>r!=null).length : 0;
       const posterityNote = posterityHoles>0
-        ? `<div style="margin-top:6px;font-size:10px;color:#555;letter-spacing:.5px">⊘ ${posterityHoles} hole${posterityHoles>1?'s':''} played after match closed — recorded for posterity only</div>`
+        ? `<div style="margin-top:6px;font-size:10px;color:#ccc;letter-spacing:.5px">⊘ ${posterityHoles} hole${posterityHoles>1?'s':''} played after match closed — recorded for posterity only</div>`
         : '';
       el.innerHTML=`${cnHtml}<div class="score-banner-title">MATCHPLAY STATUS</div>
         <div class="match-status ${colCls}">${ldr}${st.label}</div>
@@ -3849,7 +3849,7 @@ function renderBanner(results, rawResults){
             <div class="stroke-name" style="color:${_colors4[i]}">${p.n}</div>
             <div class="stroke-total" style="color:${_colors4[i]}">${p.t}</div>
             <div class="stroke-sub">pts</div>
-          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#333">·</div>')}
+          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#777">·</div>')}
         </div>`;
     } else {
       const t1n = game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name;
@@ -3859,14 +3859,14 @@ function renderBanner(results, rawResults){
           <div class="stroke-player">
             <div class="stroke-name" style="color:var(--teal)">${t1n}</div>
             <div class="stroke-total" style="color:var(--teal)">${game.team?bb1:t1}</div>
-            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#555">${p1.name} ${t1}pt · ${p3.name} ${t3}pt</div>`:''}
+            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#ccc">${p1.name} ${t1}pt · ${p3.name} ${t3}pt</div>`:''}
             <div class="stroke-sub">best ball pts</div>
           </div>
           <div class="stroke-vs">vs</div>
           <div class="stroke-player">
             <div class="stroke-name" style="color:var(--red)">${t2n}</div>
             <div class="stroke-total" style="color:var(--red)">${game.team?bb2:t2}</div>
-            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#555">${p2.name} ${t2}pt · ${p4.name} ${t4}pt</div>`:''}
+            ${game.team?`<div class="stroke-sub" style="font-size:10px;color:#ccc">${p2.name} ${t2}pt · ${p4.name} ${t4}pt</div>`:''}
             <div class="stroke-sub">best ball pts</div>
           </div>
         </div>`;
@@ -3893,7 +3893,7 @@ function renderBanner(results, rawResults){
             <div class="stroke-total">${_gtot[i]||'—'}</div>
             <div class="stroke-sub">${_gtot[i]?((_gtot[i]-_par[i]>=0?'+':'')+(_gtot[i]-_par[i])+' to par'):'—'}</div>
             <div class="stroke-pts">Net: ${_gtot[i]?_ntot[i]:'—'}</div>
-          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#333">·</div>')}
+          </div>`).join('<div class="stroke-vs" style="font-size:11px;color:#777">·</div>')}
         </div>`;
     } else {
       el.innerHTML=`${cnHtml}<div class="score-banner-title">STROKE PLAY</div>
@@ -3940,7 +3940,7 @@ function renderBanner(results, rawResults){
         <div class="stroke-total" style="color:${colors[pi]}">${totals[p.name]||0}</div>
         <div class="stroke-sub">skin${totals[p.name]!==1?'s':''}</div>
       </div>`
-    ).join('<div class="stroke-vs" style="color:#333;font-size:11px">·</div>');
+    ).join('<div class="stroke-vs" style="color:#777;font-size:11px">·</div>');
     el.innerHTML=`${cnHtml}<div class="score-banner-title">💰 SKINS · ${game.mode.toUpperCase()}</div>
       <div class="stroke-scores" style="flex-wrap:wrap;gap:6px">${skRows}</div>
       <div class="score-sub" style="margin-top:6px">
@@ -4032,7 +4032,7 @@ function renderHoleEntry(){
   const sb4=(isStab&&(game.team||(game.fourPlayer&&_pc_sb>=4)))?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
 
   // Stroke labels
-  const strokeLbl=(s,col='var(--teal)')=>{ return s>0?`<span style="color:${col};font-size:10px;font-weight:700">+${s} stroke${s>1?'s':''}</span>`:'<span style="color:#888;font-size:9px">no strokes</span>'; }
+  const strokeLbl=(s,col='var(--teal)')=>{ return s>0?`<span style="color:${col};font-size:10px;font-weight:700">+${s} stroke${s>1?'s':''}</span>`:'<span style="color:#ccc;font-size:9px">no strokes</span>'; }
 
   // Net score decoration helper (inline for hole entry — mirrors scorecard version)
   const holeNetDeco=(net,par)=>{
@@ -4062,7 +4062,7 @@ function renderHoleEntry(){
       const suffix=d<0?` (${d} to par)`:d>0?` (+${d} to par)`:' (par)';
       return `<div class="score-result-row" style="color:${col}">Net ${net}${suffix}</div>`;
     }
-    return `<div class="score-result-row" style="color:#888">Net ${net}</div>`;
+    return `<div class="score-result-row" style="color:#ccc">Net ${net}</div>`;
   }
   const skinsHoleResult=()=>{
     if(!game.skins) return '';
@@ -4187,7 +4187,7 @@ function renderHoleEntry(){
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <div style="font-size:14px;font-weight:700;color:#ccc">Hole ${h.hole}</div>
-        <div style="font-size:12px;color:#888">Par ${h.par} · SI ${si}</div>
+        <div style="font-size:12px;color:#ccc">Par ${h.par} · SI ${si}</div>
       </div>
       ${gridHtml}
       ${badgeHtml}
@@ -4223,11 +4223,11 @@ function renderScorecard(results, rawResults){
           + `<th style="color:var(--red)">${p2s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>`
           + (team ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           /* Res1 — always shown for matchplay (separator between M1 and M2 in fp4 mode) */
-          + (isMatch ? '<th style="color:#888;font-size:9px">R1</th>' : '')
+          + (isMatch ? '<th style="color:#ccc;font-size:9px">R1</th>' : '')
           /* Match 2 columns — only in fourPlayer non-team 4-player mode */
           + (_fp&&!team&&_pc4>=3 ? `<th style="color:var(--teal)">${p3s}</th><th style="color:var(--teal);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
           + (_fp&&!team&&_pc4>=4 ? `<th style="color:var(--red)">${p4s}</th><th style="color:var(--red);font-size:9px">${isStab?'Pts':'Net'}</th>` : '')
-          + (isMatch&&_fp&&!team&&_pc4>=4 ? '<th style="color:#888;font-size:9px">R2</th>' : '')
+          + (isMatch&&_fp&&!team&&_pc4>=4 ? '<th style="color:#ccc;font-size:9px">R2</th>' : '')
         }
       </tr>`;
 
@@ -4237,7 +4237,7 @@ function renderScorecard(results, rawResults){
 
   // Net score decoration: wraps net score value in golf notation symbols
   const netScoreDeco=(net,par)=>{
-    if (net == null) return '<span style="color:#444">—</span>';
+    if (net == null) return '<span style="color:#ccc">—</span>';
     const diff = net - par;
     const v = net;
     const base = 'display:inline-block;text-align:center;vertical-align:middle;font-size:11px;font-weight:800;box-sizing:border-box;';
@@ -4261,7 +4261,7 @@ function renderScorecard(results, rawResults){
     if (diff <= -3) return dblCirc('#ff5a5a');  // Albatross — double red circle
     if (diff === -2) return dblCirc('#ff5a5a'); // Eagle — double red circle
     if (diff === -1) return sglCirc('#ff5a5a'); // Birdie — single red circle
-    if (diff === 0)  return `<span style="color:#aaa;font-size:11px;font-weight:700">${v}</span>`; // Par
+    if (diff === 0)  return `<span style="color:#ccc;font-size:11px;font-weight:700">${v}</span>`; // Par
     if (diff === 1)  return sglSq('#888');       // Bogey — single square
     if (diff === 2)  return dblSq('#888');       // Double bogey — double square
     return dblSq('#ff5a5a');                     // Triple+ — double red square
@@ -4276,7 +4276,7 @@ function renderScorecard(results, rawResults){
     let inner;
     if(pts>=4) inner=`<span style="${base}border-radius:50%;border:2px solid ${red};outline:2px solid ${red};outline-offset:3px;color:${red}">${pts}</span>`;
     else if(pts===3) inner=`<span style="${base}border-radius:50%;border:2px solid ${red};color:${red}">${pts}</span>`;
-    else if(pts===2) inner=`<span style="font-size:11px;font-weight:800;color:#aaa">${pts}</span>`;
+    else if(pts===2) inner=`<span style="font-size:11px;font-weight:800;color:#ccc">${pts}</span>`;
     else if(pts===1) inner=`<span style="${base}border:2px solid ${grey};color:${grey}">${pts}</span>`;
     else inner=`<span style="${base}border:2px solid ${grey};outline:2px solid ${grey};outline-offset:3px;color:${grey}">${pts}</span>`;
     return `<td style="text-align:center;padding:2px 4px">${inner}</td>`;
@@ -4310,18 +4310,18 @@ function renderScorecard(results, rawResults){
       const _skr=_skResults?_skResults[i]:null;
       const _skGross=[h.p1,h.p2,h.p3,h.p4];
       const _skCell=(pi)=>{
-        const g=_skGross[pi]; if(g==null) return '<td style="color:#444">—</td>';
+        const g=_skGross[pi]; if(g==null) return '<td style="color:#ccc">—</td>';
         const won=_skr&&_skr.winner===pi;
         const col=won?_skColors[pi]:(g<h.par?'#ff5a5a':g>h.par?'#888':'#aaa');
         const fw=won?'font-weight:700':'';
         return `<td style="color:${col};${fw}">${g}${won?' 💰':''}</td>`;
       };
-      const _skinCol=!_skr||_skr.winner===null?'color:#333'
+      const _skinCol=!_skr||_skr.winner===null?'color:#777'
         :_skr.winner===-1?'color:var(--gold)':'color:var(--gold);font-weight:700';
       const _skinTxt=!_skr||_skr.winner===null?'·'
         :_skr.winner===-1?`↗${_skr.skinsAtStake}`:`+${_skr.skinsWon}`;
       rows+=`<tr class="${isAct?'sc-active':''}" onclick="setHole(${h.hole})">
-        <td>${h.hole}</td><td style="color:var(--gold)">${h.par}</td><td style="color:#aaa;font-size:11px;font-weight:600">${si}</td>
+        <td>${h.hole}</td><td style="color:var(--gold)">${h.par}</td><td style="color:#ccc;font-size:11px;font-weight:600">${si}</td>
         ${game.skinsPlayers.map((_,pi)=>_skCell(pi)).join('')}
         <td style="${_skinCol};text-align:center">${_skinTxt}</td>
       </tr>`;
@@ -4338,10 +4338,10 @@ function renderScorecard(results, rawResults){
       const _res2Cls = res2===1?'sc-win':res2===-1?'sc-lose':res2===0?'sc-halve':'';
       // Hole number cell — neutral (no colouring) when two matches are running
       const holeCell = _fp2match
-        ? `<td style="font-weight:700;color:#aaa">${h.hole}</td>`
+        ? `<td style="font-weight:700;color:#ccc">${h.hole}</td>`
         : `<td>${h.hole}</td>`;
       rows+=`<tr class="${isAct?'sc-active':''}" onclick="setHole(${h.hole})">
-        ${holeCell}<td style="color:var(--gold)">${h.par}</td><td style="color:#aaa;font-size:11px;font-weight:600">${si}</td>
+        ${holeCell}<td style="color:var(--gold)">${h.par}</td><td style="color:#ccc;font-size:11px;font-weight:600">${si}</td>
         ${/* Match 1: p1 gross/net, p2 gross/net, Res1 */
           scoreCell(h.p1,h.par) + (isStab ? ptsCell(sb1) : `<td style="text-align:center">${netScoreDeco(n1,h.par)}</td>`)
           + (team ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(h.p3!=null?h.p3-strokesOnHole(p3.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
@@ -4624,12 +4624,12 @@ function renderFinishBar(mpStatus, all18){
       const modeLabel = game.mode === 'stableford' ? 'pts' : 'net';
       const rows = standings.map((p, idx) => {
         const cbNote = p.countback && !p.countback.loser && p.countback.winner
-          ? `<span style="font-size:10px;color:#888"> · Won ${p.countback.method} countback</span>`
+          ? `<span style="font-size:10px;color:#ccc"> · Won ${p.countback.method} countback</span>`
           : p.countback && p.countback.winner === null
-          ? `<span style="font-size:10px;color:#888"> · Dead heat</span>`
+          ? `<span style="font-size:10px;color:#ccc"> · Dead heat</span>`
           : '';
         const cbDetail = p.countback && !p.countback.loser && p.countback.winner
-          ? `<div style="font-size:10px;color:#555;margin-top:1px;padding-left:22px">${p.countback.detail}</div>`
+          ? `<div style="font-size:10px;color:#ccc;margin-top:1px;padding-left:22px">${p.countback.detail}</div>`
           : '';
         return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1e1e1e">
           <span style="font-size:16px;width:22px;text-align:center">${rankEmoji[p.rank-1]||p.rank}</span>
@@ -4762,7 +4762,7 @@ function renderHistory(){
       const _hmp=g.mode==='matchplay';
       const si=_hmp?msi(h):gsi1(h),si2h=_hmp?null:gsi2(h),si3h=_hmp?null:gsi3(h),res=results[i];
       const resSym=res===1?'▲':res===-1?'▼':res===0?'–':'·';
-      const resCol=res===1?'color:var(--teal)':res===-1?'color:var(--red)':'color:#aaa';
+      const resCol=res===1?'color:var(--teal)':res===-1?'color:var(--red)':'color:#ccc';
       const sb1h=stablefordCalc(h.p1,h.par,p1.hcp,si,si2h,si3h);
       const sb2h=stablefordCalc(h.p2,h.par,p2.hcp,si,si2h,si3h);
       const sb3h=g.team?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
@@ -5025,10 +5025,10 @@ function loadTournamentResults(key) {
   const el = document.getElementById('tr-results');
   if (!key) { el.innerHTML = ''; return; }
   const t = TOURNAMENT[key];
-  if (!t) { el.innerHTML = '<div style="color:#888;font-size:13px">Tournament not found.</div>'; return; }
+  if (!t) { el.innerHTML = '<div style="color:#ccc;font-size:13px">Tournament not found.</div>'; return; }
   const rounds = history.filter(g => g.tournament && g.tournament.key === key);
   if (rounds.length === 0) {
-    el.innerHTML = '<div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📭</div><div style="color:#888;font-size:13px">No completed rounds found for <strong style="color:#ccc">' + t.label + '</strong>.</div><div style="color:#555;font-size:11px;margin-top:6px">Finish and save games with this tournament selected to see results here.</div></div>';
+    el.innerHTML = '<div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:16px;text-align:center"><div style="font-size:28px;margin-bottom:8px">📭</div><div style="color:#ccc;font-size:13px">No completed rounds found for <strong style="color:#ccc">' + t.label + '</strong>.</div><div style="color:#ccc;font-size:11px;margin-top:6px">Finish and save games with this tournament selected to see results here.</div></div>';
     return;
   }
   el.innerHTML = t.type === 'singles' ? renderSinglesResults(t, rounds) : renderTeamsResults(t, rounds);
@@ -5083,18 +5083,18 @@ function renderSinglesResults(t, rounds) {
     return `<tr style="background:${i%2===0?'#141414':'#181818'}">
       <td style="padding:7px 8px;font-size:15px;text-align:center">${rank}</td>
       <td style="padding:7px 8px;font-weight:700;color:${color};font-size:13px">${p.name}</td>
-      <td style="padding:7px 8px;text-align:center;color:#888">${p.rc}</td>
+      <td style="padding:7px 8px;text-align:center;color:#ccc">${p.rc}</td>
       <td style="padding:7px 8px;text-align:center;font-weight:700;color:${color}">${isStab?p.totalStab:p.totalNet}</td>
-      <td style="padding:7px 8px;text-align:center;color:#666;font-size:11px">${isStab?p.avgStab:p.avgNet}</td>
+      <td style="padding:7px 8px;text-align:center;color:#ccc;font-size:11px">${isStab?p.avgStab:p.avgNet}</td>
     </tr>`;
   }).join('');
 
   const playerDetail = Object.entries(playerMap).map(([name, games]) => {
-    const dRows = games.map(g => `<tr><td style="padding:4px 6px;color:#888">${g.date}</td><td style="padding:4px 6px;color:#888">${g.course}</td><td style="padding:4px 6px;text-align:center">${g.mode==='stableford'?'⭐':g.mode==='matchplay'?'🏆':'✏️'}</td><td style="padding:4px 6px;text-align:center;color:var(--teal)">${g.gross}</td><td style="padding:4px 6px;text-align:center;color:var(--gold)">${g.net}</td><td style="padding:4px 6px;text-align:center;color:#a78bfa">${g.stab}</td><td style="padding:4px 6px;text-align:center;color:#555">${g.played}/18</td></tr>`).join('');
-    return `<details style="margin-bottom:8px"><summary style="cursor:pointer;padding:6px 8px;background:#141414;border-radius:7px;font-size:12px;color:#ccc;font-weight:600;list-style:none;display:flex;justify-content:space-between"><span>${name}</span><span style="color:#555">${games.length} round${games.length!==1?'s':''} ▾</span></summary><div style="overflow-x:auto;margin-top:4px"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#111"><th style="padding:4px 6px;text-align:left;color:#555">Date</th><th style="padding:4px 6px;text-align:left;color:#555">Course</th><th style="padding:4px 6px">Mode</th><th style="padding:4px 6px;color:var(--teal)">Gross</th><th style="padding:4px 6px;color:var(--gold)">Net</th><th style="padding:4px 6px;color:#a78bfa">Stab</th><th style="padding:4px 6px;color:#555">Holes</th></tr></thead><tbody>${dRows}</tbody></table></div></details>`;
+    const dRows = games.map(g => `<tr><td style="padding:4px 6px;color:#ccc">${g.date}</td><td style="padding:4px 6px;color:#ccc">${g.course}</td><td style="padding:4px 6px;text-align:center">${g.mode==='stableford'?'⭐':g.mode==='matchplay'?'🏆':'✏️'}</td><td style="padding:4px 6px;text-align:center;color:var(--teal)">${g.gross}</td><td style="padding:4px 6px;text-align:center;color:var(--gold)">${g.net}</td><td style="padding:4px 6px;text-align:center;color:#a78bfa">${g.stab}</td><td style="padding:4px 6px;text-align:center;color:#ccc">${g.played}/18</td></tr>`).join('');
+    return `<details style="margin-bottom:8px"><summary style="cursor:pointer;padding:6px 8px;background:#141414;border-radius:7px;font-size:12px;color:#ccc;font-weight:600;list-style:none;display:flex;justify-content:space-between"><span>${name}</span><span style="color:#ccc">${games.length} round${games.length!==1?'s':''} ▾</span></summary><div style="overflow-x:auto;margin-top:4px"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:#111"><th style="padding:4px 6px;text-align:left;color:#ccc">Date</th><th style="padding:4px 6px;text-align:left;color:#ccc">Course</th><th style="padding:4px 6px">Mode</th><th style="padding:4px 6px;color:var(--teal)">Gross</th><th style="padding:4px 6px;color:var(--gold)">Net</th><th style="padding:4px 6px;color:#a78bfa">Stab</th><th style="padding:4px 6px;color:#ccc">Holes</th></tr></thead><tbody>${dRows}</tbody></table></div></details>`;
   }).join('');
 
-  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700">🏆 ${t.label.toUpperCase()} · SINGLES LEADERBOARD</div><div style="font-size:10px;color:#555;margin-top:4px">${rounds.length} round${rounds.length!==1?'s':''} · ${modeBreakdown}</div></div><div style="overflow-x:auto;margin-bottom:16px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:11px"><th style="padding:7px 8px"></th><th style="padding:7px 8px;text-align:left;color:#888">Player</th><th style="padding:7px 8px;color:#888">Rounds</th><th style="padding:7px 8px;color:var(--gold)">${colLabel}</th><th style="padding:7px 8px;color:#555">Avg</th></tr></thead><tbody>${rows}</tbody></table></div><div style="font-size:10px;color:var(--teal);letter-spacing:1px;font-weight:700;margin-bottom:8px">ROUND BREAKDOWN BY PLAYER</div>${playerDetail}`;
+  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:12px;margin-bottom:12px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700">🏆 ${t.label.toUpperCase()} · SINGLES LEADERBOARD</div><div style="font-size:10px;color:#ccc;margin-top:4px">${rounds.length} round${rounds.length!==1?'s':''} · ${modeBreakdown}</div></div><div style="overflow-x:auto;margin-bottom:16px"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:11px"><th style="padding:7px 8px"></th><th style="padding:7px 8px;text-align:left;color:#ccc">Player</th><th style="padding:7px 8px;color:#ccc">Rounds</th><th style="padding:7px 8px;color:var(--gold)">${colLabel}</th><th style="padding:7px 8px;color:#ccc">Avg</th></tr></thead><tbody>${rows}</tbody></table></div><div style="font-size:10px;color:var(--teal);letter-spacing:1px;font-weight:700;margin-bottom:8px">ROUND BREAKDOWN BY PLAYER</div>${playerDetail}`;
 }
 
 function renderTeamsResults(t, rounds) {
@@ -5134,15 +5134,15 @@ function renderTeamsResults(t, rounds) {
       else{result='Halved';rColor='var(--gold)';halved++;}
     }
     const players=g.team?`${p1.name} & ${p3.name} vs ${p2.name} & ${p4.name}`:`${p1.name} vs ${p2.name}`;
-    return `<tr style="background:${i%2===0?'#141414':'#181818'}"><td style="padding:7px 8px;color:#888;font-size:11px">${date}</td><td style="padding:7px 8px;font-size:11px;color:#999">${isMatch?'🏆':isStab?'⭐':'✏️'} ${players}</td><td style="padding:7px 8px;font-size:12px;font-weight:700;color:${rColor};text-align:right">${result}</td></tr>`;
+    return `<tr style="background:${i%2===0?'#141414':'#181818'}"><td style="padding:7px 8px;color:#ccc;font-size:11px">${date}</td><td style="padding:7px 8px;font-size:11px;color:#ccc">${isMatch?'🏆':isStab?'⭐':'✏️'} ${players}</td><td style="padding:7px 8px;font-size:12px;font-weight:700;color:${rColor};text-align:right">${result}</td></tr>`;
   }).join('');
 
   const total=t1wins+t2wins+halved;
   const t1pts=t1wins+halved*0.5, t2pts=t2wins+halved*0.5;
   const winner=t1pts>t2pts?t.team1.name:t2pts>t1pts?t.team2.name:null;
-  const wHtml=winner?`<div style="font-size:22px;font-weight:700;color:var(--teal);margin-bottom:4px">🏆 ${winner}</div><div style="font-size:11px;color:#888">Overall Winner</div>`:`<div style="font-size:18px;font-weight:700;color:var(--gold)">Tied — ${t1pts} all</div>`;
+  const wHtml=winner?`<div style="font-size:22px;font-weight:700;color:var(--teal);margin-bottom:4px">🏆 ${winner}</div><div style="font-size:11px;color:#ccc">Overall Winner</div>`:`<div style="font-size:18px;font-weight:700;color:var(--gold)">Tied — ${t1pts} all</div>`;
 
-  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700;margin-bottom:10px">🏆 ${t.label.toUpperCase()} · TEAMS RESULT</div>${wHtml}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center"><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--teal)">${t1pts}</div><div style="font-size:11px;color:var(--teal);font-weight:700;margin-top:4px">${t.team1.name}</div><div style="font-size:10px;color:#555">${t1wins}W · ${halved}H</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:18px;font-weight:700;color:#555">${total}</div><div style="font-size:10px;color:#555;margin-top:4px">matches</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--red)">${t2pts}</div><div style="font-size:11px;color:var(--red);font-weight:700;margin-top:4px">${t.team2.name}</div><div style="font-size:10px;color:#555">${t2wins}W · ${halved}H</div></div></div><div style="font-size:10px;color:#555;letter-spacing:1px;font-weight:700;margin-bottom:8px">MATCH RESULTS</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:10px"><th style="padding:6px 8px;text-align:left;color:#555">Date</th><th style="padding:6px 8px;text-align:left;color:#555">Players</th><th style="padding:6px 8px;text-align:right;color:#555">Result</th></tr></thead><tbody>${matchRows}</tbody></table></div>`;
+  return `<div style="background:linear-gradient(135deg,rgba(201,169,97,.08),rgba(0,212,170,.04));border:1px solid var(--gold);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center"><div style="font-size:10px;color:var(--gold);letter-spacing:2px;font-weight:700;margin-bottom:10px">🏆 ${t.label.toUpperCase()} · TEAMS RESULT</div>${wHtml}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;text-align:center"><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--teal)">${t1pts}</div><div style="font-size:11px;color:var(--teal);font-weight:700;margin-top:4px">${t.team1.name}</div><div style="font-size:10px;color:#ccc">${t1wins}W · ${halved}H</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:18px;font-weight:700;color:#ccc">${total}</div><div style="font-size:10px;color:#ccc;margin-top:4px">matches</div></div><div style="background:#141414;border:1.5px solid #2a2a2a;border-radius:10px;padding:12px 8px"><div style="font-size:22px;font-weight:700;color:var(--red)">${t2pts}</div><div style="font-size:11px;color:var(--red);font-weight:700;margin-top:4px">${t.team2.name}</div><div style="font-size:10px;color:#ccc">${t2wins}W · ${halved}H</div></div></div><div style="font-size:10px;color:#ccc;letter-spacing:1px;font-weight:700;margin-bottom:8px">MATCH RESULTS</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#111;font-size:10px"><th style="padding:6px 8px;text-align:left;color:#ccc">Date</th><th style="padding:6px 8px;text-align:left;color:#ccc">Players</th><th style="padding:6px 8px;text-align:right;color:#ccc">Result</th></tr></thead><tbody>${matchRows}</tbody></table></div>`;
 }
 </script>
 

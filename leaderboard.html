@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .match-progress-bar{background:#080808;border-bottom:1px solid var(--border);padding:10px 20px;display:none;}
 .match-progress-bar.visible{display:block;}
 .mp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.mp-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#555;text-transform:uppercase;}
+.mp-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#ccc;text-transform:uppercase;}
 .mp-count{font-size:13px;font-weight:900;}
 .mp-track{height:5px;background:#1e1e1e;border-radius:3px;overflow:hidden;}
 .mp-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .5s ease;}
@@ -68,7 +68,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   min-width:36px;text-align:center;transition:color .4s;
 }
 .br-rank.r1{color:var(--gold);}
-.br-rank.r2{color:#aaa;}
+.br-rank.r2{color:#ccc;}
 .br-rank.r3{color:#cd7f32;}
 .br-rank.rn{color:#2a2a2a;}
 .br-move{font-size:11px;min-width:18px;text-align:center;font-weight:700;}
@@ -107,7 +107,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .tb-match-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#0f0f0f;border-radius:7px;font-size:11px;gap:8px;}
 .tb-match-players{color:#777;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tb-match-result{font-weight:700;white-space:nowrap;}
-.tb-match-holes{color:#444;font-size:10px;min-width:30px;text-align:right;}
+.tb-match-holes{color:#ccc;font-size:10px;min-width:30px;text-align:right;}
 
 /* ── Selector + tabs ───────────────────────────────────────────────────────── */
 .selector-wrap{padding:14px 20px 0;max-width:960px;margin:0 auto;}
@@ -128,14 +128,14 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .lb-table td{padding:12px 11px;vertical-align:middle;}
 .lb-table td.r{text-align:center;}
 .rank-num{font-size:16px;font-weight:900;font-family:'Playfair Display',serif;}
-.r1{color:var(--gold);}.r2{color:#aaa;}.r3{color:#cd7f32;}.rn{color:#2a2a2a;}
+.r1{color:var(--gold);}.r2{color:#ccc;}.r3{color:#cd7f32;}.rn{color:#2a2a2a;}
 .p-name{font-weight:700;font-size:14px;}
 .p-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .p-team{font-size:11px;font-weight:700;margin-top:2px;}
 .team-1{color:var(--teal);}.team-2{color:var(--red);}
 .score-big{font-size:20px;font-weight:900;font-family:'Playfair Display',serif;text-align:center;}
 .score-lbl{font-size:10px;color:var(--muted);text-align:center;margin-top:1px;letter-spacing:.5px;}
-.col-teal{color:var(--teal);}.col-red{color:var(--red);}.col-grey{color:#888;}
+.col-teal{color:var(--teal);}.col-red{color:var(--red);}.col-grey{color:#ccc;}
 .holes-wrap{text-align:center;}
 .holes-num{font-size:12px;color:var(--muted);}
 .holes-num.done{color:var(--gold);font-weight:700;}
@@ -162,7 +162,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .ind-player{display:flex;flex-direction:column;gap:2px;}
 .ind-player.p2-side{text-align:right;align-items:flex-end;}
 .ind-player-name{font-weight:700;font-size:15px;line-height:1.2;}
-.ind-player-sub{font-size:10px;color:#444;font-weight:600;}
+.ind-player-sub{font-size:10px;color:#ccc;font-weight:600;}
 /* p1 always teal, p2 always red — regardless of who leads */
 .ind-player.p1-side .ind-player-name{color:var(--teal);}
 .ind-player.p2-side .ind-player-name{color:var(--red);}
@@ -210,14 +210,14 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .match-log-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 16px;border-bottom:1px solid #181818;gap:10px;}
 .match-log-row:last-child{border-bottom:none;}
 .match-date{font-size:11px;color:var(--muted);min-width:54px;}
-.match-players{font-size:12px;color:#999;flex:1;}
+.match-players{font-size:12px;color:#ccc;flex:1;}
 .match-result{font-size:12px;font-weight:700;text-align:right;white-space:nowrap;}
 .res-t1{color:var(--teal);}.res-t2{color:var(--red);}.res-halved{color:var(--gold);}
 
 /* State */
 .state-msg{text-align:center;padding:50px 20px;color:var(--muted);}
 .state-msg .icon{font-size:40px;margin-bottom:10px;}
-.state-msg h3{font-size:16px;font-weight:700;color:#555;margin-bottom:5px;}
+.state-msg h3{font-size:16px;font-weight:700;color:#ccc;margin-bottom:5px;}
 .state-msg p{font-size:13px;line-height:1.6;}
 .last-updated{text-align:center;font-size:11px;color:#252525;margin-top:18px;letter-spacing:.5px;}
 
@@ -237,9 +237,9 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .team-block.leading-t2{background:rgba(255,90,90,.06);}
 .team-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
 .team-pts{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;line-height:1;}
-.team-record{font-size:11px;color:#444;margin-top:2px;}
-.score-divider{display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:11px;color:#333;font-weight:700;letter-spacing:1px;}
-.teams-meta{border-top:1px solid var(--border);padding:8px 16px;display:flex;gap:14px;font-size:11px;color:#444;}
+.team-record{font-size:11px;color:#ccc;margin-top:2px;}
+.score-divider{display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:11px;color:#777;font-weight:700;letter-spacing:1px;}
+.teams-meta{border-top:1px solid var(--border);padding:8px 16px;display:flex;gap:14px;font-size:11px;color:#ccc;}
 .teams-meta span{display:flex;align-items:center;gap:4px;}
 
 /* Match cards */
@@ -263,7 +263,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 }
 .mrbg-t1{background:rgba(0,232,187,.12);color:var(--teal);border:1px solid rgba(0,232,187,.3);}
 .mrbg-t2{background:rgba(255,90,90,.12);color:var(--red);border:1px solid rgba(255,90,90,.3);}
-.mrbg-as{background:#1a1a1a;color:#555;border:1px solid #2a2a2a;}
+.mrbg-as{background:#1a1a1a;color:#ccc;border:1px solid #2a2a2a;}
 .mrbg-done{background:rgba(226,184,74,.1);color:var(--gold);border:1px solid rgba(226,184,74,.3);}
 .match-thru{font-size:10px;font-weight:700;letter-spacing:.5px;}
 .match-footer{height:3px;background:#161616;overflow:hidden;}
@@ -272,7 +272,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 .mc-t2 .match-progress{background:var(--red);}
 .mc-as .match-progress{background:#333;}
 .mc-done .match-progress{background:var(--gold);}
-.match-num{font-size:10px;font-weight:700;letter-spacing:1px;color:#333;text-transform:uppercase;}
+.match-num{font-size:10px;font-weight:700;letter-spacing:1px;color:#777;text-transform:uppercase;}
 .match-leading{font-size:10px;font-weight:700;letter-spacing:.3px;}
 @media(max-width:480px){
   .match-player{font-size:13px;}
@@ -296,17 +296,17 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
   padding:9px 36px 9px 13px;outline:none;transition:border-color .2s;
   -webkit-appearance:none;
 }
-.filter-search::placeholder{color:#333;}
+.filter-search::placeholder{color:#777;}
 .filter-search:focus{border-color:var(--teal);}
 .filter-search-clear{
   position:absolute;right:10px;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:#333;font-size:16px;cursor:pointer;
+  background:none;border:none;color:#777;font-size:16px;cursor:pointer;
   padding:4px;display:none;line-height:1;
 }
-.filter-search-clear.visible{display:block;color:#555;}
+.filter-search-clear.visible{display:block;color:#ccc;}
 
 .filter-results-bar{
-  margin-top:8px;font-size:11px;color:#333;font-weight:600;letter-spacing:.3px;
+  margin-top:8px;font-size:11px;color:#777;font-weight:600;letter-spacing:.3px;
   min-height:18px;
 }
 .filter-results-bar .highlight{color:var(--teal);}
@@ -751,15 +751,15 @@ function renderSGGBanner() {
     const rowNeeds=Math.max(0,pToWin-rowTotal).toFixed(1).replace('.0','');
     const ausNeeds=Math.max(0,pToRetain-ausTotal).toFixed(1).replace('.0','');
     statusHtml=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px 10px;border-top:1px solid #111">
-      <div style="text-align:center;font-size:10px;color:#555">ROW need <span style="color:var(--teal);font-weight:700">${rowNeeds}</span> to win</div>
-      <div style="text-align:center;font-size:10px;color:#555">AUS need <span style="color:var(--red);font-weight:700">${ausNeeds}</span> to retain</div>
+      <div style="text-align:center;font-size:10px;color:#ccc">ROW need <span style="color:var(--teal);font-weight:700">${rowNeeds}</span> to win</div>
+      <div style="text-align:center;font-size:10px;color:#ccc">AUS need <span style="color:var(--red);font-weight:700">${ausNeeds}</span> to retain</div>
     </div>`;
   }
 
   el.style.display = 'block';
   el.innerHTML = `<div style="background:linear-gradient(135deg,#0a0a0a,#111);border:1.5px solid #1e1e1e;border-radius:16px;overflow:hidden;margin-bottom:4px">
     <div style="padding:14px 14px 10px">
-      <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#444;margin-bottom:10px">⛳ SGG INTERNATIONAL 2026 · COMBINED</div>
+      <div style="font-size:9px;font-weight:800;letter-spacing:2.5px;color:#ccc;margin-bottom:10px">⛳ SGG INTERNATIONAL 2026 · COMBINED</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
         <div style="text-align:center">
           <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--teal);margin-bottom:2px">ROW</div>
@@ -772,18 +772,18 @@ function renderSGGBanner() {
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
             <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
-              <div style="color:#444;font-weight:700;letter-spacing:1px;margin-bottom:3px">D1 · 4BBB</div>
+              <div style="color:#ccc;font-weight:700;letter-spacing:1px;margin-bottom:3px">D1 · 4BBB</div>
               <div style="display:flex;justify-content:space-between">
                 <span style="color:var(--teal);font-weight:800">${d1t.row}</span>
-                <span style="color:#333;font-size:9px">${d1t.played}/7</span>
+                <span style="color:#777;font-size:9px">${d1t.played}/7</span>
                 <span style="color:var(--red);font-weight:800">${d1t.aus}</span>
               </div>
             </div>
             <div style="background:#0d0d0d;border-radius:8px;padding:6px 8px;font-size:9px">
-              <div style="color:#444;font-weight:700;letter-spacing:1px;margin-bottom:3px">D2 · SINGLES</div>
+              <div style="color:#ccc;font-weight:700;letter-spacing:1px;margin-bottom:3px">D2 · SINGLES</div>
               <div style="display:flex;justify-content:space-between">
                 <span style="color:var(--teal);font-weight:800">${d2t.row}</span>
-                <span style="color:#333;font-size:9px">${d2t.played}/15</span>
+                <span style="color:#777;font-size:9px">${d2t.played}/15</span>
                 <span style="color:var(--red);font-weight:800">${d2t.aus}</span>
               </div>
             </div>
@@ -1139,7 +1139,7 @@ function renderTeamsLive(entries, main, allEntries) {
 
   // ── Team scoreline header ──────────────────────────────────────────────────
   const leadingTeam = t1Lead ? ts.t1name : t2Lead ? ts.t2name : null;
-  const leaderLbl   = leadingTeam ? `<span style="color:var(--gold);font-weight:700">🏆 ${leadingTeam} leading</span>` : `<span style="color:#555">All Square</span>`;
+  const leaderLbl   = leadingTeam ? `<span style="color:var(--gold);font-weight:700">🏆 ${leadingTeam} leading</span>` : `<span style="color:#ccc">All Square</span>`;
 
   const scoreline = `
     <div class="teams-header">
@@ -1160,7 +1160,7 @@ function renderTeamsLive(entries, main, allEntries) {
         ${leaderLbl}
         ${liveCnt ? `<span>● <span style="color:var(--teal)">${liveCnt} live</span></span>` : ''}
         ${doneCnt ? `<span>✓ <span style="color:var(--gold)">${doneCnt} done</span></span>` : ''}
-        <span style="margin-left:auto;color:#333">${ts.mode}${hasPairs?' · 4BBB':''}</span>
+        <span style="margin-left:auto;color:#777">${ts.mode}${hasPairs?' · 4BBB':''}</span>
       </div>
     </div>`;
 
@@ -1182,7 +1182,7 @@ function renderTeamsLive(entries, main, allEntries) {
     const leadHtml = leadName
       ? `<div class="match-leading" style="color:${m.resCls==='t1'?'var(--teal)':'var(--red)'}">${leadName} leads</div>`
       : done ? `<div class="match-leading" style="color:${m.resCls==='t1'?'var(--teal)':m.resCls==='t2'?'var(--red)':'var(--gold)'}">${m.resCls==='t1'?ts.t1name:m.resCls==='t2'?ts.t2name:'Halved'} wins</div>`
-             : `<div class="match-leading" style="color:#444">All Square</div>`;
+             : `<div class="match-leading" style="color:#ccc">All Square</div>`;
 
     // Player name HTML
     const hlName = n => {
@@ -1207,7 +1207,7 @@ function renderTeamsLive(entries, main, allEntries) {
             <div class="match-num">Match ${m.matchNum}</div>
             <div class="match-result-badge ${badgeCls}">${resultTxt}</div>
             ${leadHtml}
-            <div class="match-thru" style="color:#444">${thruTxt}</div>
+            <div class="match-thru" style="color:#ccc">${thruTxt}</div>
             ${statusDot}
           </div>
           <div class="match-t2-names">${t2Html}</div>
@@ -1221,7 +1221,7 @@ function renderTeamsLive(entries, main, allEntries) {
       <div class="t-name">${tLabel}</div>
     </div>
     ${scoreline}
-    <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#333;text-transform:uppercase;margin-bottom:10px">Match Leaderboard</div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#777;text-transform:uppercase;margin-bottom:10px">Match Leaderboard</div>
     <div class="match-list">${matchCards}</div>`;
 }
 // ══════════════════════════════════════════════════════════════════════════
@@ -1321,7 +1321,7 @@ function renderLive(modeFilter) {
           ? `<div class="match-leading" style="color:var(--teal)">${p1e.name} leads</div>`
           : p2leads
             ? `<div class="match-leading" style="color:var(--red)">${p2e.name} leads</div>`
-            : `<div class="match-leading" style="color:#444">All Square</div>`;
+            : `<div class="match-leading" style="color:#ccc">All Square</div>`;
 
       const finalCol  = p1leads ? 'var(--teal)' : p2leads ? 'var(--red)' : 'var(--gold)';
       const statusDot = done
@@ -1339,7 +1339,7 @@ function renderLive(modeFilter) {
               <div class="match-num">Match ${mn}</div>
               <div class="ind-result-badge ${badgeCls}">${badgeTxt}</div>
               ${leadHtml}
-              <div class="match-thru" style="color:#444">${thru}</div>
+              <div class="match-thru" style="color:#ccc">${thru}</div>
               ${statusDot}
             </div>
             <div class="ind-player p2-side">
@@ -1425,7 +1425,7 @@ function renderLive(modeFilter) {
       </tr>
       <tr><td colspan="5" style="padding:0">
         <div class="hole-detail" id="detail-${i}">
-          <div style="font-size:10px;color:#333;margin-bottom:7px;letter-spacing:1px;font-weight:700">HOLE BY HOLE</div>
+          <div style="font-size:10px;color:#777;margin-bottom:7px;letter-spacing:1px;font-weight:700">HOLE BY HOLE</div>
           <div class="hole-pips">${pips}</div>
         </div>
       </td></tr>`;
