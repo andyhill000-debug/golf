@@ -1837,28 +1837,27 @@ function _buildWormSVG(data, results, isLive) {
   const iW = W - PAD.left - PAD.right, iH = H - PAD.top - PAD.bottom;
   const maxD = Math.max(3, ...data.filter(v=>v!==null).map(Math.abs), 1);
   const midY = PAD.top + iH / 2;
-  const xS = i => PAD.left + (i / 17) * iW;
+  // xS now maps 0–18: position 0 = left edge (origin), positions 1–18 = holes 1–18
+  const xS = i => PAD.left + (i / 18) * iW;
   const yS = v => midY - (v / maxD) * (iH / 2);
   const holeCol = res => res==='W' ? '#00e8bb' : res==='L' ? '#ff5a5a' : '#e2b84a';
 
-  // Build path points — each point tagged with its hole result colour
-  const validPts = data.map((v, i) => v !== null ? { x: xS(i), y: yS(v), v, res: results[i] } : null).filter(Boolean);
+  // Build path points — hole i (0-indexed) maps to x position i+1
+  const validPts = data.map((v, i) => v !== null ? { x: xS(i + 1), y: yS(v), v, res: results[i] } : null).filter(Boolean);
   if (!validPts.length) return '<svg viewBox="0 0 560 200" style="width:100%;height:auto"><text x="280" y="100" text-anchor="middle" fill="#aaa" font-family="sans-serif" font-size="14">No data yet</text></svg>';
 
-  const origin = { x: xS(0) - (iW / 17), y: midY };
+  // Origin sits exactly at x position 0 — the left edge of the plot area
+  const origin = { x: xS(0), y: midY };
   const allPts = [origin, ...validPts];
 
   // ── Per-segment coloured lines ──────────────────────────────────────────────
-  // Each segment from point[i] → point[i+1] is coloured by the result of hole i+1
-  // (the destination hole — the one that caused the position change)
   const segments = allPts.slice(0,-1).map((p, i) => {
     const next = allPts[i+1];
-    // Segment colour = destination point's hole result; first segment (origin→hole1) uses hole1's colour
     const col = next.res ? holeCol(next.res) : '#555';
     return `<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${next.x.toFixed(1)}" y2="${next.y.toFixed(1)}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>`;
   }).join('');
 
-  // ── Subtle fill — neutral grey so it doesn't fight the multi-colour line ───
+  // ── Subtle fill ────────────────────────────────────────────────────────────
   const fillD = allPts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
     + ` L${validPts[validPts.length-1].x.toFixed(1)},${midY} L${origin.x.toFixed(1)},${midY} Z`;
 
@@ -1872,17 +1871,17 @@ function _buildWormSVG(data, results, isLive) {
     return `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${W-PAD.right}" y2="${y.toFixed(1)}" stroke="${v===0?'#3a3a3a':'#252525'}" stroke-width="${v===0?1.5:.5}"/>`;
   }).join('');
 
+  // Vertical hole lines at positions 1–18 (holes), plus the half-9 divider after hole 9
   const holeLines = Array.from({length:18},(_,i)=>
-    `<line x1="${xS(i).toFixed(1)}" y1="${PAD.top}" x2="${xS(i).toFixed(1)}" y2="${H-PAD.bottom}" stroke="${i===8?'#444':'#2a2a2a'}" stroke-width="${i===8?1.5:.5}"/>`
+    `<line x1="${xS(i+1).toFixed(1)}" y1="${PAD.top}" x2="${xS(i+1).toFixed(1)}" y2="${H-PAD.bottom}" stroke="${i===8?'#444':'#2a2a2a'}" stroke-width="${i===8?1.5:.5}"/>`
   ).join('');
 
-  // Dots coloured by hole result — drawn on top of segments
+  // Dots coloured by hole result
   const dots = validPts.map((p, i) => {
     const col = holeCol(p.res);
     return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="${col}" stroke="#0a0a0a" stroke-width="1.5"/>`;
   }).join('');
 
-  // Live pulse ring uses the colour of the most recent hole result
   const liveRing = isLive && lastPt ? `<circle cx="${lastPt.x.toFixed(1)}" cy="${lastPt.y.toFixed(1)}" r="9" fill="none" stroke="${lastCol}" stroke-width="1.5" opacity="0.3"><animate attributeName="r" values="9;15;9" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0;0.3" dur="1.5s" repeatCount="indefinite"/></circle>` : '';
 
   const yLabels = ticks.map(v => {
@@ -1892,11 +1891,18 @@ function _buildWormSVG(data, results, isLive) {
     return `<text x="${PAD.left-5}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="${v===0?'#bbb':'#888'}" font-size="9" font-family="sans-serif">${lbl}</text>`;
   }).join('');
 
-  const xLabels = Array.from({length:18},(_,i) =>
-    `<text x="${xS(i).toFixed(1)}" y="${H-PAD.bottom+14}" text-anchor="middle" fill="${i<data.length&&data[i]!==null?'#bbb':'#333'}" font-size="8" font-family="sans-serif">${i+1}</text>`
-  ).join('');
+  // X-axis labels: 0 at origin, then 1–18 for each hole
+  const xLabels = [
+    // "0" label at origin
+    `<text x="${xS(0).toFixed(1)}" y="${H-PAD.bottom+14}" text-anchor="middle" fill="#888" font-size="8" font-family="sans-serif">0</text>`,
+    // Holes 1–18
+    ...Array.from({length:18},(_,i) =>
+      `<text x="${xS(i+1).toFixed(1)}" y="${H-PAD.bottom+14}" text-anchor="middle" fill="${i<data.length&&data[i]!==null?'#bbb':'#333'}" font-size="8" font-family="sans-serif">${i+1}</text>`
+    )
+  ].join('');
 
-  const f9 = `<text x="${xS(4).toFixed(1)}" y="${PAD.top-10}" text-anchor="middle" fill="#555" font-size="9" font-family="sans-serif">FRONT 9</text>`;
+  // FRONT 9 / BACK 9 labels centred over their respective halves
+  const f9 = `<text x="${xS(4.5).toFixed(1)}" y="${PAD.top-10}" text-anchor="middle" fill="#555" font-size="9" font-family="sans-serif">FRONT 9</text>`;
   const b9 = `<text x="${xS(13.5).toFixed(1)}" y="${PAD.top-10}" text-anchor="middle" fill="#555" font-size="9" font-family="sans-serif">BACK 9</text>`;
 
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" id="worm-svg">
