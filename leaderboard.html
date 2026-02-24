@@ -1920,7 +1920,7 @@ function _buildWormSVG(data, results, isLive, t1name, t2name) {
     const y = yS(v);
     if (y < PAD.top || y > H-PAD.bottom) return '';
     const lbl = v===0?'A/S':Math.abs(v);
-    return `<text x="${PAD.left-5}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="${v===0?'#fff':'#fff'}" font-size="${v===0?10:9}" font-weight="${v===0?700:400}" font-family="sans-serif">${lbl}</text>`;
+    return `<text x="${PAD.left-5}" y="${(y+4).toFixed(1)}" text-anchor="end" fill="#fff" font-size="10" font-weight="700" font-family="sans-serif">${lbl}</text>`;
   }).join('');
 
   // X-axis labels: 0 at origin, then 1–18 for each hole
