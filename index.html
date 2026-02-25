@@ -2144,8 +2144,10 @@ function renderMatchBanner() {
       if (cardCourse) cardCourse.style.display = 'none';
       if (lockPanel) {
         lockPanel.style.display = 'block';
-        // Build summary chips
-        const courseName  = t.course  || '—';
+        // Build summary chips — course name lives in sggCourse or courseName or course-select
+        const courseName  = t.sggCourse || t.course || t.courseName
+                          || (document.getElementById('course-select')?.options[document.getElementById('course-select')?.selectedIndex]?.text) 
+                          || '—';
         const modeName    = t.matchFmt === '4bbb' ? '4BBB Matchplay'
                           : t.matchFmt === 'singles' ? 'Singles Matchplay'
                           : t.mode ? (t.mode.charAt(0).toUpperCase()+t.mode.slice(1)) : 'Matchplay';
