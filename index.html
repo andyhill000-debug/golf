@@ -4531,7 +4531,7 @@ function renderScorecard(results, rawResults){
 
   // Net score decoration: wraps net score value in golf notation symbols
   const netScoreDeco=(net,par)=>{
-    if (net == null) return '<span style="color:#ccc">—</span>';
+    if (net == null || isNaN(net)) return '<span style="color:#ccc">—</span>';
     const diff = net - par;
     const v = net;
     const base = 'display:inline-block;text-align:center;vertical-align:middle;font-size:10px;font-weight:800;box-sizing:border-box;';
@@ -4589,8 +4589,8 @@ function renderScorecard(results, rawResults){
     // In matchplay use the correct base; scratchBase games always use 0
     const _scrBase = !!(game.rules && game.rules.scratchBase);
     const _mpBase=_isMP?(_scrBase?0:game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
-    const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,_mpBase,si,si2h,si3h):null;
-    const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,_mpBase,si,si2h,si3h):null;
+    const n1=(h.p1!=null&&h.p1!=='P')?h.p1-strokesOnHole(p1.hcp,_mpBase,si,si2h,si3h):null;
+    const n2=(h.p2!=null&&h.p2!=='P')?h.p2-strokesOnHole(p2.hcp,_mpBase,si,si2h,si3h):null;
     const rawRes=rawResults?rawResults[i]:res;
     const resSym=isPostMatch?(rawRes===1?'△':rawRes===-1?'▽':rawRes===0?'∘':'⊘'):res===1?'▲':res===-1?'▼':res===0?'–':'·';
     const resCls=isPostMatch?'sc-posterity':res===1?'sc-win':res===-1?'sc-lose':res===0?'sc-halve':'';
@@ -4621,8 +4621,8 @@ function renderScorecard(results, rawResults){
         <td style="${_skinCol};text-align:center">${_skinTxt}</td>
       </tr>`;
     } else {
-      const n3=_fp&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,si,si2h,si3h):null;
-      const n4=_fp&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,si,si2h,si3h):null;
+      const n3=(_fp&&h.p3!=null&&h.p3!=='P')?h.p3-strokesOnHole(p3.hcp,0,si,si2h,si3h):null;
+      const n4=(_fp&&h.p4!=null&&h.p4!=='P')?h.p4-strokesOnHole(p4.hcp,0,si,si2h,si3h):null;
       const sb3fp=(_fp||team)?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
       const sb4fp=(_fp||team)?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
       // Match 2 result (p3 vs p4) for fourPlayer non-team matchplay
@@ -4639,9 +4639,9 @@ function renderScorecard(results, rawResults){
         ${holeCell}<td style="color:var(--gold)">${h.par}</td><td style="color:#ccc;font-size:11px;font-weight:600">${si}</td>
         ${/* Match 1: p1 gross/net, p2 gross/net, Res1 */
           scoreCell(h.p1,h.par) + (isStab ? ptsCell(sb1) : `<td style="text-align:center">${netScoreDeco(n1,h.par)}</td>`)
-          + (team ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco(h.p3!=null?h.p3-strokesOnHole(p3.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
+          + (team ? scoreCell(h.p3,h.par) + (isStab ? ptsCell(sb3fp) : `<td style="text-align:center">${netScoreDeco((h.p3!=null&&h.p3!=='P')?h.p3-strokesOnHole(p3.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
           + scoreCell(h.p2,h.par) + (isStab ? ptsCell(sb2) : `<td style="text-align:center">${netScoreDeco(n2,h.par)}</td>`)
-          + (team ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco(h.p4!=null?h.p4-strokesOnHole(p4.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
+          + (team ? scoreCell(h.p4,h.par) + (isStab ? ptsCell(sb4fp) : `<td style="text-align:center">${netScoreDeco((h.p4!=null&&h.p4!=='P')?h.p4-strokesOnHole(p4.hcp,_mpBase,si,si2h,si3h):null,h.par)}</td>`) : '')
           /* Res1 — always shown for matchplay, sits between M1 and M2 */
           + (isMatch ? `<td class="${resCls}">${resSym}</td>` : '')
           /* Match 2: p3 gross/net, p4 gross/net, Res2 */
@@ -4681,10 +4681,10 @@ function renderScorecard(results, rawResults){
     const _smp=game.mode==='matchplay';
     const s=_smp?_hsi(h):gsi1(h),s2=_smp?_hsi2(h):gsi2(h),s3h=_smp?null:gsi3(h);
     const _tBase=(game.mode==='matchplay')?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
-    if(h.p1)tn1+=h.p1-strokesOnHole(p1.hcp,_tBase,s,s2,s3h);
-    if(h.p2)tn2+=h.p2-strokesOnHole(p2.hcp,_tBase,s,s2,s3h);
-    if(_fp&&h.p3)tn3+=h.p3-strokesOnHole(p3.hcp,0,s,s2,s3h);
-    if(_fp&&h.p4)tn4+=h.p4-strokesOnHole(p4.hcp,0,s,s2,s3h);
+    if(h.p1&&h.p1!=='P')tn1+=h.p1-strokesOnHole(p1.hcp,_tBase,s,s2,s3h);
+    if(h.p2&&h.p2!=='P')tn2+=h.p2-strokesOnHole(p2.hcp,_tBase,s,s2,s3h);
+    if(_fp&&h.p3&&h.p3!=='P')tn3+=h.p3-strokesOnHole(p3.hcp,0,s,s2,s3h);
+    if(_fp&&h.p4&&h.p4!=='P')tn4+=h.p4-strokesOnHole(p4.hcp,0,s,s2,s3h);
     const c1=stablefordCalc(h.p1,h.par,p1.hcp,s,s2,s3h),c2=stablefordCalc(h.p2,h.par,p2.hcp,s,s2,s3h);
     const c3=(team||_fp)?stablefordCalc(h.p3,h.par,p3.hcp,s,s2,s3h):null,c4=(team||_fp)?stablefordCalc(h.p4,h.par,p4.hcp,s,s2,s3h):null;
     if(c1)tp1+=c1.points; if(c2)tp2+=c2.points; if(c3)tp3+=c3.points; if(c4)tp4+=c4.points;
