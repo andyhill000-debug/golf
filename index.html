@@ -3579,8 +3579,8 @@ function _buildAndStoreResults(tournamentKey) {
         g.holes.forEach(h => {
           const gross = h[p.field];
           if (gross == null) return;
-          e.grossTotal += gross;
-          e.netTotal   += gross - strokesOnHole(p.hcp, 0, gsi1(h), gsi2(h), gsi3(h));
+          if(gross!=='P'){ e.grossTotal += gross;
+          e.netTotal   += gross - strokesOnHole(p.hcp, 0, gsi1(h), gsi2(h), gsi3(h)); }
           const sb = stablefordCalc(gross, h.par, p.hcp, gsi1(h), gsi2(h), gsi3(h));
           if (sb) e.stabTotal += sb.points;
         });
@@ -3642,10 +3642,10 @@ function _buildAndStoreResults(tournamentKey) {
             a += Math.max(s1?s1.points:0, s3?s3.points:0);
             b += Math.max(s2?s2.points:0, s4?s4.points:0);
           } else {
-            const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-            const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-            const n3=g.team&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-            const n4=g.team&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n1=(h.p1!=null&&h.p1!=='P')?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n2=(h.p2!=null&&h.p2!=='P')?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n3=(g.team&&h.p3!=null&&h.p3!=='P')?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+            const n4=(g.team&&h.p4!=null&&h.p4!=='P')?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
             a += Math.min(n1, n3); b += Math.min(n2, n4);
           }
           if (isStab ? a>b : a<b)       { t1wins++; winner=1; resultLabel=`${t1n} wins`; }
@@ -4683,13 +4683,15 @@ function renderScorecard(results, rawResults){
 
   // Totals
   const tPar=game.holes.reduce((a,h)=>a+h.par,0);
-  const tg1=game.holes.reduce((a,h)=>a+(h.p1||0),0),tg2=game.holes.reduce((a,h)=>a+(h.p2||0),0);
-  const tg3=(team||_fp)?game.holes.reduce((a,h)=>a+(h.p3||0),0):0,tg4=(team||_fp)?game.holes.reduce((a,h)=>a+(h.p4||0),0):0;
+  const _pgross=(v)=>(v!=null&&v!=='P')?v:0; // P and null both contribute 0 to gross total
+  const tg1=game.holes.reduce((a,h)=>a+_pgross(h.p1),0),tg2=game.holes.reduce((a,h)=>a+_pgross(h.p2),0);
+  const tg3=(team||_fp)?game.holes.reduce((a,h)=>a+_pgross(h.p3),0):0,tg4=(team||_fp)?game.holes.reduce((a,h)=>a+_pgross(h.p4),0):0;
   let tn1=0,tn2=0,tn3=0,tn4=0,tp1=0,tp2=0,tp3=0,tp4=0;
+  const _scrBaseTotal=!!(game.rules&&game.rules.scratchBase);
   game.holes.forEach(h=>{
     const _smp=game.mode==='matchplay';
     const s=_smp?_hsi(h):gsi1(h),s2=_smp?_hsi2(h):gsi2(h),s3h=_smp?null:gsi3(h);
-    const _tBase=(game.mode==='matchplay')?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
+    const _tBase=(_smp&&!_scrBaseTotal)?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
     if(h.p1&&h.p1!=='P')tn1+=h.p1-strokesOnHole(p1.hcp,_tBase,s,s2,s3h);
     if(h.p2&&h.p2!=='P')tn2+=h.p2-strokesOnHole(p2.hcp,_tBase,s,s2,s3h);
     if(_fp&&h.p3&&h.p3!=='P')tn3+=h.p3-strokesOnHole(p3.hcp,0,s,s2,s3h);
@@ -4701,10 +4703,10 @@ function renderScorecard(results, rawResults){
 
   if(_skActive){
     const _skTotGross=[
-      game.holes.reduce((a,h)=>a+(h.p1||0),0),
-      game.holes.reduce((a,h)=>a+(h.p2||0),0),
-      game.holes.reduce((a,h)=>a+(h.p3||0),0),
-      game.holes.reduce((a,h)=>a+(h.p4||0),0),
+      game.holes.reduce((a,h)=>a+_pgross(h.p1),0),
+      game.holes.reduce((a,h)=>a+_pgross(h.p2),0),
+      game.holes.reduce((a,h)=>a+_pgross(h.p3),0),
+      game.holes.reduce((a,h)=>a+_pgross(h.p4),0),
     ];
     const _skWins=game.skinsPlayers.map(()=>0);
     if(_skResults) _skResults.forEach(r=>{
@@ -5077,8 +5079,9 @@ function renderHistory(){
       const c2=stablefordCalc(h.p2,h.par,p2.hcp,gsi1(h),gsi2(h),gsi3(h));
       if(c1)sp1+=c1.points; if(c2)sp2+=c2.points;
     });
-    const tg1=g.holes.reduce((a,h)=>a+(h.p1||0),0);
-    const tg2=g.holes.reduce((a,h)=>a+(h.p2||0),0);
+    const _pg=(v)=>(v!=null&&v!=='P')?v:0;
+    const tg1=g.holes.reduce((a,h)=>a+_pg(h.p1),0);
+    const tg2=g.holes.reduce((a,h)=>a+_pg(h.p2),0);
 
     let badgeCls='hb-draw',badgeText='';
     if(isMatch){
@@ -5124,8 +5127,8 @@ function renderHistory(){
     }
 
     // 4BBB totals for p3/p4
-    const tg3=g.holes.reduce((a,h)=>a+(h.p3||0),0);
-    const tg4=g.holes.reduce((a,h)=>a+(h.p4||0),0);
+    const tg3=g.holes.reduce((a,h)=>a+_pg(h.p3),0);
+    const tg4=g.holes.reduce((a,h)=>a+_pg(h.p4),0);
     let sp3=0,sp4=0;
     if(g.team){g.holes.forEach(h=>{
       const c3=stablefordCalc(h.p3,h.par,p3.hcp,gsi1(h),gsi2(h),gsi3(h));
@@ -5569,10 +5572,10 @@ function renderTeamsResults(t, rounds) {
           a+=Math.max(s1?s1.points:0,s3?s3.points:0);
           b+=Math.max(s2?s2.points:0,s4?s4.points:0);
         } else {
-          const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-          const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-          const n3=g.team&&h.p3!=null?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
-          const n4=g.team&&h.p4!=null?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n1=(h.p1!=null&&h.p1!=='P')?h.p1-strokesOnHole(p1.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n2=(h.p2!=null&&h.p2!=='P')?h.p2-strokesOnHole(p2.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n3=(g.team&&h.p3!=null&&h.p3!=='P')?h.p3-strokesOnHole(p3.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
+          const n4=(g.team&&h.p4!=null&&h.p4!=='P')?h.p4-strokesOnHole(p4.hcp,0,gsi1(h),gsi2(h),gsi3(h)):999;
           a+=Math.min(n1,n3); b+=Math.min(n2,n4);
         }
       });
