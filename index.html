@@ -853,7 +853,7 @@
     <div class="field-label" id="p1-name-label">Name</div>
     <input class="input" id="p1-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
     <div class="field-label">Daily Handicap</div>
-    <input class="input" id="p1-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    <input class="input" id="p1-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     <!-- 4BBB partner slot (hidden in 4-player mode) -->
     <div id="p3-fields" style="display:none">
       <div class="divider"></div>
@@ -864,7 +864,7 @@
       <div class="field-label" id="p3-name-label">Partner Name</div>
       <input class="input" id="p3-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p3-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+      <input class="input" id="p3-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     </div>
   </div>
 
@@ -878,7 +878,7 @@
     <div class="field-label" id="p2-name-label">Name</div>
     <input class="input" id="p2-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
     <div class="field-label">Daily Handicap</div>
-    <input class="input" id="p2-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+    <input class="input" id="p2-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     <!-- 4BBB partner slot (hidden in 4-player mode) -->
     <div id="p4-fields" style="display:none">
       <div class="divider"></div>
@@ -889,7 +889,7 @@
       <div class="field-label" id="p4-name-label">Partner Name</div>
       <input class="input" id="p4-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p4-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
+      <input class="input" id="p4-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     </div>
   </div>
 
@@ -906,7 +906,7 @@
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p3-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p3-ind-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap"/>
+      <input class="input" id="p3-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap"/>
     </div>
   </div>
 
@@ -923,7 +923,7 @@
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p4-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p4-ind-hcp" type="number" min="0" max="54" step="1" placeholder="Enter handicap"/>
+      <input class="input" id="p4-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap"/>
     </div>
   </div>
 
@@ -1316,7 +1316,19 @@ function _hsi2(h){ return (game && game.rules && game.rules.scratchBase) ? gsi2(
  */
 function strokesOnHole(hcp, baseHcp, si1, si2, si3) {
   const diff = Math.round(hcp) - Math.round(baseHcp);
-  if (diff <= 0) return 0;
+  if (diff === 0) return 0;
+
+  // ── Plus handicapper (diff < 0): gives strokes on lowest SI holes ───────────
+  // e.g. diff = -2 → deduct 1 stroke on SI 1 and SI 2 holes
+  if (diff < 0) {
+    const absDiff = Math.abs(diff);
+    let strokes = 0;
+    if (si1 <= absDiff) strokes--;                              // SI 1–18 pass
+    if (absDiff >= 19 && ((si2 != null ? si2 : si1) <= (absDiff - 18))) strokes--; // SI 19–36
+    return strokes;
+  }
+
+  // ── Normal handicapper (diff > 0): receives strokes ─────────────────────────
   let strokes = 0;
   // Pass 1: diff 1-18, always uses si1
   if (si1 <= diff) strokes++;
