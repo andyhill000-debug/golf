@@ -684,9 +684,6 @@
   <button class="nav-btn nav-live" id="navbtn-graph"    onclick="openMatchGraph()">
     <span class="nav-icon">📈</span><span class="nav-label">Match Graph</span>
   </button>
-  <button class="nav-btn nav-scorecard" id="navbtn-scorecard" onclick="showTab('play')" style="display:none">
-    <span class="nav-icon">🎯</span><span class="nav-label">Scorecard</span>
-  </button>
 </div>
 
 <!-- MATCH -->
@@ -1623,7 +1620,7 @@ function effectiveResults(results) {
 function showTab(name) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   // Map tab names to nav button ids
-  const navMap = {match:'navbtn-match', tournament:'navbtn-tournament', history:'navbtn-history', play:'navbtn-scorecard'};
+  const navMap = {match:'navbtn-match', tournament:'navbtn-tournament', history:'navbtn-history', play:'navbtn-match'};
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
   const tabEl = document.getElementById('tab-'+name);
@@ -3399,7 +3396,13 @@ function checkForSavedGame(){
     fourPlayer = (g.playerCount||2) >= 3;
     const nextHole = g.holes.find(h=>h.p1==null);
     activeHole = nextHole ? nextHole.hole : 18;
-    document.getElementById('navbtn-scorecard').style.display = '';
+    // Mutate the Match nav button into Scorecard while a game is active
+  const _scBtn = document.getElementById('navbtn-match');
+  _scBtn.setAttribute('data-orig-onclick','showTab(\'match\')');
+  _scBtn.onclick = () => showTab('play');
+  _scBtn.querySelector('.nav-icon').textContent = '🎯';
+  _scBtn.querySelector('.nav-label').textContent = 'Scorecard';
+  _scBtn.classList.add('nav-scorecard');
     showTab('play');
     renderPlay();
     return;
@@ -3457,7 +3460,13 @@ function resumeGame(){
   const nextHole=game.holes.find(h=>h.p1==null);
   activeHole=nextHole?nextHole.hole:18;
   document.getElementById('resume-modal').classList.add('hidden');
-  document.getElementById('navbtn-scorecard').style.display = '';
+  // Mutate the Match nav button into Scorecard while a game is active
+  const _scBtn = document.getElementById('navbtn-match');
+  _scBtn.setAttribute('data-orig-onclick','showTab(\'match\')');
+  _scBtn.onclick = () => showTab('play');
+  _scBtn.querySelector('.nav-icon').textContent = '🎯';
+  _scBtn.querySelector('.nav-label').textContent = 'Scorecard';
+  _scBtn.classList.add('nav-scorecard');
   showTab('play');
   renderPlay(); // belt-and-braces — ensure scorecard renders
   console.log('[Hillfred] Game resumed at hole', activeHole);
@@ -3544,7 +3553,13 @@ function startGame(){
   activeHole=1;
   autosave();
   _startFirebaseGame();
-  document.getElementById('navbtn-scorecard').style.display = '';
+  // Mutate the Match nav button into Scorecard while a game is active
+  const _scBtn = document.getElementById('navbtn-match');
+  _scBtn.setAttribute('data-orig-onclick','showTab(\'match\')');
+  _scBtn.onclick = () => showTab('play');
+  _scBtn.querySelector('.nav-icon').textContent = '🎯';
+  _scBtn.querySelector('.nav-label').textContent = 'Scorecard';
+  _scBtn.classList.add('nav-scorecard');
   showTab('play');
 }
 
@@ -5217,7 +5232,12 @@ function finishGame(){
   // Refresh tournament progress in case this was the last match
   setTimeout(renderTournamentTab, 200);
   game=null;
-  document.getElementById('navbtn-scorecard').style.display = 'none';
+  // Restore Match nav button when game ends
+  const _matchBtn = document.getElementById('navbtn-match');
+  _matchBtn.onclick = () => showTab('match');
+  _matchBtn.querySelector('.nav-icon').textContent = '⛳';
+  _matchBtn.querySelector('.nav-label').textContent = 'Match';
+  _matchBtn.classList.remove('nav-scorecard','active');
   showTab('history');
 }
 
@@ -5628,7 +5648,13 @@ setTimeout(() => startTutorial(false), 600);
     activeHole = nextHole ? nextHole.hole : 18;
     renderMatchBanner();
     checkCanStart();
-    document.getElementById('navbtn-scorecard').style.display = '';
+    // Mutate the Match nav button into Scorecard while a game is active
+  const _scBtn = document.getElementById('navbtn-match');
+  _scBtn.setAttribute('data-orig-onclick','showTab(\'match\')');
+  _scBtn.onclick = () => showTab('play');
+  _scBtn.querySelector('.nav-icon').textContent = '🎯';
+  _scBtn.querySelector('.nav-label').textContent = 'Scorecard';
+  _scBtn.classList.add('nav-scorecard');
     showTab('play');
     return; // skip checkForSavedGame entirely
   }
