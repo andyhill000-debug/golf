@@ -714,7 +714,16 @@
     </div>
   </div>
 
-  <div class="card">
+  <!-- Preset tournament lock panel — shown instead of mode/course cards when preset active -->
+  <div id="preset-lock-panel" style="display:none;margin:10px 14px 0">
+    <div style="background:#111;border:1.5px solid var(--gold);border-radius:14px;padding:14px 16px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:10px">🔒 TOURNAMENT SETTINGS — LOCKED</div>
+      <div id="preset-lock-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+      <div style="margin-top:10px;font-size:10px;color:#444;border-top:1px solid #1e1e1e;padding-top:8px">These settings are fixed by the tournament. Enter player names &amp; handicaps below to start.</div>
+    </div>
+  </div>
+
+  <div class="card" id="card-game-mode">
     <div class="card-label">Game Mode</div>
     <div id="mode-choose-prompt" style="text-align:center;padding:8px 4px 10px;font-size:12px;color:#ccc;font-weight:600;letter-spacing:.3px">👆 Choose a game mode to begin</div>
     <div class="mode-row">
@@ -743,7 +752,7 @@
 
   </div>
 
-  <div class="card">
+  <div class="card" id="card-course-setup">
     <div class="card-label">⛳ Course Setup</div>
 
     <!-- Course Selector Dropdown -->
@@ -1786,26 +1795,41 @@ function checkCanStart() {
   const warn=document.getElementById('start-warn');
   const btn=document.getElementById('start-btn');
   const hasCourse=gv('course-name').trim().length>0;
-  const hasP1=gv('p1-name'), hasP2=gv('p2-name');
-  let hasPlayers=hasP1&&hasP2;
-  if(teamPlay) hasPlayers=hasPlayers&&gv('p3-name')&&gv('p4-name');
-  if(fourPlayer && gameMode!=='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
-  // Matchplay + 3-player: allow button but warn on attempt (handled in startGame)
-  if(fourPlayer && gameMode==='matchplay') hasPlayers=hasPlayers&&gv('p3-name');
-  const hasMode = !!gameMode;
-  const ok=hasMode&&hasCourse&&hasPlayers;
+
+  // Helper: handicap field has a valid numeric value (0 is valid)
+  const hasHcp=(id)=>{ const v=(gv(id)||'').trim(); return v!==''&&!isNaN(parseFloat(v)); };
+
+  const hasP1Name=!!(gv('p1-name')||'').trim(), hasP2Name=!!(gv('p2-name')||'').trim();
+  const hasP1Hcp=hasHcp('p1-hcp'), hasP2Hcp=hasHcp('p2-hcp');
+  const hasP1=hasP1Name&&hasP1Hcp, hasP2=hasP2Name&&hasP2Hcp;
+
+  const needP3=teamPlay||fourPlayer;
+  const needP4=teamPlay;
+  const hasP3Name=needP3?!!(gv('p3-name')||'').trim():true;
+  const hasP3Hcp=needP3?hasHcp('p3-hcp'):true;
+  const hasP4Name=needP4?!!(gv('p4-name')||'').trim():true;
+  const hasP4Hcp=needP4?hasHcp('p4-hcp'):true;
+  const hasP3=hasP3Name&&hasP3Hcp, hasP4=hasP4Name&&hasP4Hcp;
+
+  const hasMode=!!gameMode;
+  const ok=hasMode&&hasCourse&&hasP1&&hasP2&&hasP3&&hasP4;
   btn.disabled=!ok;
+
   if(!ok){
     const msgs=[];
-    if(!hasMode) msgs.push('🏆 Choose a game mode above');
-    if(!hasCourse) msgs.push('⛳ Select or enter a course to continue');
-    if(!hasP1||!hasP2) msgs.push('👤 Enter names for Player 1 and Player 2');
-    else if(!hasPlayers) msgs.push('👥 Enter all required player names');
+    if(!hasMode)   msgs.push('\ud83c\udfc6 Choose a game mode');
+    if(!hasCourse) msgs.push('\u26f3 Select a course');
+    if(!hasP1Name) msgs.push('P1: enter name');
+    else if(!hasP1Hcp) msgs.push('P1: enter handicap');
+    if(!hasP2Name) msgs.push('P2: enter name');
+    else if(!hasP2Hcp) msgs.push('P2: enter handicap');
+    if(needP3){ if(!hasP3Name) msgs.push('P3: enter name'); else if(!hasP3Hcp) msgs.push('P3: enter handicap'); }
+    if(needP4){ if(!hasP4Name) msgs.push('P4: enter name'); else if(!hasP4Hcp) msgs.push('P4: enter handicap'); }
     warn.style.display='block';
     warn.style.background='rgba(255,90,90,0.08)';
     warn.style.color='#ff8080';
     warn.style.border='1px solid rgba(255,90,90,0.2)';
-    warn.textContent=msgs.join(' · ');
+    warn.textContent=msgs.join('  \u00b7  ');
   } else {
     // Check if this tournament's match quota is already reached
     const _at = activeTournament ? TOURNAMENT[activeTournament] : null;
@@ -2086,8 +2110,11 @@ function persistTournaments() {
 
 // ── Match tab banner ──────────────────────────────────────────────────────────
 function renderMatchBanner() {
-  const banner = document.getElementById('match-tnmt-banner');
-  const fmtRow  = document.getElementById('match-fmt-row');
+  const banner     = document.getElementById('match-tnmt-banner');
+  const fmtRow     = document.getElementById('match-fmt-row');
+  const lockPanel  = document.getElementById('preset-lock-panel');
+  const cardMode   = document.getElementById('card-game-mode');
+  const cardCourse = document.getElementById('card-course-setup');
   const t = activeTournament ? TOURNAMENT[activeTournament] : null;
   if (!banner) return;
   if (t) {
@@ -2110,9 +2137,44 @@ function renderMatchBanner() {
     }
     // Sync the format tiles in match tab
     if (isTeams) _syncMatchFmtTiles();
+
+    // ── Preset lock: hide mode + course cards, show summary panel ──────────────
+    if (t.preset) {
+      if (cardMode)   cardMode.style.display   = 'none';
+      if (cardCourse) cardCourse.style.display = 'none';
+      if (lockPanel) {
+        lockPanel.style.display = 'block';
+        // Build summary chips
+        const courseName  = t.course  || '—';
+        const modeName    = t.matchFmt === '4bbb' ? '4BBB Matchplay'
+                          : t.matchFmt === 'singles' ? 'Singles Matchplay'
+                          : t.mode ? (t.mode.charAt(0).toUpperCase()+t.mode.slice(1)) : 'Matchplay';
+        const fmt = isTeams ? (t.matchFmt === '4bbb' ? '4BBB · Best Ball' : 'Singles · 1 v 1') : '1 v 1';
+        const chips = [
+          { label: 'Course',  value: courseName },
+          { label: 'Mode',    value: modeName   },
+          { label: 'Format',  value: fmt         },
+          { label: 'Rules',   value: t.rules?.scratchBase ? 'SGG House Rules' : 'Standard' },
+        ];
+        document.getElementById('preset-lock-summary').innerHTML = chips.map(c =>
+          `<div style="background:#161616;border:1px solid #2a2a2a;border-radius:9px;padding:8px 10px">
+            <div style="font-size:8px;font-weight:700;letter-spacing:1.5px;color:#444;text-transform:uppercase;margin-bottom:3px">${c.label}</div>
+            <div style="font-size:12px;font-weight:700;color:#ccc">${c.value}</div>
+          </div>`
+        ).join('');
+      }
+    } else {
+      // Non-preset tournament — restore cards
+      if (cardMode)   cardMode.style.display   = '';
+      if (cardCourse) cardCourse.style.display = '';
+      if (lockPanel)  lockPanel.style.display  = 'none';
+    }
   } else {
     banner.style.display = 'none';
-    if (fmtRow) fmtRow.style.display = 'none';
+    if (fmtRow)     fmtRow.style.display    = 'none';
+    if (lockPanel)  lockPanel.style.display = 'none';
+    if (cardMode)   cardMode.style.display  = '';
+    if (cardCourse) cardCourse.style.display = '';
     // Restore 3-4 player toggle when no tournament active
     const fpBox = document.getElementById('fourplayer-box');
     if (fpBox) fpBox.style.display = '';
