@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="app-version" content="2026.02.25.4"/>
+<meta name="app-version" content="2026.02.25.5"/>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#0a0a0a"/>
@@ -1013,26 +1013,27 @@ function computeTeamScores(entries) {
       const leading    = anyEntry?.mpLeading ?? 0;  // 0=AS, 1=Team1, 2=Team2
 
       const done = g.status === 'finished';
+      // Strip W /L prefix — colour coding already conveys winner
+      const cleanLabel = rawLabel.replace(/^[WL] /, '');
       if (leading === 1) {
         res = 1; resCls = 't1';
-        if (done) t1pts++;          // only count points when match is finished
-        resultLabel = rawLabel;
+        if (done) t1pts++;
+        resultLabel = cleanLabel;
       } else if (leading === 2) {
         res = 2; resCls = 't2';
-        if (done) t2pts++;          // only count points when match is finished
-        resultLabel = rawLabel;
+        if (done) t2pts++;
+        resultLabel = cleanLabel;
       } else if (rawLabel.includes('&')) {
-        // Finished match — closed with no leading (winner in label e.g. "3&2")
         const t1win = g.t1.find(p => (p.mpLeading === 1));
         const t2win = g.t2.find(p => (p.mpLeading === 2));
         if (t1win)      { res = 1; resCls = 't1'; if (done) t1pts++; }
         else if (t2win) { res = 2; resCls = 't2'; if (done) t2pts++; }
         else            { res = 0; resCls = 'as';  if (done) halved++; }
-        resultLabel = rawLabel;
+        resultLabel = cleanLabel;
       } else {
         res = 0; resCls = 'as';
         if (done) halved++;
-        resultLabel = rawLabel === 'All Square' || !rawLabel ? 'AS' : rawLabel;
+        resultLabel = cleanLabel === 'All Square' || !cleanLabel ? 'AS' : cleanLabel;
       }
     } else if (isStab) {
       const s1 = Math.max(...g.t1.map(p=>p.stabTotal));
@@ -1121,7 +1122,9 @@ function showBannerIndividual(entries) {
     if (e.mode === 'stableford') {
       scoreVal = e.stabTotal; scoreLabel = 'PTS'; scoreCol = 'col-teal';
     } else if (e.mode === 'matchplay') {
-      scoreVal = e.mpStatus || (e.holesPlayed===0?'AS':'—');
+      // Strip W /L prefix — colour already conveys win/loss
+      const cleanStatus = (e.mpStatus || '').replace(/^[WL] /, '');
+      scoreVal = cleanStatus || (e.holesPlayed===0?'AS':'—');
       scoreLabel = 'MATCH';
       scoreCol = !e.mpStatus ? 'col-grey'
         : e.mpStatus.includes('DOWN') || e.mpStatus.startsWith('L ') ? 'col-red'
