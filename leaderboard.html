@@ -1974,27 +1974,25 @@ function _updateCountdown() {
 
 function _silentRefresh() {
   if (!currentKey) return;
-  // Tear down existing score subscription and re-establish silently.
-  // Unlike onTournamentChange, we do NOT clear liveScores or show "Loading…"
-  // so the leaderboard and graph stay visible until new data arrives.
-  if (unsubScores) { unsubScores(); unsubScores = null; }
-  if (unsubSibling) { unsubSibling(); unsubSibling = null; }
-
-  // Re-subscribe sibling day if SGG tournament
-  if (SGG_KEYS.includes(currentKey)) {
-    const sibKey = currentKey === 'sgg_2026_day1' ? 'sgg_2026_day2' : 'sgg_2026_day1';
-    unsubSibling = onValue(ref(db, `tournaments/${sibKey}/scores`), snap => {
-      sggSiblingScores = snap.val() || {};
-      renderSGGBanner();
+  // onValue subscriptions are already real-time — they fire automatically on every
+  // Firebase change. Just re-render with the latest liveScores already in memory.
+  // Only re-subscribe if the subscription was somehow lost (unsubScores is null).
+  if (!unsubScores) {
+    if (SGG_KEYS.includes(currentKey) && !unsubSibling) {
+      const sibKey = currentKey === 'sgg_2026_day1' ? 'sgg_2026_day2' : 'sgg_2026_day1';
+      unsubSibling = onValue(ref(db, `tournaments/${sibKey}/scores`), snap => {
+        sggSiblingScores = snap.val() || {};
+        renderSGGBanner();
+      });
+    }
+    unsubScores = onValue(ref(db, `tournaments/${currentKey}/scores`), snap => {
+      liveScores = snap.val() || {};
+      render();
     });
-  }
-
-  // Re-subscribe main scores — render() fires automatically when data arrives,
-  // which also re-renders the graph tab and preserves _selectedMatchKey
-  unsubScores = onValue(ref(db, `tournaments/${currentKey}/scores`), snap => {
-    liveScores = snap.val() || {};
+  } else {
+    // Subscription is live — just force a render with current data
     render();
-  });
+  }
 }
 
 function _startAutoRefresh() {
