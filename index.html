@@ -1626,7 +1626,6 @@ function showTab(name) {
   if(name==='match')      { renderMatchBanner(); renderCourseDropdown(); }
 }
 function setMode(m) {
-  if (activeTournament && TOURNAMENT[activeTournament]?.preset) return;
   gameMode=m;
   // Refresh Singles note visibility when mode changes
   _refreshSinglesNote();
@@ -1644,7 +1643,7 @@ function updateSIDisplay(){
   if(csBlock) csBlock.style.display = isMP ? 'none' : 'block';
 }
 function toggleTeam() {
-  if (activeTournament && TOURNAMENT[activeTournament]?.preset) return;
+  if (activeTournament && TOURNAMENT[activeTournament]?.preset) return; // button hidden but guard as safety
   teamPlay=!teamPlay;
   document.getElementById('team-toggle').classList.toggle('on',teamPlay);
   document.getElementById('team-label').textContent=teamPlay?'On — 4BBB':'Off';
@@ -2168,6 +2167,14 @@ function renderMatchBanner() {
 
     // ── Preset lock: hide mode + course cards, show summary panel ──────────────
     if (t.preset) {
+      // Force game mode so it's set correctly before startGame
+      if (!gameMode) {
+        gameMode = 'matchplay';
+        ['matchplay','stroke','stableford'].forEach(id => {
+          const el = document.getElementById('mode-'+id);
+          if (el) el.classList.toggle('active', id === 'matchplay');
+        });
+      }
       if (cardMode)   cardMode.style.display   = 'none';
       if (cardCourse) cardCourse.style.display = 'none';
       if (lockPanel) {
@@ -3453,6 +3460,23 @@ function discardAndNew(){
   showTab('setup');
 }
 function startGame(){
+  // For preset tournaments, force-apply locked mode and course before proceeding
+  if (activeTournament && TOURNAMENT[activeTournament]?.preset) {
+    const _pt = TOURNAMENT[activeTournament];
+    // Force game mode
+    if (!gameMode) {
+      gameMode = 'matchplay';
+      ['matchplay','stroke','stableford'].forEach(id => {
+        const el = document.getElementById('mode-'+id);
+        if (el) el.classList.toggle('active', id === 'matchplay');
+      });
+    }
+    // Force course load if not already loaded
+    if (!gv('course-name') && _pt.sggCourse) {
+      const c = savedCourses.find(x => x.name === _pt.sggCourse);
+      if (c) loadCourse(c);
+    }
+  }
   // Matchplay requires exactly 2 or 4 players
   if(gameMode==='matchplay' && fourPlayer){
     const p3=gv('p3-name'), p4=gv('p4-name');
