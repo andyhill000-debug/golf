@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.25.7"/>
+<meta name="app-version" content="2026.02.26.1"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -212,6 +212,28 @@
   .btn-add-course:hover{border-color:var(--teal);background:rgba(0,232,187,.06)}
   .course-action-btn{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:6px;transition:opacity .15s;min-height:36px;min-width:36px}
   .course-action-btn:hover{opacity:.75}
+
+  /* ── Community Courses ───────────────────────────────────────────────────── */
+  .community-course-item{background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
+  .community-course-item:hover{border-color:#3a3a3a}
+  .community-course-info{flex:1;min-width:0}
+  .community-course-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .community-course-meta{font-size:11px;color:#888;margin-top:3px;font-weight:600}
+  .community-course-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .community-import-btn{padding:7px 12px;border-radius:8px;border:1.5px solid var(--teal);background:transparent;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s;white-space:nowrap}
+  .community-import-btn:hover{background:rgba(0,232,187,.12)}
+  .community-import-btn.imported{border-color:#555;color:#555;cursor:default}
+  .community-upvote-btn{padding:6px 8px;border-radius:8px;border:1.5px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:3px}
+  .community-upvote-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .community-upvote-btn.voted{border-color:var(--gold);color:var(--gold);background:rgba(226,184,74,.08)}
+  .community-section-header{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between}
+  .community-share-btn{width:100%;padding:12px;border-radius:11px;border:1.5px dashed var(--teal);background:transparent;color:var(--teal);font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.3px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;margin-top:8px}
+  .community-share-btn:hover{background:rgba(0,232,187,.08)}
+  .community-share-btn:disabled{opacity:.4;cursor:not-allowed}
+  .community-empty{text-align:center;padding:24px 0;color:#555;font-size:13px;font-weight:600}
+  .community-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px}
+  .community-status-pending{background:rgba(226,184,74,.12);color:var(--gold);border:1px solid rgba(226,184,74,.25)}
+  .community-status-approved{background:rgba(0,232,187,.1);color:var(--teal);border:1px solid rgba(0,232,187,.2)}
 
   /* ── Tutorial — full-screen mobile slides ───────────────────────────────── */
   #tut-overlay{
@@ -475,6 +497,62 @@
       return onValue(r, snap => cb(snap.exists() ? snap.val() : {}));
     };
     window._fbUnsubscribe = function(unsub) { if(typeof unsub === 'function') unsub(); };
+
+    // ── Community courses: submit a user course ──────────────────────────────
+    window._fbSubmitCourse = function(courseData, deviceId, cb) {
+      // Key = sanitised name + timestamp to avoid collisions
+      const key = courseData.name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase()
+                  + '_' + Date.now().toString(36);
+      const payload = {
+        ...courseData,
+        submittedBy: deviceId,
+        submittedAt: Date.now(),
+        status: 'pending',   // admin approves via Firebase console
+        upvotes: 0
+      };
+      set(ref(db, `community_courses/${key}`), payload)
+        .then(() => cb && cb(null, key))
+        .catch(e => cb && cb(e));
+    };
+
+    // ── Community courses: upvote a course ───────────────────────────────────
+    window._fbUpvoteCourse = function(courseKey, cb) {
+      const upvoteRef = ref(db, `community_courses/${courseKey}/upvotes`);
+      runTransaction(upvoteRef, cur => (cur || 0) + 1)
+        .then(() => cb && cb(null))
+        .catch(e => cb && cb(e));
+    };
+
+    // ── Community courses: load all approved courses ─────────────────────────
+    window._fbLoadCommunityCourses = function(cb) {
+      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js')
+        .then(m => m.get(ref(db, 'community_courses')))
+        .then(snap => {
+          if (!snap.exists()) { cb([]); return; }
+          const all = snap.val();
+          // Return approved courses sorted by upvotes desc, then name
+          const list = Object.entries(all)
+            .filter(([,v]) => v.status === 'approved')
+            .map(([key,v]) => ({ ...v, _key: key }))
+            .sort((a,b) => (b.upvotes||0) - (a.upvotes||0) || a.name.localeCompare(b.name));
+          cb(list);
+        })
+        .catch(() => cb([]));
+    };
+
+    // ── Community courses: subscribe to real-time updates ────────────────────
+    window._fbSubscribeCommunityCourses = function(cb) {
+      const r = ref(db, 'community_courses');
+      return onValue(r, snap => {
+        if (!snap.exists()) { cb([]); return; }
+        const all = snap.val();
+        const list = Object.entries(all)
+          .filter(([,v]) => v.status === 'approved')
+          .map(([key,v]) => ({ ...v, _key: key }))
+          .sort((a,b) => (b.upvotes||0) - (a.upvotes||0) || a.name.localeCompare(b.name));
+        cb(list);
+      });
+    };
 
     window._fbSetOnline = function(val) {
       const dot = document.getElementById('fb-status-dot');
@@ -852,6 +930,35 @@
         <button class="btn btn-ghost" style="font-size:13px;color:#ccc" onclick="hideAddCourse()">✕ Cancel</button>
       </div>
     </div><!-- end course-edit-form -->
+  </div>
+
+  <!-- ── Community Courses card ──────────────────────────────────────────── -->
+  <div class="card" id="community-courses-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="card-label" style="margin-bottom:0">🌐 Community Courses</div>
+      <button onclick="refreshCommunityCourses()" id="community-refresh-btn" style="background:none;border:none;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px 8px;border-radius:7px;min-height:32px;transition:opacity .2s">↻ Refresh</button>
+    </div>
+    <div style="font-size:11px;color:#888;line-height:1.5;margin-bottom:12px">Courses shared by the Hillfred community. Tap import to add to your device, or share your own saved courses to help others.</div>
+
+    <!-- Share a course prompt — shown when user has saved courses -->
+    <div id="community-share-wrap" style="display:none;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #1e1e1e">
+      <div style="font-size:11px;color:#ccc;font-weight:600;margin-bottom:8px">📤 Share one of your saved courses</div>
+      <select class="input" id="community-share-select" style="font-size:13px;margin-bottom:8px;background:#111">
+        <option value="">— Choose a course to share —</option>
+      </select>
+      <button class="community-share-btn" id="community-share-btn" onclick="submitCommunityCourse()" disabled>
+        📤 Share with Community
+      </button>
+      <div id="community-share-status" style="font-size:11px;text-align:center;margin-top:6px;min-height:16px;font-weight:700"></div>
+    </div>
+
+    <!-- Course list -->
+    <div id="community-course-list">
+      <div class="community-empty" id="community-loading">
+        <div style="font-size:24px;margin-bottom:8px">🌐</div>
+        Loading community courses…
+      </div>
+    </div>
   </div>
 
   <!-- Player 1 card -->
@@ -3149,6 +3256,7 @@ function saveCourse(){
   // Persist only user courses (presets are always re-injected at startup)
   persistUserCourses();
   renderCourseDropdown();
+  renderCommunityShareDropdown();
   checkCanStart();
 }
 function loadCourse(idx){
@@ -3282,6 +3390,7 @@ This cannot be undone.`)) return;
   savedCourses.splice(idx,1);
   persistUserCourses();
   renderCourseDropdown();
+  renderCommunityShareDropdown();
   // Reset UI to empty state
   sel.value='';
   const actionsEl=document.getElementById('course-actions');
@@ -3343,6 +3452,253 @@ function renderCourseDropdown(){
 }
 // Keep old renderSavedCourses as no-op (replaced by dropdown)
 function renderSavedCourses(){ renderCourseDropdown(); }
+
+// ═══════════════════════════════════════════
+// COMMUNITY COURSES
+// ═══════════════════════════════════════════
+
+const LS_COMMUNITY_VOTES = 'hf_community_votes';   // set of courseKeys this device has upvoted
+const LS_COMMUNITY_SUBMITTED = 'hf_community_submitted'; // set of names this device has submitted
+
+/** Load upvoted keys from localStorage */
+function _getVotedKeys() {
+  try { return new Set(JSON.parse(localStorage.getItem(LS_COMMUNITY_VOTES)||'[]')); } catch(e) { return new Set(); }
+}
+/** Persist voted keys */
+function _saveVotedKeys(set) {
+  try { localStorage.setItem(LS_COMMUNITY_VOTES, JSON.stringify([...set])); } catch(e) {}
+}
+/** Load submitted course names for this device */
+function _getSubmittedNames() {
+  try { return new Set(JSON.parse(localStorage.getItem(LS_COMMUNITY_SUBMITTED)||'[]')); } catch(e) { return new Set(); }
+}
+function _saveSubmittedNames(set) {
+  try { localStorage.setItem(LS_COMMUNITY_SUBMITTED, JSON.stringify([...set])); } catch(e) {}
+}
+/** Check if a course name is already in savedCourses (preset or user) */
+function _courseAlreadyAdded(name) {
+  return savedCourses.some(c => c.name.toLowerCase() === name.toLowerCase());
+}
+
+/** Render the community course list from an array of course objects */
+function renderCommunityCourseList(courses) {
+  const listEl = document.getElementById('community-course-list');
+  if (!listEl) return;
+
+  const votedKeys = _getVotedKeys();
+  const importedNames = new Set(savedCourses.map(c => c.name.toLowerCase()));
+
+  if (!courses.length) {
+    listEl.innerHTML = `<div class="community-empty">
+      <div style="font-size:28px;margin-bottom:8px">🏌️</div>
+      No community courses yet.<br>Be the first to share one!
+    </div>`;
+    return;
+  }
+
+  listEl.innerHTML = courses.map(course => {
+    const alreadyAdded = importedNames.has(course.name.toLowerCase());
+    const alreadyVoted = votedKeys.has(course._key);
+    const totalPar = Object.values(course.pars||{}).reduce((a,b)=>a+b,0);
+    const hasSI2 = course.si2 && Object.values(course.si2).some(v=>v!=null);
+    const hasSI3 = course.si3 && Object.values(course.si3).some(v=>v!=null);
+    const siTag = hasSI3 ? 'SI 1–54' : hasSI2 ? 'SI 1–36' : 'SI 1–18';
+    return `
+      <div class="community-course-item" id="cc-item-${course._key}">
+        <div class="community-course-info">
+          <div class="community-course-name">${escHtml(course.name)}</div>
+          <div class="community-course-meta">Par ${totalPar} &nbsp;·&nbsp; ${siTag} &nbsp;·&nbsp; ${course.upvotes||0} 👍</div>
+        </div>
+        <div class="community-course-actions">
+          <button class="community-upvote-btn${alreadyVoted?' voted':''}"
+            id="cc-vote-${course._key}"
+            onclick="upvoteCommunity('${course._key}')"
+            ${alreadyVoted?'disabled':''}>
+            👍 ${course.upvotes||0}
+          </button>
+          <button class="community-import-btn${alreadyAdded?' imported':''}"
+            id="cc-import-${course._key}"
+            onclick="importCommunityCourse('${course._key}')"
+            ${alreadyAdded?'disabled':''}>
+            ${alreadyAdded ? '✓ Added' : '⬇ Import'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/** Refresh button handler */
+let _communityUnsub = null;
+function refreshCommunityCourses() {
+  const btn = document.getElementById('community-refresh-btn');
+  const listEl = document.getElementById('community-course-list');
+  if (btn) { btn.style.opacity = '0.4'; btn.textContent = '↻ Loading…'; }
+  if (listEl) listEl.innerHTML = '<div class="community-empty"><div style="font-size:24px;margin-bottom:8px">🌐</div>Loading…</div>';
+
+  if (!window._fbLoadCommunityCourses) {
+    // Firebase not ready — retry
+    setTimeout(refreshCommunityCourses, 800);
+    return;
+  }
+  window._fbLoadCommunityCourses(courses => {
+    renderCommunityCourseList(courses);
+    if (btn) { btn.style.opacity = '1'; btn.textContent = '↻ Refresh'; }
+  });
+}
+
+/** Subscribe to real-time community course updates */
+function subscribeToCommunity() {
+  if (_communityUnsub || !window._fbSubscribeCommunityCourses) {
+    // Not ready — retry after a short delay
+    if (!_communityUnsub) setTimeout(subscribeToCommunity, 1200);
+    return;
+  }
+  _communityUnsub = window._fbSubscribeCommunityCourses(courses => {
+    renderCommunityCourseList(courses);
+  });
+}
+
+/** Import a community course into savedCourses */
+function importCommunityCourse(courseKey) {
+  const btn = document.getElementById('cc-import-' + courseKey);
+  if (!btn) return;
+
+  // Find from rendered data — re-fetch from Firebase for freshness
+  window._fbLoadCommunityCourses(courses => {
+    const course = courses.find(c => c._key === courseKey);
+    if (!course) { alert('Course not found. Try refreshing.'); return; }
+    if (_courseAlreadyAdded(course.name)) {
+      if (btn) { btn.textContent = '✓ Added'; btn.disabled = true; btn.classList.add('imported'); }
+      return;
+    }
+    // Strip community metadata before saving locally
+    const { _key, submittedBy, submittedAt, status, upvotes, ...courseData } = course;
+    savedCourses.push(courseData);
+    persistUserCourses();
+    renderCourseDropdown();
+    if (btn) { btn.textContent = '✓ Added'; btn.disabled = true; btn.classList.add('imported'); }
+    // Animate feedback
+    const item = document.getElementById('cc-item-' + courseKey);
+    if (item) {
+      item.style.borderColor = 'var(--teal)';
+      setTimeout(() => { if (item) item.style.borderColor = ''; }, 1800);
+    }
+    showToast(`"${course.name}" added to your courses ✓`);
+  });
+}
+
+/** Upvote a community course */
+function upvoteCommunity(courseKey) {
+  const votedKeys = _getVotedKeys();
+  if (votedKeys.has(courseKey)) return;
+  if (!window._fbUpvoteCourse) return;
+
+  window._fbUpvoteCourse(courseKey, err => {
+    if (err) return;
+    // Optimistic UI update
+    votedKeys.add(courseKey);
+    _saveVotedKeys(votedKeys);
+    const voteBtn = document.getElementById('cc-vote-' + courseKey);
+    if (voteBtn) {
+      const current = parseInt(voteBtn.textContent.replace(/\D/g,'')) || 0;
+      voteBtn.textContent = `👍 ${current + 1}`;
+      voteBtn.disabled = true;
+      voteBtn.classList.add('voted');
+    }
+    // Also update meta line
+    const metaEl = document.querySelector(`#cc-item-${courseKey} .community-course-meta`);
+    if (metaEl) {
+      metaEl.textContent = metaEl.textContent.replace(/\d+ 👍/, (parseInt(metaEl.textContent) + 1) + ' 👍');
+    }
+  });
+}
+
+/** Populate the share dropdown with user-saved (non-preset) courses */
+function renderCommunityShareDropdown() {
+  const sel = document.getElementById('community-share-select');
+  const wrap = document.getElementById('community-share-wrap');
+  if (!sel || !wrap) return;
+
+  const userCourses = savedCourses.filter(c => !c.preset);
+  wrap.style.display = userCourses.length ? 'block' : 'none';
+
+  const submitted = _getSubmittedNames();
+  sel.innerHTML = '<option value="">— Choose a course to share —</option>' +
+    userCourses.map(c => {
+      const alreadyShared = submitted.has(c.name.toLowerCase());
+      return `<option value="${escHtml(c.name)}"${alreadyShared?' disabled':''}>
+        ${escHtml(c.name)}${alreadyShared ? ' (already shared)' : ''}
+      </option>`;
+    }).join('');
+
+  // Enable/disable share button
+  sel.addEventListener('change', () => {
+    const shareBtn = document.getElementById('community-share-btn');
+    const status = document.getElementById('community-share-status');
+    if (shareBtn) shareBtn.disabled = !sel.value;
+    if (status) status.textContent = '';
+  });
+}
+
+/** Submit a user course to the community */
+function submitCommunityCourse() {
+  const sel = document.getElementById('community-share-select');
+  const shareBtn = document.getElementById('community-share-btn');
+  const statusEl = document.getElementById('community-share-status');
+  if (!sel || !sel.value) return;
+
+  const courseName = sel.value;
+  const course = savedCourses.find(c => c.name === courseName && !c.preset);
+  if (!course) return;
+
+  if (!window._fbSubmitCourse) {
+    if (statusEl) { statusEl.textContent = '⚠️ Not connected. Try again shortly.'; statusEl.style.color = 'var(--red)'; }
+    return;
+  }
+
+  if (shareBtn) { shareBtn.disabled = true; shareBtn.textContent = '📤 Submitting…'; }
+  if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; }
+
+  window._fbSubmitCourse(course, DEVICE_ID, (err, key) => {
+    if (err) {
+      if (shareBtn) { shareBtn.disabled = false; shareBtn.textContent = '📤 Share with Community'; }
+      if (statusEl) { statusEl.textContent = '⚠️ Submission failed. Check connection.'; statusEl.style.color = 'var(--red)'; }
+      return;
+    }
+    // Record that this device submitted this course
+    const submitted = _getSubmittedNames();
+    submitted.add(courseName.toLowerCase());
+    _saveSubmittedNames(submitted);
+
+    if (shareBtn) { shareBtn.textContent = '✓ Submitted for review'; shareBtn.style.borderColor = 'var(--teal)'; }
+    if (statusEl) {
+      statusEl.textContent = 'Submitted! It will appear once approved. Thank you 🙏';
+      statusEl.style.color = 'var(--teal)';
+    }
+    // Refresh the dropdown to disable the submitted course
+    renderCommunityShareDropdown();
+  });
+}
+
+/** Simple HTML escape helper */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/** Brief toast notification */
+function showToast(msg) {
+  let toast = document.getElementById('hf-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'hf-toast';
+    toast.style.cssText = 'position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1c1c1c;border:1.5px solid var(--teal);color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;padding:10px 18px;border-radius:20px;z-index:5000;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90vw;text-align:center';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2600);
+}
 
 // ═══════════════════════════════════════════
 // AUTO-SAVE & RESUME
@@ -5467,6 +5823,12 @@ buildParGrids();
 renderTournamentDropdown();
 renderCourseDropdown();
 renderTournamentTab();   // populate new tournament tab list
+
+// ── Community courses — subscribe once Firebase is ready ─────────────────────
+setTimeout(() => {
+  subscribeToCommunity();
+  renderCommunityShareDropdown();
+}, 1500);
 
 // ── Tutorial ──────────────────────────────────────────────────────────────────
 const LS_TUTORIAL = 'hf_tutorial_done';
