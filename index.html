@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.2"/>
+<meta name="app-version" content="2026.02.26.5"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -213,27 +213,44 @@
   .course-action-btn{background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;padding:5px 8px;border-radius:6px;transition:opacity .15s;min-height:36px;min-width:36px}
   .course-action-btn:hover{opacity:.75}
 
-  /* ── Community Courses ───────────────────────────────────────────────────── */
-  .community-course-item{background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
-  .community-course-item:hover{border-color:#3a3a3a}
-  .community-course-info{flex:1;min-width:0}
-  .community-course-name{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .community-course-meta{font-size:11px;color:#888;margin-top:3px;font-weight:600}
-  .community-course-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-  .community-import-btn{padding:7px 12px;border-radius:8px;border:1.5px solid var(--teal);background:transparent;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s;white-space:nowrap}
-  .community-import-btn:hover{background:rgba(0,232,187,.12)}
-  .community-import-btn.imported{border-color:#555;color:#555;cursor:default}
-  .community-upvote-btn{padding:6px 8px;border-radius:8px;border:1.5px solid #2a2a2a;background:transparent;color:#888;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:3px}
-  .community-upvote-btn:hover{border-color:var(--gold);color:var(--gold)}
-  .community-upvote-btn.voted{border-color:var(--gold);color:var(--gold);background:rgba(226,184,74,.08)}
-  .community-section-header{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between}
-  .community-share-btn{width:100%;padding:12px;border-radius:11px;border:1.5px dashed var(--teal);background:transparent;color:var(--teal);font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:.3px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;margin-top:8px}
-  .community-share-btn:hover{background:rgba(0,232,187,.08)}
-  .community-share-btn:disabled{opacity:.4;cursor:not-allowed}
-  .community-empty{text-align:center;padding:24px 0;color:#555;font-size:13px;font-weight:600}
-  .community-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px}
-  .community-status-pending{background:rgba(226,184,74,.12);color:var(--gold);border:1px solid rgba(226,184,74,.25)}
-  .community-status-approved{background:rgba(0,232,187,.1);color:var(--teal);border:1px solid rgba(0,232,187,.2)}
+  /* ── Admin floating button ───────────────────────────────────────────────── */
+  #admin-fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:18px;z-index:4000;width:46px;height:46px;border-radius:50%;background:#1a1a1a;border:1.5px solid #2e2e2e;box-shadow:0 4px 18px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,box-shadow .2s;font-size:20px}
+  #admin-fab:hover{border-color:var(--teal);box-shadow:0 4px 22px rgba(0,232,187,.2)}
+  #admin-fab .fab-badge{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid #0f0f0f;display:none}
+
+  /* ── Admin portal overlay ────────────────────────────────────────────────── */
+  #admin-portal-overlay{position:fixed;inset:0;z-index:4500;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:flex-end}
+  #admin-portal-overlay.open{display:flex}
+  #admin-portal{width:100%;max-height:92vh;overflow-y:auto;background:#0f0f0f;border-radius:22px 22px 0 0;border-top:1.5px solid #1e1e1e;padding-bottom:calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .32s cubic-bezier(.22,.68,0,1.2)}
+  #admin-portal-overlay.open #admin-portal{transform:translateY(0)}
+  .ap-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;border-bottom:1px solid #1a1a1a}
+  .ap-title{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+  .ap-close{background:none;border:none;color:#666;font-size:22px;cursor:pointer;padding:4px 8px;border-radius:8px;min-height:36px;min-width:36px;display:flex;align-items:center;justify-content:center;transition:color .15s}
+  .ap-close:hover{color:#ccc}
+  .ap-section{padding:16px 20px 8px}
+  .ap-section-title{font-size:9px;font-weight:800;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:12px}
+  .ap-action{width:100%;padding:13px 16px;border-radius:12px;border:1.5px solid #2a2a2a;background:#141414;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;margin-bottom:8px;transition:border-color .15s,background .15s;letter-spacing:.1px}
+  .ap-action:hover{background:#1a1a1a;border-color:#3a3a3a}
+  .ap-action.danger{color:#ff5a5a;border-color:rgba(255,90,90,.2);background:rgba(255,90,90,.04)}
+  .ap-action.danger:hover{background:rgba(255,90,90,.08);border-color:rgba(255,90,90,.4)}
+  .ap-action.danger.confirming{color:#ff5a5a;border-color:#ff5a5a;background:rgba(255,90,90,.12);animation:pulse-red .6s ease infinite alternate}
+  .ap-action .ap-action-sub{font-size:11px;font-weight:600;color:#666;display:block;margin-top:1px}
+  .ap-action.danger .ap-action-sub{color:rgba(255,90,90,.5)}
+  .ap-divider{height:1px;background:#1a1a1a;margin:8px 20px}
+  @keyframes pulse-red{from{box-shadow:0 0 0 0 rgba(255,90,90,.2)}to{box-shadow:0 0 0 6px rgba(255,90,90,0)}}
+
+  /* ── Pending course cards ────────────────────────────────────────────────── */
+  .ap-course-card{background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:13px 14px;margin-bottom:8px}
+  .ap-course-card-name{font-weight:800;font-size:14px;color:var(--text);margin-bottom:4px}
+  .ap-course-card-meta{font-size:11px;color:#888;font-weight:600;margin-bottom:10px}
+  .ap-course-card-btns{display:flex;gap:8px}
+  .ap-approve-btn{flex:1;padding:9px;border-radius:9px;border:1.5px solid rgba(0,232,187,.35);background:rgba(0,232,187,.07);color:var(--teal);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .ap-approve-btn:hover{background:rgba(0,232,187,.14);border-color:var(--teal)}
+  .ap-reject-btn{flex:1;padding:9px;border-radius:9px;border:1.5px solid rgba(255,90,90,.25);background:rgba(255,90,90,.05);color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .ap-reject-btn:hover{background:rgba(255,90,90,.12);border-color:#ff5a5a}
+  .ap-course-si{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin:8px 0;font-size:10px;text-align:center}
+  .ap-course-si-cell{background:#1a1a1a;border-radius:4px;padding:3px 0;color:#ccc;font-weight:600}
+  .ap-course-si-cell.si-h{color:var(--teal);font-size:9px;font-weight:700}
 
   /* ── Tutorial — full-screen mobile slides ───────────────────────────────── */
   #tut-overlay{
@@ -351,7 +368,7 @@
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, update, remove, onValue, serverTimestamp, runTransaction }
+    import { getDatabase, ref, set, get, update, remove, onValue, serverTimestamp, runTransaction }
       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -500,58 +517,46 @@
 
     // ── Community courses: submit a user course ──────────────────────────────
     window._fbSubmitCourse = function(courseData, deviceId, cb) {
-      // Key = sanitised name + timestamp to avoid collisions
       const key = courseData.name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase()
                   + '_' + Date.now().toString(36);
       const payload = {
         ...courseData,
         submittedBy: deviceId,
         submittedAt: Date.now(),
-        status: 'pending',   // admin approves via Firebase console
-        upvotes: 0
+        status: 'pending'
       };
       set(ref(db, `community_courses/${key}`), payload)
         .then(() => cb && cb(null, key))
         .catch(e => cb && cb(e));
     };
 
-    // ── Community courses: upvote a course ───────────────────────────────────
-    window._fbUpvoteCourse = function(courseKey, cb) {
-      const upvoteRef = ref(db, `community_courses/${courseKey}/upvotes`);
-      runTransaction(upvoteRef, cur => (cur || 0) + 1)
-        .then(() => cb && cb(null))
-        .catch(e => cb && cb(e));
-    };
-
-    // ── Community courses: load all approved courses ─────────────────────────
-    window._fbLoadCommunityCourses = function(cb) {
-      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js')
-        .then(m => m.get(ref(db, 'community_courses')))
+    // ── Community courses: load pending submissions (admin) ──────────────────
+    window._fbLoadPendingCourses = function(cb) {
+      get(ref(db, 'community_courses'))
         .then(snap => {
           if (!snap.exists()) { cb([]); return; }
           const all = snap.val();
-          // Return approved courses sorted by upvotes desc, then name
           const list = Object.entries(all)
-            .filter(([,v]) => v.status === 'approved')
+            .filter(([,v]) => v.status === 'pending')
             .map(([key,v]) => ({ ...v, _key: key }))
-            .sort((a,b) => (b.upvotes||0) - (a.upvotes||0) || a.name.localeCompare(b.name));
+            .sort((a,b) => (a.submittedAt||0) - (b.submittedAt||0));
           cb(list);
         })
         .catch(() => cb([]));
     };
 
-    // ── Community courses: subscribe to real-time updates ────────────────────
-    window._fbSubscribeCommunityCourses = function(cb) {
-      const r = ref(db, 'community_courses');
-      return onValue(r, snap => {
-        if (!snap.exists()) { cb([]); return; }
-        const all = snap.val();
-        const list = Object.entries(all)
-          .filter(([,v]) => v.status === 'approved')
-          .map(([key,v]) => ({ ...v, _key: key }))
-          .sort((a,b) => (b.upvotes||0) - (a.upvotes||0) || a.name.localeCompare(b.name));
-        cb(list);
-      });
+    // ── Community courses: approve ───────────────────────────────────────────
+    window._fbApproveCourse = function(courseKey, cb) {
+      set(ref(db, `community_courses/${courseKey}/status`), 'approved')
+        .then(() => cb && cb(null))
+        .catch(e => cb && cb(e));
+    };
+
+    // ── Community courses: reject (delete) ───────────────────────────────────
+    window._fbRejectCourse = function(courseKey, cb) {
+      remove(ref(db, `community_courses/${courseKey}`))
+        .then(() => cb && cb(null))
+        .catch(e => cb && cb(e));
     };
 
     window._fbSetOnline = function(val) {
@@ -720,14 +725,76 @@
       </div>
     </div>
 
-    <!-- VIEW: Post-auth options -->
-    <div id="admin-view-options" style="display:none;margin-top:8px">
-      <div class="modal-btns">
-        <button class="btn btn-primary" style="width:100%;font-size:15px;background:rgba(255,90,90,.12);border-color:rgba(255,90,90,.4);color:#ff5a5a" onclick="optionClearData()">🗑 Clear This Tournament's Data</button>
-        <button class="btn btn-primary" style="width:100%;font-size:15px;background:rgba(255,90,90,.2);border-color:rgba(255,90,90,.6);color:#ff5a5a;font-weight:900" onclick="optionClearAllData()">☢️ Clear ALL Firebase Data</button>
-        <button class="btn btn-primary" style="width:100%;font-size:14px" onclick="optionResetPin()">🔢 Reset PIN</button>
-        <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="closeAdminModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Admin floating action button ────────────────────────────────────────── -->
+<div id="admin-fab" onclick="openAdminPortal()" title="Admin">
+  <span style="font-size:18px">⚙️</span>
+  <div class="fab-badge" id="admin-fab-badge"></div>
+</div>
+
+<!-- ── Admin portal slide-up ────────────────────────────────────────────────── -->
+<div id="admin-portal-overlay" onclick="handlePortalOverlayClick(event)">
+  <div id="admin-portal">
+
+    <div class="ap-header">
+      <div class="ap-title">
+        <span>⚙️</span> Admin Portal
       </div>
+      <button class="ap-close" onclick="closeAdminPortal()">✕</button>
+    </div>
+
+    <!-- ── Firebase Management ──────────────────────────────────────────────── -->
+    <div class="ap-section">
+      <div class="ap-section-title">Firebase Management</div>
+
+      <button class="ap-action danger" id="ap-clear-tournament-btn" onclick="apClearTournament()">
+        <span>🗑</span>
+        <span>
+          Clear Tournament Live Data
+          <span class="ap-action-sub" id="ap-clear-tournament-sub">Removes scores for the active tournament from Firebase</span>
+        </span>
+      </button>
+
+      <button class="ap-action danger" id="ap-clear-all-btn" onclick="apClearAll()">
+        <span>☢️</span>
+        <span>
+          Clear ALL Firebase Data
+          <span class="ap-action-sub">Wipes every tournament across all devices</span>
+        </span>
+      </button>
+    </div>
+
+    <div class="ap-divider"></div>
+
+    <!-- ── Community Courses ────────────────────────────────────────────────── -->
+    <div class="ap-section">
+      <div class="ap-section-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Community Courses</span>
+        <span id="ap-pending-count" style="font-size:10px;font-weight:800;color:var(--gold);letter-spacing:.5px"></span>
+      </div>
+      <div id="ap-pending-list">
+        <div style="font-size:13px;color:#555;font-weight:600;padding:8px 0">Tap ↻ to load pending submissions</div>
+      </div>
+      <button class="ap-action" style="margin-top:4px" onclick="apLoadPending()">
+        <span>↻</span>
+        <span>Refresh Pending Submissions</span>
+      </button>
+    </div>
+
+    <div class="ap-divider"></div>
+
+    <!-- ── PIN & Security ───────────────────────────────────────────────────── -->
+    <div class="ap-section">
+      <div class="ap-section-title">PIN &amp; Security</div>
+      <button class="ap-action" onclick="apResetPin()">
+        <span>🔢</span>
+        <span>
+          Reset Admin PIN
+          <span class="ap-action-sub">Requires current PIN to change</span>
+        </span>
+      </button>
     </div>
 
   </div>
@@ -932,35 +999,6 @@
     </div><!-- end course-edit-form -->
   </div>
 
-  <!-- ── Community Courses card ──────────────────────────────────────────── -->
-  <div class="card" id="community-courses-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="card-label" style="margin-bottom:0">🌐 Community Courses</div>
-      <button onclick="refreshCommunityCourses()" id="community-refresh-btn" style="background:none;border:none;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px 8px;border-radius:7px;min-height:32px;transition:opacity .2s">↻ Refresh</button>
-    </div>
-    <div style="font-size:11px;color:#888;line-height:1.5;margin-bottom:12px">Courses shared by the Hillfred community. Tap import to add to your device, or share your own saved courses to help others.</div>
-
-    <!-- Share a course prompt — shown when user has saved courses -->
-    <div id="community-share-wrap" style="display:none;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #1e1e1e">
-      <div style="font-size:11px;color:#ccc;font-weight:600;margin-bottom:8px">📤 Share one of your saved courses</div>
-      <select class="input" id="community-share-select" style="font-size:13px;margin-bottom:8px;background:#111">
-        <option value="">— Choose a course to share —</option>
-      </select>
-      <button class="community-share-btn" id="community-share-btn" onclick="submitCommunityCourse()" disabled>
-        📤 Share with Community
-      </button>
-      <div id="community-share-status" style="font-size:11px;text-align:center;margin-top:6px;min-height:16px;font-weight:700"></div>
-    </div>
-
-    <!-- Course list -->
-    <div id="community-course-list">
-      <div class="community-empty" id="community-loading">
-        <div style="font-size:24px;margin-bottom:8px">🌐</div>
-        Loading community courses…
-      </div>
-    </div>
-  </div>
-
   <!-- Player 1 card -->
   <div class="card">
     <div class="card-label" id="t1-card-label">Player 1</div>
@@ -1100,14 +1138,39 @@
     <div class="card-label">📊 Tournament Results</div>
     <div style="font-size:12px;color:#ccc;margin-bottom:12px;line-height:1.5">Consolidates all saved rounds for this tournament.</div>
     <div id="tr-results" style="margin-top:4px"></div>
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid #1e1e1e">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:8px">⚠️ DANGER ZONE</div>
-      <button onclick="confirmClearFirebase()" style="width:100%;padding:12px;background:rgba(255,90,90,.07);border:1.5px solid rgba(255,90,90,.25);border-radius:10px;color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;margin-bottom:8px">🗑 Clear This Tournament's Live Data</button>
-      <button onclick="confirmClearAllFirebase()" style="width:100%;padding:12px;background:rgba(255,90,90,.12);border:2px solid rgba(255,90,90,.45);border-radius:10px;color:#ff5a5a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.3px">☢️ Clear ALL Firebase Data</button>
-      <div style="font-size:11px;color:#ccc;margin-top:6px;line-height:1.5">Removes scores from the live leaderboard. Does not affect local history.<br><span style="color:rgba(255,90,90,.5);font-weight:700">☢️ Clear ALL wipes every tournament across all devices.</span></div>
-    </div>
   </div>
 
+</div>
+
+<!-- SHARE COURSE MODAL — shown immediately after saving a new course -->
+<div class="modal-overlay hidden" id="share-course-modal">
+  <div class="modal-box" style="max-width:360px">
+    <div class="modal-logo">
+      <svg style="height:28px" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(50,60)"><g transform="rotate(45 28 28)">
+          <rect x="0" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="0" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="0" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="0" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="20" y="20" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="40" y="20" width="16" height="16" fill="white" rx="1"/>
+          <rect x="0" y="40" width="16" height="16" fill="#00d4aa" rx="1"/>
+          <rect x="20" y="40" width="16" height="16" fill="white" rx="1"/>
+          <rect x="40" y="40" width="16" height="16" fill="#c9a961" rx="1"/>
+        </g></g>
+        <text x="130" y="70" font-family="Georgia,serif" font-size="48" font-weight="700" fill="white" letter-spacing="-0.3">Hillfred</text>
+        <rect x="130" y="76" width="120" height="2" fill="#00d4aa"/>
+      </svg>
+    </div>
+    <div class="modal-icon">📤</div>
+    <div class="modal-title" id="share-modal-title">Course Saved!</div>
+    <div class="modal-sub">Share <strong id="share-modal-course-name" style="color:var(--teal)"></strong> with the Hillfred Golf community so other players can use it too?</div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="width:100%;font-size:15px" id="share-modal-confirm-btn" onclick="confirmShareCourse()">📤 Share with Community</button>
+      <button class="btn btn-ghost" style="width:100%;font-size:13px" onclick="closeShareModal()">Not now</button>
+    </div>
+    <div id="share-modal-status" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-weight:700"></div>
+  </div>
 </div>
 
 <!-- FINALISE TOURNAMENT MODAL -->
@@ -3256,8 +3319,9 @@ function saveCourse(){
   // Persist only user courses (presets are always re-injected at startup)
   persistUserCourses();
   renderCourseDropdown();
-  renderCommunityShareDropdown();
   checkCanStart();
+  // Offer to share with the community (only if not already submitted)
+  promptShareCourse(name);
 }
 function loadCourse(idx){
   const c=savedCourses[idx]; if(!c)return;
@@ -3390,7 +3454,6 @@ This cannot be undone.`)) return;
   savedCourses.splice(idx,1);
   persistUserCourses();
   renderCourseDropdown();
-  renderCommunityShareDropdown();
   // Reset UI to empty state
   sel.value='';
   const actionsEl=document.getElementById('course-actions');
@@ -3454,250 +3517,70 @@ function renderCourseDropdown(){
 function renderSavedCourses(){ renderCourseDropdown(); }
 
 // ═══════════════════════════════════════════
-// COMMUNITY COURSES
+// COMMUNITY COURSES — post-save share prompt
 // ═══════════════════════════════════════════
 
-const LS_COMMUNITY_VOTES = 'hf_community_votes';   // set of courseKeys this device has upvoted
-const LS_COMMUNITY_SUBMITTED = 'hf_community_submitted'; // set of names this device has submitted
+const LS_COMMUNITY_SUBMITTED = 'hf_community_submitted'; // names this device has already submitted
 
-/** Load upvoted keys from localStorage */
-function _getVotedKeys() {
-  try { return new Set(JSON.parse(localStorage.getItem(LS_COMMUNITY_VOTES)||'[]')); } catch(e) { return new Set(); }
-}
-/** Persist voted keys */
-function _saveVotedKeys(set) {
-  try { localStorage.setItem(LS_COMMUNITY_VOTES, JSON.stringify([...set])); } catch(e) {}
-}
-/** Load submitted course names for this device */
 function _getSubmittedNames() {
   try { return new Set(JSON.parse(localStorage.getItem(LS_COMMUNITY_SUBMITTED)||'[]')); } catch(e) { return new Set(); }
 }
 function _saveSubmittedNames(set) {
   try { localStorage.setItem(LS_COMMUNITY_SUBMITTED, JSON.stringify([...set])); } catch(e) {}
 }
-/** Check if a course name is already in savedCourses (preset or user) */
-function _courseAlreadyAdded(name) {
-  return savedCourses.some(c => c.name.toLowerCase() === name.toLowerCase());
-}
 
-/** Render the community course list from an array of course objects */
-function renderCommunityCourseList(courses) {
-  const listEl = document.getElementById('community-course-list');
-  if (!listEl) return;
-
-  const votedKeys = _getVotedKeys();
-  const importedNames = new Set(savedCourses.map(c => c.name.toLowerCase()));
-
-  if (!courses.length) {
-    listEl.innerHTML = `<div class="community-empty">
-      <div style="font-size:28px;margin-bottom:8px">🏌️</div>
-      No community courses yet.<br>Be the first to share one!
-    </div>`;
-    return;
-  }
-
-  listEl.innerHTML = courses.map(course => {
-    const alreadyAdded = importedNames.has(course.name.toLowerCase());
-    const alreadyVoted = votedKeys.has(course._key);
-    const totalPar = Object.values(course.pars||{}).reduce((a,b)=>a+b,0);
-    const hasSI2 = course.si2 && Object.values(course.si2).some(v=>v!=null);
-    const hasSI3 = course.si3 && Object.values(course.si3).some(v=>v!=null);
-    const siTag = hasSI3 ? 'SI 1–54' : hasSI2 ? 'SI 1–36' : 'SI 1–18';
-    return `
-      <div class="community-course-item" id="cc-item-${course._key}">
-        <div class="community-course-info">
-          <div class="community-course-name">${escHtml(course.name)}</div>
-          <div class="community-course-meta">Par ${totalPar} &nbsp;·&nbsp; ${siTag} &nbsp;·&nbsp; ${course.upvotes||0} 👍</div>
-        </div>
-        <div class="community-course-actions">
-          <button class="community-upvote-btn${alreadyVoted?' voted':''}"
-            id="cc-vote-${course._key}"
-            onclick="upvoteCommunity('${course._key}')"
-            ${alreadyVoted?'disabled':''}>
-            👍 ${course.upvotes||0}
-          </button>
-          <button class="community-import-btn${alreadyAdded?' imported':''}"
-            id="cc-import-${course._key}"
-            onclick="importCommunityCourse('${course._key}')"
-            ${alreadyAdded?'disabled':''}>
-            ${alreadyAdded ? '✓ Added' : '⬇ Import'}
-          </button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-/** Refresh button handler */
-let _communityUnsub = null;
-function refreshCommunityCourses() {
-  const btn = document.getElementById('community-refresh-btn');
-  const listEl = document.getElementById('community-course-list');
-  if (btn) { btn.style.opacity = '0.4'; btn.textContent = '↻ Loading…'; }
-  if (listEl) listEl.innerHTML = '<div class="community-empty"><div style="font-size:24px;margin-bottom:8px">🌐</div>Loading…</div>';
-
-  if (!window._fbLoadCommunityCourses) {
-    // Firebase not ready — retry
-    setTimeout(refreshCommunityCourses, 800);
-    return;
-  }
-  window._fbLoadCommunityCourses(courses => {
-    renderCommunityCourseList(courses);
-    if (btn) { btn.style.opacity = '1'; btn.textContent = '↻ Refresh'; }
-  });
-}
-
-/** Subscribe to real-time community course updates */
-function subscribeToCommunity() {
-  if (_communityUnsub || !window._fbSubscribeCommunityCourses) {
-    // Not ready — retry after a short delay
-    if (!_communityUnsub) setTimeout(subscribeToCommunity, 1200);
-    return;
-  }
-  _communityUnsub = window._fbSubscribeCommunityCourses(courses => {
-    renderCommunityCourseList(courses);
-  });
-}
-
-/** Import a community course into savedCourses */
-function importCommunityCourse(courseKey) {
-  const btn = document.getElementById('cc-import-' + courseKey);
-  if (!btn) return;
-
-  // Find from rendered data — re-fetch from Firebase for freshness
-  window._fbLoadCommunityCourses(courses => {
-    const course = courses.find(c => c._key === courseKey);
-    if (!course) { alert('Course not found. Try refreshing.'); return; }
-    if (_courseAlreadyAdded(course.name)) {
-      if (btn) { btn.textContent = '✓ Added'; btn.disabled = true; btn.classList.add('imported'); }
-      return;
-    }
-    // Strip community metadata before saving locally
-    const { _key, submittedBy, submittedAt, status, upvotes, ...courseData } = course;
-    savedCourses.push(courseData);
-    persistUserCourses();
-    renderCourseDropdown();
-    if (btn) { btn.textContent = '✓ Added'; btn.disabled = true; btn.classList.add('imported'); }
-    // Animate feedback
-    const item = document.getElementById('cc-item-' + courseKey);
-    if (item) {
-      item.style.borderColor = 'var(--teal)';
-      setTimeout(() => { if (item) item.style.borderColor = ''; }, 1800);
-    }
-    showToast(`"${course.name}" added to your courses ✓`);
-  });
-}
-
-/** Upvote a community course */
-function upvoteCommunity(courseKey) {
-  const votedKeys = _getVotedKeys();
-  if (votedKeys.has(courseKey)) return;
-  if (!window._fbUpvoteCourse) return;
-
-  window._fbUpvoteCourse(courseKey, err => {
-    if (err) return;
-    // Optimistic UI update
-    votedKeys.add(courseKey);
-    _saveVotedKeys(votedKeys);
-    const voteBtn = document.getElementById('cc-vote-' + courseKey);
-    if (voteBtn) {
-      const current = parseInt(voteBtn.textContent.replace(/\D/g,'')) || 0;
-      voteBtn.textContent = `👍 ${current + 1}`;
-      voteBtn.disabled = true;
-      voteBtn.classList.add('voted');
-    }
-    // Also update meta line
-    const metaEl = document.querySelector(`#cc-item-${courseKey} .community-course-meta`);
-    if (metaEl) {
-      metaEl.textContent = metaEl.textContent.replace(/\d+ 👍/, (parseInt(metaEl.textContent) + 1) + ' 👍');
-    }
-  });
-}
-
-/** Populate the share dropdown with user-saved (non-preset) courses */
-function renderCommunityShareDropdown() {
-  const sel = document.getElementById('community-share-select');
-  const wrap = document.getElementById('community-share-wrap');
-  if (!sel || !wrap) return;
-
-  const userCourses = savedCourses.filter(c => !c.preset);
-  wrap.style.display = userCourses.length ? 'block' : 'none';
-
+/** Called by saveCourse() after a successful save — shows the share modal if not already submitted */
+let _pendingShareCourseName = null;
+function promptShareCourse(courseName) {
   const submitted = _getSubmittedNames();
-  sel.innerHTML = '<option value="">— Choose a course to share —</option>' +
-    userCourses.map(c => {
-      const alreadyShared = submitted.has(c.name.toLowerCase());
-      return `<option value="${escHtml(c.name)}"${alreadyShared?' disabled':''}>
-        ${escHtml(c.name)}${alreadyShared ? ' (already shared)' : ''}
-      </option>`;
-    }).join('');
-
-  // Enable/disable share button
-  sel.addEventListener('change', () => {
-    const shareBtn = document.getElementById('community-share-btn');
-    const status = document.getElementById('community-share-status');
-    if (shareBtn) shareBtn.disabled = !sel.value;
-    if (status) status.textContent = '';
-  });
+  if (submitted.has(courseName.toLowerCase())) return; // already shared — don't nag
+  _pendingShareCourseName = courseName;
+  const nameEl = document.getElementById('share-modal-course-name');
+  const statusEl = document.getElementById('share-modal-status');
+  const confirmBtn = document.getElementById('share-modal-confirm-btn');
+  if (nameEl) nameEl.textContent = courseName;
+  if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; }
+  if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = '📤 Share with Community'; }
+  const modal = document.getElementById('share-course-modal');
+  if (modal) modal.classList.remove('hidden');
 }
 
-/** Submit a user course to the community */
-function submitCommunityCourse() {
-  const sel = document.getElementById('community-share-select');
-  const shareBtn = document.getElementById('community-share-btn');
-  const statusEl = document.getElementById('community-share-status');
-  if (!sel || !sel.value) return;
+function closeShareModal() {
+  const modal = document.getElementById('share-course-modal');
+  if (modal) modal.classList.add('hidden');
+  _pendingShareCourseName = null;
+}
 
-  const courseName = sel.value;
-  const course = savedCourses.find(c => c.name === courseName && !c.preset);
-  if (!course) return;
+function confirmShareCourse() {
+  if (!_pendingShareCourseName) return;
+  const course = savedCourses.find(c => c.name === _pendingShareCourseName && !c.preset);
+  if (!course) { closeShareModal(); return; }
+
+  const confirmBtn = document.getElementById('share-modal-confirm-btn');
+  const statusEl = document.getElementById('share-modal-status');
 
   if (!window._fbSubmitCourse) {
-    if (statusEl) { statusEl.textContent = '⚠️ Not connected. Try again shortly.'; statusEl.style.color = 'var(--red)'; }
+    if (statusEl) { statusEl.textContent = '⚠️ Not connected yet — try again in a moment.'; statusEl.style.color = 'var(--red)'; }
     return;
   }
 
-  if (shareBtn) { shareBtn.disabled = true; shareBtn.textContent = '📤 Submitting…'; }
-  if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; }
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '📤 Submitting…'; }
 
-  window._fbSubmitCourse(course, DEVICE_ID, (err, key) => {
+  window._fbSubmitCourse(course, DEVICE_ID, (err) => {
     if (err) {
-      if (shareBtn) { shareBtn.disabled = false; shareBtn.textContent = '📤 Share with Community'; }
-      if (statusEl) { statusEl.textContent = '⚠️ Submission failed. Check connection.'; statusEl.style.color = 'var(--red)'; }
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = '📤 Share with Community'; }
+      if (statusEl) { statusEl.textContent = '⚠️ Failed — check your connection.'; statusEl.style.color = 'var(--red)'; }
       return;
     }
-    // Record that this device submitted this course
+    // Mark as submitted so we never prompt for this course again
     const submitted = _getSubmittedNames();
-    submitted.add(courseName.toLowerCase());
+    submitted.add(_pendingShareCourseName.toLowerCase());
     _saveSubmittedNames(submitted);
 
-    if (shareBtn) { shareBtn.textContent = '✓ Submitted for review'; shareBtn.style.borderColor = 'var(--teal)'; }
-    if (statusEl) {
-      statusEl.textContent = 'Submitted! It will appear once approved. Thank you 🙏';
-      statusEl.style.color = 'var(--teal)';
-    }
-    // Refresh the dropdown to disable the submitted course
-    renderCommunityShareDropdown();
+    if (statusEl) { statusEl.textContent = 'Submitted for review — thank you! 🙏'; statusEl.style.color = 'var(--teal)'; }
+    if (confirmBtn) { confirmBtn.textContent = '✓ Submitted'; }
+    setTimeout(closeShareModal, 1800);
   });
-}
-
-/** Simple HTML escape helper */
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/** Brief toast notification */
-function showToast(msg) {
-  let toast = document.getElementById('hf-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'hf-toast';
-    toast.style.cssText = 'position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1c1c1c;border:1.5px solid var(--teal);color:var(--text);font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;padding:10px 18px;border-radius:20px;z-index:5000;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:90vw;text-align:center';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.style.opacity = '1';
-  clearTimeout(toast._timeout);
-  toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2600);
 }
 
 // ═══════════════════════════════════════════
@@ -4223,55 +4106,232 @@ function _buildAndStoreResults(tournamentKey) {
   }
 }
 
-// ── Admin PIN system ──────────────────────────────────────────────────────────
-const LS_ADMIN_HASH = 'hf_admin_pin_hash';
-const LS_ADMIN_SQ   = 'hf_admin_sq';   // { q: 'pet', a: <hash> }
+// ═══════════════════════════════════════════
+// ADMIN SYSTEM
+// ═══════════════════════════════════════════
 
-let _pinBuffer  = '';
-let _pinMode    = 'verify'; // 'verify'|'set'|'confirm'|'reset-set'|'reset-confirm'
-let _pinFirst   = '';
-let _adminAuthed = false;   // true after successful PIN verify
+const LS_ADMIN_HASH = 'hf_admin_pin_hash';
+const LS_ADMIN_SQ   = 'hf_admin_sq';
+
+let _pinBuffer   = '';
+let _pinMode     = 'verify';
+let _pinFirst    = '';
+let _adminAuthed = false;
+let _pinOnSuccess = null;   // callback to run after successful auth
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-function _getAdminHash() { try { return localStorage.getItem(LS_ADMIN_HASH)||null; }catch(e){return null;} }
-function _getAdminSq()   { try { return JSON.parse(localStorage.getItem(LS_ADMIN_SQ)||'null'); }catch(e){return null;} }
+function _getAdminHash() { try { return localStorage.getItem(LS_ADMIN_HASH)||null; } catch(e) { return null; } }
+function _getAdminSq()   { try { return JSON.parse(localStorage.getItem(LS_ADMIN_SQ)||'null'); } catch(e) { return null; } }
 
-// ── Entry point ───────────────────────────────────────────────────────────────
-let _clearAllMode = false;  // true = wipe all tournaments, false = wipe active only
+// ── Floating button & portal ──────────────────────────────────────────────────
 
-function confirmClearFirebase() {
+function openAdminPortal() {
+  // Always require PIN authentication to open the portal
+  _pinOnSuccess = _showAdminPortal;
+  _openAdminPin();
+}
+
+function _showAdminPortal() {
+  // Update active tournament sub-label
   const key = activeTournament;
-  if (!key) { alert('No active tournament selected.'); return; }
-  _clearAllMode = false;
-  _openAdminPin();
+  const tName = key ? (TOURNAMENT[key]?.label || key) : 'No active tournament';
+  const subEl = document.getElementById('ap-clear-tournament-sub');
+  if (subEl) subEl.textContent = key
+    ? `Removes live scores for "${tName}" from Firebase`
+    : 'No active tournament selected';
+  const clearBtn = document.getElementById('ap-clear-tournament-btn');
+  if (clearBtn) clearBtn.style.opacity = key ? '1' : '.45';
+
+  // Reset confirm states
+  _resetConfirmState('ap-clear-tournament-btn', '🗑', 'Clear Tournament Live Data');
+  _resetConfirmState('ap-clear-all-btn', '☢️', 'Clear ALL Firebase Data');
+
+  const overlay = document.getElementById('admin-portal-overlay');
+  if (overlay) overlay.classList.add('open');
 }
 
-function confirmClearAllFirebase() {
-  _clearAllMode = true;
-  _openAdminPin();
+function closeAdminPortal() {
+  const overlay = document.getElementById('admin-portal-overlay');
+  if (overlay) overlay.classList.remove('open');
 }
+
+function handlePortalOverlayClick(e) {
+  if (e.target === document.getElementById('admin-portal-overlay')) closeAdminPortal();
+}
+
+// ── Confirm-on-second-tap pattern ────────────────────────────────────────────
+
+const _confirmTimers = {};
+
+function _resetConfirmState(btnId, icon, label) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.classList.remove('confirming');
+  const spans = btn.querySelectorAll('span');
+  if (spans[0]) spans[0].textContent = icon;
+  const textSpan = spans[1];
+  if (textSpan) {
+    // Restore label text (first text node only, preserve sub span)
+    const sub = textSpan.querySelector('.ap-action-sub');
+    textSpan.childNodes[0].textContent = label;
+  }
+  clearTimeout(_confirmTimers[btnId]);
+}
+
+function _requireConfirm(btnId, icon, label, onConfirm) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  if (btn.classList.contains('confirming')) {
+    // Second tap — execute
+    clearTimeout(_confirmTimers[btnId]);
+    _resetConfirmState(btnId, icon, label);
+    onConfirm();
+    return;
+  }
+  // First tap — enter confirming state
+  btn.classList.add('confirming');
+  const spans = btn.querySelectorAll('span');
+  if (spans[0]) spans[0].textContent = '⚠️';
+  const textSpan = spans[1];
+  if (textSpan) textSpan.childNodes[0].textContent = 'Tap again to confirm';
+  // Auto-reset after 3s if not confirmed
+  _confirmTimers[btnId] = setTimeout(() => _resetConfirmState(btnId, icon, label), 3000);
+}
+
+// ── Portal actions ────────────────────────────────────────────────────────────
+
+function apClearTournament() {
+  const key = activeTournament;
+  if (!key) { showToast('No active tournament selected'); return; }
+  _requireConfirm('ap-clear-tournament-btn', '🗑', 'Clear Tournament Live Data', () => {
+    closeAdminPortal();
+    _doFirebaseClear(key);
+  });
+}
+
+function apClearAll() {
+  _requireConfirm('ap-clear-all-btn', '☢️', 'Clear ALL Firebase Data', () => {
+    closeAdminPortal();
+    _doFirebaseClearAll();
+  });
+}
+
+function apResetPin() {
+  closeAdminPortal();
+  _pinOnSuccess = null;
+  _pinBuffer = ''; _pinFirst = '';
+  _pinMode = 'reset-set';
+  _updatePinHeader();
+  _renderPinDots();
+  document.getElementById('admin-modal').classList.remove('hidden');
+  _showView('pin');
+}
+
+// ── Pending community course review ──────────────────────────────────────────
+
+function apLoadPending() {
+  const listEl = document.getElementById('ap-pending-list');
+  const countEl = document.getElementById('ap-pending-count');
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="font-size:13px;color:#555;padding:8px 0">Loading…</div>';
+
+  if (!window._fbLoadPendingCourses) {
+    listEl.innerHTML = '<div style="font-size:13px;color:#555;padding:8px 0">⚠️ Firebase not ready — try again.</div>';
+    return;
+  }
+  window._fbLoadPendingCourses(courses => {
+    if (countEl) countEl.textContent = courses.length ? `${courses.length} PENDING` : '';
+    // Update FAB badge
+    const badge = document.getElementById('admin-fab-badge');
+    if (badge) badge.style.display = courses.length ? 'block' : 'none';
+
+    if (!courses.length) {
+      listEl.innerHTML = '<div style="font-size:13px;color:#555;font-weight:600;padding:8px 0">✓ No pending submissions</div>';
+      return;
+    }
+    listEl.innerHTML = courses.map(c => {
+      const totalPar = Object.values(c.pars||{}).reduce((a,b)=>a+b,0);
+      const submitted = c.submittedAt ? new Date(c.submittedAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '—';
+      // Build par row for holes 1–18
+      const parRow = Array.from({length:18},(_,i)=>`<div class="ap-course-si-cell">${c.pars?.[i+1]||'?'}</div>`).join('');
+      const holeLbls = Array.from({length:18},(_,i)=>`<div class="ap-course-si-cell si-h">${i+1}</div>`).join('');
+      return `
+        <div class="ap-course-card" id="apc-${c._key}">
+          <div class="ap-course-card-name">⛳ ${c.name}</div>
+          <div class="ap-course-card-meta">Par ${totalPar} · Submitted ${submitted}</div>
+          <div class="ap-course-si">${holeLbls}</div>
+          <div class="ap-course-si">${parRow}</div>
+          <div class="ap-course-card-btns">
+            <button class="ap-approve-btn" onclick="apApproveCourse('${c._key}','${c.name.replace(/'/g,"\\'")}')">✓ Approve</button>
+            <button class="ap-reject-btn" onclick="apRejectCourse('${c._key}','${c.name.replace(/'/g,"\\'")}')">✕ Reject</button>
+          </div>
+        </div>`;
+    }).join('');
+  });
+}
+
+function apApproveCourse(key, name) {
+  const card = document.getElementById('apc-' + key);
+  if (card) card.style.opacity = '.5';
+  if (!window._fbApproveCourse) { showToast('Firebase not ready'); return; }
+  window._fbApproveCourse(key, err => {
+    if (err) { if (card) card.style.opacity = '1'; showToast('⚠️ Error approving course'); return; }
+    if (card) card.remove();
+    showToast(`"${name}" approved ✓`);
+    _updatePendingCount();
+  });
+}
+
+function apRejectCourse(key, name) {
+  const card = document.getElementById('apc-' + key);
+  if (card) card.style.opacity = '.5';
+  if (!window._fbRejectCourse) { showToast('Firebase not ready'); return; }
+  window._fbRejectCourse(key, err => {
+    if (err) { if (card) card.style.opacity = '1'; showToast('⚠️ Error rejecting course'); return; }
+    if (card) card.remove();
+    showToast(`"${name}" rejected`);
+    _updatePendingCount();
+  });
+}
+
+function _updatePendingCount() {
+  const remaining = document.querySelectorAll('#ap-pending-list .ap-course-card').length;
+  const countEl = document.getElementById('ap-pending-count');
+  if (countEl) countEl.textContent = remaining ? `${remaining} PENDING` : '';
+  const badge = document.getElementById('admin-fab-badge');
+  if (badge) badge.style.display = remaining ? 'block' : 'none';
+  if (!remaining) {
+    const listEl = document.getElementById('ap-pending-list');
+    if (listEl) listEl.innerHTML = '<div style="font-size:13px;color:#555;font-weight:600;padding:8px 0">✓ No pending submissions</div>';
+  }
+}
+
+// ── PIN modal (kept for authentication flow) ──────────────────────────────────
 
 function _openAdminPin() {
   _pinBuffer = ''; _pinFirst = ''; _adminAuthed = false;
-  _showView('pin');
   const hasPin = !!_getAdminHash();
   _pinMode = hasPin ? 'verify' : 'set';
   _updatePinHeader();
+  _renderPinDots();
   const forgotWrap = document.getElementById('admin-forgot-wrap');
   if (forgotWrap) forgotWrap.style.display = (hasPin && !!_getAdminSq()) ? 'block' : 'none';
+  _showView('pin');
   document.getElementById('admin-modal').classList.remove('hidden');
 }
 
-// ── View switcher ─────────────────────────────────────────────────────────────
 function _showView(name) {
-  ['pin','sq','forgot','options'].forEach(v => {
+  ['pin','sq','forgot'].forEach(v => {
     const el = document.getElementById('admin-view-' + v);
     if (el) el.style.display = v === name ? 'block' : 'none';
   });
+  // Hide the old options view if it still exists
+  const optEl = document.getElementById('admin-view-options');
+  if (optEl) optEl.style.display = 'none';
 }
 
 function showPinView() {
@@ -4284,7 +4344,7 @@ function showPinView() {
 
 function showForgotPin() {
   const sq = _getAdminSq();
-  if (!sq) { alert('No security question set. Please contact your administrator.'); return; }
+  if (!sq) { showToast('No security question set.'); return; }
   const questions = {
     pet:'What was the name of your first pet?',
     school:'What primary school did you attend?',
@@ -4301,13 +4361,11 @@ function showForgotPin() {
   _showView('forgot');
 }
 
-// ── PIN header text ───────────────────────────────────────────────────────────
 function _updatePinHeader() {
-  const key = activeTournament;
-  const tName = TOURNAMENT[key]?.label || key;
   const titleEl = document.getElementById('admin-modal-title');
   const subEl   = document.getElementById('admin-modal-sub');
   const iconEl  = document.getElementById('admin-modal-icon');
+  if (!titleEl) return;
   document.getElementById('admin-pw-error').textContent = '';
   _renderPinDots();
   if (_pinMode === 'set') {
@@ -4321,11 +4379,10 @@ function _updatePinHeader() {
     subEl.textContent = 'Choose a new 4-digit PIN.';
   } else {
     titleEl.textContent = 'Administrator Access'; iconEl.textContent = '🔐';
-    subEl.innerHTML = `Enter PIN to manage data for <strong style="color:#ccc">${tName}</strong>.`;
+    subEl.textContent = 'Enter your PIN to continue.';
   }
 }
 
-// ── PIN dots ──────────────────────────────────────────────────────────────────
 function _renderPinDots() {
   for (let i = 0; i < 4; i++) {
     const dot = document.getElementById('pin-dot-' + i);
@@ -4364,7 +4421,6 @@ async function _pinSubmit() {
     } else {
       try { localStorage.setItem(LS_ADMIN_HASH, hash); } catch(e) {}
       _pinBuffer = ''; _pinFirst = '';
-      // First time — now set security question before proceeding
       document.getElementById('admin-modal-title').textContent = 'Security Question';
       document.getElementById('admin-modal-sub').textContent = 'Set a recovery question in case you forget your PIN.';
       document.getElementById('admin-modal-icon').textContent = '🛡️';
@@ -4384,7 +4440,7 @@ async function _pinSubmit() {
     } else {
       try { localStorage.setItem(LS_ADMIN_HASH, hash); } catch(e) {}
       closeAdminModal();
-      alert('PIN has been reset successfully.');
+      showToast('PIN reset successfully ✓');
     }
 
   } else {
@@ -4394,11 +4450,8 @@ async function _pinSubmit() {
       _pinError('Incorrect PIN.');
     } else {
       _adminAuthed = true;
-      // Show options: clear data OR reset PIN
-      document.getElementById('admin-modal-title').textContent = 'What would you like to do?';
-      document.getElementById('admin-modal-sub').textContent   = '';
-      document.getElementById('admin-modal-icon').textContent  = '✅';
-      _showView('options');
+      closeAdminModal();
+      if (_pinOnSuccess) { const fn = _pinOnSuccess; _pinOnSuccess = null; fn(); }
     }
   }
 }
@@ -4412,7 +4465,6 @@ function _pinError(msg) {
   setTimeout(() => { _pinBuffer = ''; _renderPinDots(); }, 700);
 }
 
-// ── Security question setup ───────────────────────────────────────────────────
 async function submitSqSetup() {
   const q   = document.getElementById('sq-question').value;
   const ans = document.getElementById('sq-answer').value.trim().toLowerCase();
@@ -4420,10 +4472,9 @@ async function submitSqSetup() {
   const hash = await sha256(ans);
   try { localStorage.setItem(LS_ADMIN_SQ, JSON.stringify({ q, a: hash })); } catch(e) {}
   closeAdminModal();
-  _doFirebaseClear(activeTournament);
+  if (_pinOnSuccess) { const fn = _pinOnSuccess; _pinOnSuccess = null; fn(); }
 }
 
-// ── Forgot PIN — security question answer ─────────────────────────────────────
 async function submitForgotAnswer() {
   const sq  = _getAdminSq();
   if (!sq) return;
@@ -4434,7 +4485,6 @@ async function submitForgotAnswer() {
     document.getElementById('forgot-answer').value = '';
     return;
   }
-  // Answer correct — go to reset PIN flow
   document.getElementById('forgot-error').textContent = '';
   _pinBuffer = ''; _pinFirst = '';
   _pinMode = 'reset-set';
@@ -4442,32 +4492,6 @@ async function submitForgotAnswer() {
   _updatePinHeader();
 }
 
-// ── Post-auth options ─────────────────────────────────────────────────────────
-function optionClearData() {
-  if (!_adminAuthed) return;
-  closeAdminModal();
-  if (_clearAllMode) {
-    _doFirebaseClearAll();
-  } else {
-    _doFirebaseClear(activeTournament);
-  }
-}
-
-function optionClearAllData() {
-  if (!_adminAuthed) return;
-  closeAdminModal();
-  _doFirebaseClearAll();
-}
-
-function optionResetPin() {
-  if (!_adminAuthed) return;
-  _pinBuffer = ''; _pinFirst = '';
-  _pinMode = 'reset-set';
-  _showView('pin');
-  _updatePinHeader();
-}
-
-// ── Close ─────────────────────────────────────────────────────────────────────
 function closeAdminModal() {
   document.getElementById('admin-modal').classList.add('hidden');
   _pinBuffer = ''; _pinFirst = ''; _adminAuthed = false;
@@ -4477,22 +4501,30 @@ function closeAdminModal() {
 }
 
 // ── Firebase clear ────────────────────────────────────────────────────────────
+
 function _doFirebaseClear(key) {
   const tName = TOURNAMENT[key]?.label || key;
-  if (!window._fbClearTournament) { alert('Firebase not connected. Try again in a moment.'); return; }
-  window._fbClearTournament(key, (err) => {
-    if (err) { alert('Error clearing data: ' + err.message); }
-    else     { alert(`Live data for "${tName}" has been cleared from Firebase.`); }
+  if (!window._fbClearTournament) { showToast('Firebase not connected'); return; }
+  window._fbClearTournament(key, err => {
+    if (err) showToast('⚠️ Error clearing data');
+    else     showToast(`"${tName}" live data cleared ✓`);
   });
 }
 
 function _doFirebaseClearAll() {
-  if (!window._fbClearAll) { alert('Firebase not connected. Try again in a moment.'); return; }
-  window._fbClearAll((err) => {
-    if (err) { alert('Error clearing all data: ' + err.message); }
-    else     { alert('✓ All Firebase tournament data has been cleared across all devices.'); }
+  if (!window._fbClearAll) { showToast('Firebase not connected'); return; }
+  window._fbClearAll(err => {
+    if (err) showToast('⚠️ Error clearing all data');
+    else     showToast('✓ All Firebase data cleared');
   });
 }
+
+// Legacy entry points (kept so nothing else breaks)
+function confirmClearFirebase()    { openAdminPortal(); }
+function confirmClearAllFirebase() { openAdminPortal(); }
+function optionClearData()         {}
+function optionClearAllData()      {}
+function optionResetPin()          {}
 
 // ═══════════════════════════════════════════
 // RENDER PLAY
@@ -5823,12 +5855,6 @@ buildParGrids();
 renderTournamentDropdown();
 renderCourseDropdown();
 renderTournamentTab();   // populate new tournament tab list
-
-// ── Community courses — subscribe once Firebase is ready ─────────────────────
-setTimeout(() => {
-  subscribeToCommunity();
-  renderCommunityShareDropdown();
-}, 1500);
 
 // ── Tutorial ──────────────────────────────────────────────────────────────────
 const LS_TUTORIAL = 'hf_tutorial_done';
