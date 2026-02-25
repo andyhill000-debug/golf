@@ -1815,25 +1815,37 @@ function checkCanStart() {
   const hasP4Hcp=needP4?hasHcp('p4-hcp'):true;
   const hasP3=hasP3Name&&hasP3Hcp, hasP4=hasP4Name&&hasP4Hcp;
 
-  const hasMode=!!gameMode;
-  const ok=hasMode&&hasCourse&&hasP1&&hasP2&&hasP3&&hasP4;
-  btn.disabled=!ok;
+  const isPreset = !!(activeTournament && TOURNAMENT[activeTournament]?.preset);
 
-  if(!ok){
-    const msgs=[];
-    if(!hasMode)   msgs.push('\ud83c\udfc6 Choose a game mode');
-    if(!hasCourse) msgs.push('\u26f3 Select a course');
-    if(!hasP1Name) msgs.push('P1: enter name');
-    else if(!hasP1Hcp) msgs.push('P1: enter handicap');
-    if(!hasP2Name) msgs.push('P2: enter name');
-    else if(!hasP2Hcp) msgs.push('P2: enter handicap');
-    if(needP3){ if(!hasP3Name) msgs.push('P3: enter name'); else if(!hasP3Hcp) msgs.push('P3: enter handicap'); }
-    if(needP4){ if(!hasP4Name) msgs.push('P4: enter name'); else if(!hasP4Hcp) msgs.push('P4: enter handicap'); }
-    warn.style.display='block';
-    warn.style.background='rgba(255,90,90,0.08)';
-    warn.style.color='#ff8080';
-    warn.style.border='1px solid rgba(255,90,90,0.2)';
-    warn.textContent=msgs.join('  \u00b7  ');
+  // For preset tournaments, course/mode are already locked in — only check players
+  const ok = isPreset
+    ? (hasP1 && hasP2 && hasP3 && hasP4)
+    : (hasMode && hasCourse && hasP1 && hasP2 && hasP3 && hasP4);
+  btn.disabled = !ok;
+
+  if (!ok) {
+    warn.style.display = 'block';
+    if (isPreset) {
+      // Clean neutral prompt — no red, no errors, just a guide
+      warn.style.background = 'rgba(0,232,187,0.05)';
+      warn.style.color = '#aaa';
+      warn.style.border = '1px solid rgba(0,232,187,0.1)';
+      warn.textContent = '👤 Enter player names & handicaps to start';
+    } else {
+      const msgs = [];
+      if (!hasMode)   msgs.push('🏆 Choose a game mode');
+      if (!hasCourse) msgs.push('⛳ Select a course');
+      if (!hasP1Name) msgs.push('P1: enter name');
+      else if (!hasP1Hcp) msgs.push('P1: enter handicap');
+      if (!hasP2Name) msgs.push('P2: enter name');
+      else if (!hasP2Hcp) msgs.push('P2: enter handicap');
+      if (needP3) { if (!hasP3Name) msgs.push('P3: enter name'); else if (!hasP3Hcp) msgs.push('P3: enter handicap'); }
+      if (needP4) { if (!hasP4Name) msgs.push('P4: enter name'); else if (!hasP4Hcp) msgs.push('P4: enter handicap'); }
+      warn.style.background = 'rgba(255,90,90,0.08)';
+      warn.style.color = '#ff8080';
+      warn.style.border = '1px solid rgba(255,90,90,0.2)';
+      warn.textContent = msgs.join('  ·  ');
+    }
   } else {
     // Check if this tournament's match quota is already reached
     const _at = activeTournament ? TOURNAMENT[activeTournament] : null;
