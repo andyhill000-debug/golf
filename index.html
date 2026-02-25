@@ -36,9 +36,14 @@
   html{overflow-x:hidden;overscroll-behavior-x:none}
   .header{background:linear-gradient(135deg,#0a0a0a,#0c2018);border-bottom:2px solid var(--teal);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
   .header-title{font-family:'Playfair Display',Georgia,serif;font-size:13px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;font-weight:700}
-  .nav{display:flex;gap:4px;padding:8px 10px;background:#141414;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:99}
-  .nav-btn{flex:1;padding:12px 4px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:13px;transition:all .2s;background:#252525;color:#ccc;min-height:48px}
-  .nav-btn.active{background:var(--teal);color:#000;font-size:14px}
+  .nav{display:flex;gap:4px;padding:6px 8px;background:#141414;border-bottom:2px solid var(--border);position:sticky;top:62px;z-index:99}
+  .nav-btn{flex:1;padding:8px 2px;border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:700;font-size:9px;letter-spacing:.2px;transition:all .2s;background:#252525;color:#888;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.2}
+  .nav-btn .nav-icon{font-size:16px;line-height:1}
+  .nav-btn .nav-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+  .nav-btn.active{background:var(--teal);color:#000}
+  .nav-btn.active .nav-label{color:#000}
+  .nav-btn.nav-live{color:var(--teal)}
+  .nav-btn.nav-live .nav-label{color:var(--teal)}
   .tab{display:none;padding-bottom:calc(100px + env(safe-area-inset-bottom))}.tab.active{display:block}
   .card{background:var(--card);border-radius:14px;margin:12px 14px;padding:18px;border:1px solid var(--border)}
   .card-label{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:12px}
@@ -659,11 +664,21 @@
 </div>
 
 <div class="nav">
-  <button class="nav-btn active" id="navbtn-match"      onclick="showTab('match')">⛳ Match</button>
-  <button class="nav-btn"        id="navbtn-tournament" onclick="showTab('tournament')">🏆 Tournament</button>
-  <button class="nav-btn"        id="navbtn-history"    onclick="showTab('history')">📋 History</button>
-  <button class="nav-btn"        id="navbtn-live"       onclick="openLeaderboard()" style="color:var(--teal)">📡 Leaderboard</button>
-  <button class="nav-btn"        id="navbtn-graph"      onclick="openMatchGraph()"  style="color:var(--teal)">📈 Match Graph</button>
+  <button class="nav-btn active" id="navbtn-match"      onclick="showTab('match')">
+    <span class="nav-icon">⛳</span><span class="nav-label">Match</span>
+  </button>
+  <button class="nav-btn"        id="navbtn-tournament" onclick="showTab('tournament')">
+    <span class="nav-icon">🏆</span><span class="nav-label">Tournament</span>
+  </button>
+  <button class="nav-btn"        id="navbtn-history"    onclick="showTab('history')">
+    <span class="nav-icon">📋</span><span class="nav-label">History</span>
+  </button>
+  <button class="nav-btn nav-live" id="navbtn-live"     onclick="openLeaderboard()">
+    <span class="nav-icon">📡</span><span class="nav-label">Leaderboard</span>
+  </button>
+  <button class="nav-btn nav-live" id="navbtn-graph"    onclick="openMatchGraph()">
+    <span class="nav-icon">📈</span><span class="nav-label">Match Graph</span>
+  </button>
 </div>
 
 <!-- MATCH -->
