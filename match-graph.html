@@ -361,42 +361,58 @@ function renderGraph(key) {
   const effectiveHoles = isFullMatch ? 18 : holesPlayed;
 
   // Build worm from T1 player mpStatus
-  const wormData = [], holeResults = [];
+  // ── Step 1: parse position value per hole from mpStatus ─────────────────────
+  // mpStatus is CUMULATIVE (e.g. "2 UP" after hole 3 means T1 leads by 2 overall).
+  // We store position only — per-hole win/loss/halve is derived by delta in Step 2.
+  const wormData = [];
   for (let i = 1; i <= 18; i++) {
     const hd  = refPlayer?.[`h${i}`];
     const ext = isFullMatch && i === 18 && i > holesPlayed;
     if (hd && hd.mpStatus) {
       const st = hd.mpStatus;
       if (st.startsWith('W ')) {
-        const n = parseInt(st.replace('W ',''));
-        wormData.push(isNaN(n) ? 0 : n); holeResults.push('W');
+        // Closed win — e.g. "W 3&2": extract margin as positive
+        const m = st.match(/W\s+(\d+)/); wormData.push(m ? parseInt(m[1]) : 1);
       } else if (st.startsWith('L ')) {
-        const n = parseInt(st.replace('L ',''));
-        wormData.push(isNaN(n) ? 0 : -(n)); holeResults.push('L');
+        const m = st.match(/L\s+(\d+)/); wormData.push(m ? -parseInt(m[1]) : -1);
       } else if (st.includes('All Square') || st.includes('Halved')) {
-        wormData.push(0); holeResults.push('H');
+        wormData.push(0);
       } else if (st.includes(' UP')) {
-        const n = parseInt(st); wormData.push(isNaN(n) ? 0 : n); holeResults.push('H');
+        const n = parseInt(st); wormData.push(isNaN(n) ? 0 : n);
       } else if (st.includes(' DOWN')) {
-        const n = parseInt(st); wormData.push(isNaN(n) ? 0 : -n); holeResults.push('H');
+        const n = parseInt(st); wormData.push(isNaN(n) ? 0 : -n);
       } else {
+        // e.g. "3&2" closed format without W/L prefix
         const closed = st.match(/^(\d+)&(\d+)$/);
-        if (closed) {
-          const margin = parseInt(closed[1]);
-          wormData.push(margin > 0 ? margin : 0); holeResults.push('W');
-        } else {
-          wormData.push(null); holeResults.push(null);
-        }
+        wormData.push(closed ? parseInt(closed[1]) : null);
       }
     } else if (ext) {
-      wormData.push(wormData[wormData.length-1] ?? 0); holeResults.push('H');
+      wormData.push(wormData[wormData.length - 1] ?? 0);
     } else {
-      wormData.push(null); holeResults.push(null);
+      wormData.push(null);
     }
   }
 
+  // ── Step 2: derive per-hole result by position DELTA ─────────────────────────
+  // prev = position before the hole (0 = A/S at start).
+  // delta > 0 → T1 (ROW) won the hole → 'W' (teal)
+  // delta < 0 → T2 (AUS) won the hole → 'L' (red)
+  // delta = 0 → halved                → 'H' (gold)
+  const holeResults = wormData.map((pos, i) => {
+    if (pos === null) return null;
+    const prev = i === 0 ? 0 : (wormData[i - 1] ?? 0);
+    const delta = pos - prev;
+    if (delta > 0) return 'W';
+    if (delta < 0) return 'L';
+    return 'H';
+  });
+
   // Display slice
-  const displayData = wormData.map((v,i) => i < effectiveHoles ? v : null);
+  // Clamp display to ±6 for readability, null out unplayed holes
+  const displayData = wormData.map((v,i) => {
+    if (i >= effectiveHoles || v === null) return null;
+    return Math.max(-6, Math.min(6, v));
+  });
   let lastRealIdx = -1;
   displayData.forEach((v,i) => { if (v !== null) lastRealIdx = i; });
   const playedDisplay = lastRealIdx + 1;
