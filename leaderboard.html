@@ -356,7 +356,7 @@ select.t-select{width:100%;background:var(--card);border:1.5px solid var(--borde
 <!-- Header -->
 <div class="header">
   <div class="header-left">
-    <a class="back-btn" id="back-btn" href="index.html#play">← Scorecard</a>
+    <a class="back-btn" id="back-btn" href="index.html">← Scorecard</a>
     <div class="header-brand">Hill<span>fred</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
@@ -579,7 +579,7 @@ window.onTournamentChange = function(key) {
   liveScores = {};
   Object.keys(prevRanks).forEach(k => delete prevRanks[k]);
 
-  document.getElementById('back-btn').href = 'index.html#play';
+  document.getElementById('back-btn').href = 'index.html';
   hideBanner();
 
   if (!key) {

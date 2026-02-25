@@ -3540,17 +3540,19 @@ function startGame(){
 
 
 function openLeaderboard() {
+  sessionStorage.setItem('hf_session_active', '1');
   const base = window.location.href.replace(/[^/]*$/, '');
   const tKey = activeTournament || '';
   const url  = base + 'leaderboard.html' + (tKey ? '?t=' + encodeURIComponent(tKey) : '');
-  window.open(url, '_blank');
+  window.location.href = url;
 }
 
 function openMatchGraph() {
+  sessionStorage.setItem('hf_session_active', '1');
   const base = window.location.href.replace(/[^/]*$/, '');
   const tKey = activeTournament || '';
   const url  = base + 'match-graph.html' + (tKey ? '?t=' + encodeURIComponent(tKey) : '');
-  window.open(url, '_blank');
+  window.location.href = url;
 }
 
 // ═══════════════════════════════════════════
@@ -5575,11 +5577,6 @@ setTimeout(() => startTutorial(false), 600);
 renderMatchBanner();     // show active tournament on match tab
 checkCanStart();
 checkForSavedGame();
-// If returning from leaderboard or match-graph, jump straight to play tab
-if (window.location.hash === '#play') {
-  history.replaceState(null, '', window.location.pathname + window.location.search);
-  if (game) showTab('play');
-}
 // Mark this as an active session
 
 // ── Version check: detect if a newer version of the app is available ─────────
