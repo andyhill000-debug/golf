@@ -4273,6 +4273,7 @@ function renderHoleEntry(){
 
   // Compute strokes for each player on this hole
   // When skins matchplay is active, base = min hcp of ALL skins players (not just p1/p2)
+  const _scratchBase = !!(game.rules && game.rules.scratchBase);
   let s1,s2,s3,s4,base;
   if(isMatch&&game.skins&&game.skinsPlayers&&game.skinsPlayers.length>=2){
     base=Math.min(...game.skinsPlayers.map(p=>p.hcp));
@@ -4285,7 +4286,8 @@ function renderHoleEntry(){
     s3=game.fourPlayer?strokesOnHole(p3.hcp,_base34,si,si2h,si3h):0;
     s4=(game.fourPlayer&&(game.playerCount||2)>=4)?strokesOnHole(p4.hcp,_base34,si,si2h,si3h):0;
   } else if(isMatch&&game.team){
-    base=Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp);
+    // scratchBase (SGG): each player nets vs scratch (base=0), no player is zeroed out
+    base = _scratchBase ? 0 : Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp);
     s1=strokesOnHole(p1.hcp,base,si,si2h,si3h); s2=strokesOnHole(p2.hcp,base,si,si2h,si3h);
     s3=strokesOnHole(p3.hcp,base,si,si2h,si3h); s4=strokesOnHole(p4.hcp,base,si,si2h,si3h);
   } else {
@@ -4579,8 +4581,9 @@ function renderScorecard(results, rawResults){
     const sb2=stablefordCalc(h.p2,h.par,p2.hcp,si,si2h,si3h);
     const sb3=team?stablefordCalc(h.p3,h.par,p3.hcp,si,si2h,si3h):null;
     const sb4=team?stablefordCalc(h.p4,h.par,p4.hcp,si,si2h,si3h):null;
-    // In matchplay use the correct base (lowest hcp), not 0
-    const _mpBase=_isMP?(game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
+    // In matchplay use the correct base; scratchBase games always use 0
+    const _scrBase = !!(game.rules && game.rules.scratchBase);
+    const _mpBase=_isMP?(_scrBase?0:game.team?Math.min(p1.hcp,p2.hcp,p3.hcp,p4.hcp):Math.min(p1.hcp,p2.hcp)):0;
     const n1=h.p1!=null?h.p1-strokesOnHole(p1.hcp,_mpBase,si,si2h,si3h):null;
     const n2=h.p2!=null?h.p2-strokesOnHole(p2.hcp,_mpBase,si,si2h,si3h):null;
     const rawRes=rawResults?rawResults[i]:res;
