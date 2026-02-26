@@ -4312,19 +4312,19 @@ const LS_ADMIN_MIGRATED = 'hf_admin_salted_v1'; // flag: migration has run
 // ── One-time migration: clear per-device-salt credentials, move to fixed salt ──
 (function _migrateAdminCredentials() {
   try {
-    const hasHash = localStorage.getItem(LS_ADMIN_HASH);
+    // Only run migration once — flag is set immediately to prevent re-triggering
+    // even if localStorage was manually cleared on one device
     const migratedV2 = localStorage.getItem('hf_admin_salted_v2');
-    // If there's an existing hash but not yet migrated to fixed-salt, clear it
-    if (hasHash && !migratedV2) {
+    if (!migratedV2) {
       localStorage.removeItem(LS_ADMIN_HASH);
       localStorage.removeItem(LS_ADMIN_SQ);
       localStorage.removeItem(LS_ADMIN_SALT);
       localStorage.removeItem(LS_ADMIN_MIGRATED);
+      localStorage.setItem('hf_admin_salted_v2', '1');
       setTimeout(() => {
         showToast('🔐 Admin passphrase reset — please set a new one via ⚙️');
       }, 2500);
     }
-    localStorage.setItem('hf_admin_salted_v2', '1');
   } catch(e) {}
 })();
 
