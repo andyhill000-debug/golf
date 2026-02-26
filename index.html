@@ -1936,13 +1936,19 @@ function _syncPlayerLabels(){
 
   const t1cl = document.getElementById('t1-card-label');
   const t2cl = document.getElementById('t2-card-label');
+  // Teams-singles tournament: card headers should show "TeamName — Match 1" in team colours
+  const isTeamsSingles = _at && _at.type === 'teams' && _teamsMatchFmt !== '4bbb';
   if (t1cl) {
-    t1cl.textContent = isTeam ? _t1name : useDualMatch ? 'Player 1 — Match 1' : 'Player 1';
-    t1cl.style.color = useDualMatch ? 'var(--teal)' : '';
+    if (isTeamsSingles)     { t1cl.textContent = _t1name + ' — Match 1'; t1cl.style.color = 'var(--teal)'; }
+    else if (isTeam)        { t1cl.textContent = _t1name; t1cl.style.color = 'var(--teal)'; }
+    else if (useDualMatch)  { t1cl.textContent = 'Player 1 — Match 1'; t1cl.style.color = 'var(--teal)'; }
+    else                    { t1cl.textContent = 'Player 1'; t1cl.style.color = ''; }
   }
   if (t2cl) {
-    t2cl.textContent = isTeam ? _t2name : useDualMatch ? 'Player 2 — Match 1' : 'Player 2';
-    t2cl.style.color = useDualMatch ? 'var(--red)' : isTeam ? 'var(--red)' : '';
+    if (isTeamsSingles)     { t2cl.textContent = _t2name + ' — Match 1'; t2cl.style.color = 'var(--red)'; }
+    else if (isTeam)        { t2cl.textContent = _t2name; t2cl.style.color = 'var(--red)'; }
+    else if (useDualMatch)  { t2cl.textContent = 'Player 2 — Match 1'; t2cl.style.color = 'var(--red)'; }
+    else                    { t2cl.textContent = 'Player 2'; t2cl.style.color = ''; }
   }
 
   const p3nl=document.getElementById('p3-name-label');
