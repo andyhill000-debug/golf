@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.27.02"/>
+<meta name="app-version" content="2026.02.27.03"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -904,8 +904,10 @@
   </div>
 
   <div class="card" id="card-game-mode">
-    <div class="card-label">Game Mode</div>
-    <div id="mode-choose-prompt" style="text-align:center;padding:8px 4px 10px;font-size:12px;color:#ccc;font-weight:600;letter-spacing:.3px">👆 Choose a game mode to begin</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="card-label" style="margin-bottom:0">Game Mode</div>
+      <div id="mode-choose-prompt" style="font-size:11px;color:#ccc;font-weight:600;letter-spacing:.3px">👇 Choose a mode to begin</div>
+    </div>
     <div class="mode-row">
       <button class="mode-btn" id="mode-matchplay"  onclick="setMode('matchplay')">🏆 Matchplay</button>
       <button class="mode-btn"        id="mode-stroke"     onclick="setMode('stroke')">✏️ Stroke Play</button>
@@ -933,10 +935,11 @@
   </div>
 
   <div class="card" id="card-course-setup">
-    <div class="card-label">⛳ Course Setup</div>
-
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="card-label" style="margin-bottom:0">⛳ Course Setup</div>
+      <div class="field-label" style="margin:0">Select Course</div>
+    </div>
     <!-- Course Selector Dropdown -->
-    <div class="field-label" style="margin-top:0">Select Course</div>
     <select class="input" id="course-select" onchange="onCourseSelect(this.value)" style="color:#fff;appearance:none;-webkit-appearance:none;background:#111 url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%2300d4aa%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') no-repeat right 13px center;padding-right:36px;cursor:pointer">
       <option value="">— Choose a course —</option>
     </select>
@@ -3694,6 +3697,13 @@ function clearAutosave(){
 /** On app open: check for a saved in-progress game and resume or prompt */
 // ── Changelog ────────────────────────────────────────────────────────────────
 const CHANGELOG = [
+  {
+    version: '2026.02.27.03',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'improve', text: 'Game Mode and Course Setup headers condensed to save screen space' },
+    ]
+  },
   {
     version: '2026.02.27.02',
     date: '27 Feb 2026',
