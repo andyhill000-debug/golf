@@ -806,6 +806,21 @@
       </button>
     </div>
 
+    <div class="ap-divider"></div>
+
+    <!-- ── App ───────────────────────────────────────────────────────────────── -->
+    <div class="ap-section">
+      <div class="ap-section-title">App</div>
+
+      <button class="ap-action" id="ap-clear-cache-btn" onclick="apClearCache()">
+        <span>🔄</span>
+        <span>
+          Clear Cache &amp; Reload
+          <span class="ap-action-sub">Forces the latest version to load — use if the app feels stale</span>
+        </span>
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -4508,6 +4523,31 @@ function apResetPin() {
   document.getElementById('admin-modal').classList.remove('hidden');
   _showView('pin');
   setTimeout(() => { document.getElementById('admin-pin-input')?.focus(); }, 200);
+}
+
+function apClearCache() {
+  closeAdminPortal();
+  // Unregister SW, clear all caches, then hard reload
+  const doReload = () => window.location.reload(true);
+  if ('serviceWorker' in navigator && 'caches' in window) {
+    Promise.all([
+      // Unregister all service workers
+      navigator.serviceWorker.getRegistrations().then(regs =>
+        Promise.all(regs.map(r => r.unregister()))
+      ),
+      // Delete all caches
+      caches.keys().then(keys =>
+        Promise.all(keys.map(k => caches.delete(k)))
+      )
+    ])
+    .then(() => {
+      showToast('Cache cleared — reloading…');
+      setTimeout(doReload, 800);
+    })
+    .catch(() => doReload());
+  } else {
+    doReload();
+  }
 }
 
 // ── Pending community course review ──────────────────────────────────────────
