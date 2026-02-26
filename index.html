@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.27.05"/>
+<meta name="app-version" content="2026.02.27.06"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -1436,10 +1436,10 @@ const PRESET_TOURNAMENTS = {
     sggDefender: 'AUS',
     rules: { scratchBase: true }, // SGG uses full handicap vs scratch, not lowest-handicapper base
     team1: { name: 'ROW', players: ['David Freeman','DP','Capt Hilly','VC Lerchie','Donal','Bede','Posh','Benny','AB','Stan','Justin','Bucko','Kate','Tubby'] },
-    team2: { name: 'AUS', players: ['Clarkey','Pokee',"CBA's #2 (TG)",'Doyley','VC Josko','Freddy','Capt Simmo','Overs','Balda','Dermott','Scotty','Fred V','Wes','Cam'] },
+    team2: { name: 'AUS', players: ['Clarkey','Pokee',"SGG Captain Clown",'Doyley','VC Josko','Freddy','Capt Simmo','Overs','Balda','Dermott','Scotty','Fred V','Wes','Cam'] },
     sggMatches: [
       { row: ['David Freeman','DP'], aus: ['Clarkey','Pokee'] },
-      { row: ['Capt Hilly','VC Lerchie'],  aus: ["CBA's #2 (TG)",'Doyley'] },
+      { row: ['Capt Hilly','VC Lerchie'],  aus: ["SGG Captain Clown",'Doyley'] },
       { row: ['Donal','Bede'],     aus: ['VC Josko','Freddy'] },
       { row: ['Posh','Benny'],     aus: ['Capt Simmo','Overs'] },
       { row: ['AB','Stan'],        aus: ['Balda','Dermott'] },
@@ -1454,7 +1454,7 @@ const PRESET_TOURNAMENTS = {
     sggTotalPoints: 15, sggPointsToWin: 11.5, sggPointsToRetain: 11,
     sggDefender: 'AUS',
     team1: { name: 'ROW', players: ['AB','Bede','Benny','Donal','Capt Hilly','Jacob','Justin','Kate','VC Lerchie','Posh','Stan','Tubby','David Freeman','Marinko Tulich','Bucko'] },
-    team2: { name: 'AUS', players: ['Belly','Cam','Clarkey','Dermott','Doyley','Fred V','Freddie','VC Josko','Overs','Pokee','Scotty','Sharpie','Capt Simmo',"CBA's #2 (TG)",'Wes'] }
+    team2: { name: 'AUS', players: ['Belly','Cam','Clarkey','Dermott','Doyley','Fred V','Freddie','VC Josko','Overs','Pokee','Scotty','Sharpie','Capt Simmo',"SGG Captain Clown",'Wes'] }
   }
 };
 let TOURNAMENT = {...PRESET_TOURNAMENTS};
@@ -3692,6 +3692,13 @@ function clearAutosave(){
 /** On app open: check for a saved in-progress game and resume or prompt */
 // ── Changelog ────────────────────────────────────────────────────────────────
 const CHANGELOG = [
+  {
+    version: '2026.02.27.06',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'update', text: 'AUS roster update — CBA\'s #2 (TG) replaced with SGG Captain Clown' },
+    ]
+  },
   {
     version: '2026.02.27.05',
     date: '27 Feb 2026',
