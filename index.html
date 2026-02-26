@@ -5,7 +5,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.23"/>
+<meta name="app-version" content="2026.02.26.25"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -1278,7 +1278,7 @@
   <div id="play-content" style="display:none">
   <!-- Persistent input keeps iOS keyboard open during re-renders -->
   <input id="kb-anchor" type="number" inputmode="numeric"
-    style="position:absolute;opacity:0;width:1px;height:1px;top:-9999px;left:-9999px;pointer-events:none"
+    style="position:fixed;opacity:0;width:1px;height:1px;top:50%;left:50%;pointer-events:none;transform:translate(-50%,-50%)"
     aria-hidden="true" tabindex="-1"/>
     <div style="text-align:right;padding:6px 16px 0;font-size:10px;color:#ccc;letter-spacing:1px">
       <span class="autosave-dot"></span>AUTO-SAVING &nbsp;·&nbsp; <span id="fb-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:3px;vertical-align:middle"></span><span id="fb-status-lbl" style="color:#ccc;font-size:9px;letter-spacing:1px">CONNECTING</span>
@@ -4687,7 +4687,12 @@ function renderPlay(){
   // Transfer focus from kb-anchor to the real next input (keyboard stays open)
   if(_pendingField){
     const _nextEl = document.getElementById('score-' + _pendingField);
-    if(_nextEl) _nextEl.focus();
+    if(_nextEl) {
+      const _sy = window.scrollY;
+      _nextEl.focus({ preventScroll: true });
+      // Restore scroll position — catches PWA viewport reflow jolt
+      if(window.scrollY !== _sy) window.scrollTo({ top: _sy, behavior: 'instant' });
+    }
   }
   // Show finish bar if: all 18 played, OR matchplay game is closed (won)
   let _mpStatus=game.mode==='matchplay'?matchStatus(results):null;
@@ -5530,7 +5535,11 @@ function onScoreInput(field,value){
     // to keep the iOS keyboard open through the re-render
     if(window._pendingFocusField){
       const anchor = document.getElementById('kb-anchor');
-      if(anchor) anchor.focus();
+      if(anchor) {
+        const _sy = window.scrollY;
+        anchor.focus({ preventScroll: true });
+        if(window.scrollY !== _sy) window.scrollTo({ top: _sy, behavior: 'instant' });
+      }
     }
   }
   autosave(); // persist every score change
