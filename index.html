@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.21"/>
+<meta name="app-version" content="2026.02.26.23"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -68,7 +68,7 @@
   .mode-btn{flex:1;min-width:100px;padding:12px 6px;border-radius:10px;border:2px solid #333;cursor:pointer;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;background:#141414;color:#ccc;transition:all .2s;text-align:center;min-height:48px}
   .mode-btn.active{border-color:var(--teal);background:rgba(0,232,187,.12);color:var(--teal)}
   .toggle-row{display:flex;align-items:center;gap:12px;margin-top:14px}
-  .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none;display:block}
+  .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none;align-self:center}
   .toggle.on{background:var(--teal)}
   .toggle::after{content:'';position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
   .toggle.on::after{left:26px}
@@ -876,17 +876,17 @@
       <button class="mode-btn"        id="mode-stableford" onclick="setMode('stableford')">⭐ Stableford</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
-      <div id="fourplayer-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
-        <div id="fourplayer-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px;text-align:center;line-height:1.3">3-4<br>Players</div>
+      <div id="fourplayer-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-align:center">
+        <div id="fourplayer-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px;line-height:1.3">3-4<br>Players</div>
         <button class="toggle" id="fourplayer-toggle" onclick="toggleFourPlayer()"></button>
         <span class="toggle-label" id="fourplayer-label" style="font-size:12px">Off</span>
       </div>
-      <div id="team-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
+      <div id="team-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-align:center">
         <div id="team-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px">4BBB</div>
         <button class="toggle" id="team-toggle" onclick="toggleTeam()"></button>
         <span class="toggle-label" id="team-label" style="font-size:12px">Off</span>
       </div>
-      <div id="skins-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .2s">
+      <div id="skins-box" style="background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:all .2s;text-align:center">
         <div id="skins-box-label" style="font-size:11px;color:#ccc;font-weight:700;letter-spacing:.5px">💰 Skins</div>
         <button class="toggle" id="skins-toggle" onclick="toggleSkins()"></button>
         <span class="toggle-label" id="skins-label" style="font-size:12px">Off</span>
@@ -1877,15 +1877,12 @@ function toggleTeam() {
   checkCanStart();
 }
 function onP3IndSelectChange(val) {
-  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
-  if (!val || !t) return;
-  const player = [...(t.team1.players||[]),...(t.team2.players||[])].find(p=>p===val);
-  if (player) { document.getElementById('p3-ind-name').value = val; }
+  if (!val) return;
+  document.getElementById('p3-ind-name').value = val;
   checkCanStart();
 }
 function onP4IndSelectChange(val) {
-  const t = activeTournament ? TOURNAMENT[activeTournament] : null;
-  if (!val || !t) return;
+  if (!val) return;
   document.getElementById('p4-ind-name').value = val;
   checkCanStart();
 }
