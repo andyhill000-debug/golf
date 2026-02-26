@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.20"/>
+<meta name="app-version" content="2026.02.26.21"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -68,7 +68,7 @@
   .mode-btn{flex:1;min-width:100px;padding:12px 6px;border-radius:10px;border:2px solid #333;cursor:pointer;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;background:#141414;color:#ccc;transition:all .2s;text-align:center;min-height:48px}
   .mode-btn.active{border-color:var(--teal);background:rgba(0,232,187,.12);color:var(--teal)}
   .toggle-row{display:flex;align-items:center;gap:12px;margin-top:14px}
-  .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none}
+  .toggle{width:50px;height:28px;border-radius:14px;background:#333;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none;outline:none;display:block}
   .toggle.on{background:var(--teal)}
   .toggle::after{content:'';position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
   .toggle.on::after{left:26px}
@@ -1050,7 +1050,7 @@
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p3-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p3-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap"/>
+      <input class="input" id="p3-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     </div>
   </div>
 
@@ -1067,7 +1067,7 @@
       <div class="field-label" style="margin-top:0">Name</div>
       <input class="input" id="p4-ind-name" type="text" placeholder="Enter name" oninput="checkCanStart()"/>
       <div class="field-label">Daily Handicap</div>
-      <input class="input" id="p4-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap"/>
+      <input class="input" id="p4-ind-hcp" type="number" min="-10" max="54" step="1" placeholder="Enter handicap" oninput="checkCanStart()"/>
     </div>
   </div>
 
@@ -2025,16 +2025,10 @@ function checkCanStart() {
   const needP3 = teamPlay || fourPlayer;
   const needP4 = teamPlay || fourPlayer;
 
-  // When fourPlayer is on without teamPlay, names/hcps live in the ind fields
-  const _p3NameId = (fourPlayer && !teamPlay) ? 'p3-ind-name' : 'p3-name';
-  const _p3HcpId  = (fourPlayer && !teamPlay) ? 'p3-ind-hcp'  : 'p3-hcp';
-  const _p4NameId = (fourPlayer && !teamPlay) ? 'p4-ind-name' : 'p4-name';
-  const _p4HcpId  = (fourPlayer && !teamPlay) ? 'p4-ind-hcp'  : 'p4-hcp';
-
-  const hasP3Name = needP3 ? !!(gv(_p3NameId)||'').trim() : true;
-  const hasP3Hcp  = needP3 ? hasHcp(_p3HcpId) : true;
-  const hasP4Name = needP4 ? !!(gv(_p4NameId)||'').trim() : true;
-  const hasP4Hcp  = needP4 ? hasHcp(_p4HcpId) : true;
+  const hasP3Name = needP3 ? !!(gv('p3-name')||'').trim() : true;
+  const hasP3Hcp  = needP3 ? hasHcp('p3-hcp') : true;
+  const hasP4Name = needP4 ? !!(gv('p4-name')||'').trim() : true;
+  const hasP4Hcp  = needP4 ? hasHcp('p4-hcp') : true;
   const hasP3 = hasP3Name && hasP3Hcp, hasP4 = hasP4Name && hasP4Hcp;
 
   const isPreset = !!(activeTournament && TOURNAMENT[activeTournament]?.preset);
