@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.17"/>
+<meta name="app-version" content="2026.02.26.19"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -669,6 +669,9 @@
         <button onclick="showForgotPin()" style="background:none;border:none;color:#ccc;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;text-decoration:underline;padding:4px 0">Forgot passphrase?</button>
       </div>
       <button class="btn btn-ghost" style="width:100%;font-size:13px;margin-top:4px" onclick="closeAdminModal()">Cancel</button>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid #1e1e1e;text-align:center">
+        <button onclick="forceResetAdminCredentials()" style="background:none;border:none;color:#444;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;text-decoration:underline;padding:4px 0;letter-spacing:.3px">Reset all admin credentials</button>
+      </div>
     </div>
 
     <!-- VIEW: Security question setup (shown after PIN confirmed on first time) -->
@@ -1961,6 +1964,19 @@ function toggleFourPlayer() {
     document.getElementById('p4-ind-name').value='';
     document.getElementById('p3-ind-hcp').value='';
     document.getElementById('p4-ind-hcp').value='';
+  } else if (activeTournament && TOURNAMENT[activeTournament]?.type === 'singles') {
+    // Singles tournament + fourPlayer just turned on — populate dropdowns from roster
+    const _tPlayers = TOURNAMENT[activeTournament].players || [];
+    populateTournamentDropdown('p3-ind-name-select', _tPlayers);
+    populateTournamentDropdown('p4-ind-name-select', _tPlayers);
+    const p3sw = document.getElementById('p3-ind-name-select-wrap');
+    const p4sw = document.getElementById('p4-ind-name-select-wrap');
+    if(p3sw) p3sw.style.display='block';
+    if(p4sw) p4sw.style.display='block';
+    const p3in = document.getElementById('p3-ind-name');
+    const p4in = document.getElementById('p4-ind-name');
+    if(p3in) p3in.style.display='none';
+    if(p4in) p4in.style.display='none';
   }
   _refreshSinglesNote();
   checkCanStart();
@@ -2242,6 +2258,17 @@ function onTournamentSelect(val) {
         if(tbl) tbl.style.color='#888';
       }
       ['p3-fields','p4-fields'].forEach(id => { const e=_g(id); if(e) e.style.display='none'; });
+      // If 4-player mode is on, populate p3/p4 individual dropdowns from the same roster
+      if (fourPlayer) {
+        populateTournamentDropdown('p3-ind-name-select', t.players||[]);
+        populateTournamentDropdown('p4-ind-name-select', t.players||[]);
+        const p3sw=_g('p3-ind-name-select-wrap'), p4sw=_g('p4-ind-name-select-wrap');
+        if(p3sw) p3sw.style.display='block';
+        if(p4sw) p4sw.style.display='block';
+        const p3in=_g('p3-ind-name'), p4in=_g('p4-ind-name');
+        if(p3in) p3in.style.display='none';
+        if(p4in) p4in.style.display='none';
+      }
     }
     ['p1-name','p2-name','p3-name','p4-name'].forEach(id => { const e=_g(id); if(e) e.value=''; });
   } else {
@@ -4132,6 +4159,18 @@ const LS_ADMIN_MIGRATED = 'hf_admin_salted_v1'; // flag: migration has run
     localStorage.setItem(LS_ADMIN_MIGRATED, '1');
   } catch(e) {}
 })();
+
+// ── Emergency credential reset (accessible from passphrase modal) ─────────────
+function forceResetAdminCredentials() {
+  try {
+    localStorage.removeItem(LS_ADMIN_HASH);
+    localStorage.removeItem(LS_ADMIN_SQ);
+    localStorage.removeItem(LS_ADMIN_SALT);
+    localStorage.removeItem(LS_ADMIN_MIGRATED);
+  } catch(e) {}
+  closeAdminModal();
+  showToast('🔐 Credentials cleared — tap ⚙️ to set a new passphrase');
+}
 
 // ── Hidden logo tap — 7 taps clears admin credentials ────────────────────────
 let _logoTapCount = 0;
