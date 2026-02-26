@@ -4283,20 +4283,22 @@ const LS_ADMIN_SQ      = 'hf_admin_sq';
 const LS_ADMIN_SALT    = 'hf_admin_salt';
 const LS_ADMIN_MIGRATED = 'hf_admin_salted_v1'; // flag: migration has run
 
-// ── One-time migration: clear pre-salt credentials ────────────────────────────
+// ── One-time migration: clear per-device-salt credentials, move to fixed salt ──
 (function _migrateAdminCredentials() {
   try {
     const hasHash = localStorage.getItem(LS_ADMIN_HASH);
-    const hasSalt = localStorage.getItem(LS_ADMIN_SALT);
-    if (hasHash && !hasSalt) {
+    const migratedV2 = localStorage.getItem('hf_admin_salted_v2');
+    // If there's an existing hash but not yet migrated to fixed-salt, clear it
+    if (hasHash && !migratedV2) {
       localStorage.removeItem(LS_ADMIN_HASH);
       localStorage.removeItem(LS_ADMIN_SQ);
+      localStorage.removeItem(LS_ADMIN_SALT);
       localStorage.removeItem(LS_ADMIN_MIGRATED);
       setTimeout(() => {
         showToast('🔐 Admin passphrase reset — please set a new one via ⚙️');
       }, 2500);
     }
-    localStorage.setItem(LS_ADMIN_MIGRATED, '1');
+    localStorage.setItem('hf_admin_salted_v2', '1');
   } catch(e) {}
 })();
 
@@ -4337,15 +4339,10 @@ function _logoTap() {
 }
 
 function _getOrCreateSalt() {
-  try {
-    let salt = localStorage.getItem(LS_ADMIN_SALT);
-    if (!salt) {
-      salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
-        .map(b => b.toString(16).padStart(2,'0')).join('');
-      localStorage.setItem(LS_ADMIN_SALT, salt);
-    }
-    return salt;
-  } catch(e) { return 'hf-static-salt-fallback'; }
+  // Fixed app-level salt — consistent across all devices so credentials
+  // set on iPhone work on PC and vice versa. Still protects against
+  // generic rainbow-table attacks without breaking cross-device access.
+  return 'hf-hillfred-golf-2026';
 }
 
 let _pinMode     = 'verify';
