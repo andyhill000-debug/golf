@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Hillfred Golf — Service Worker
-// Version: 2026.02.25.7
+// Version: 2026.02.26.13
 // Cache strategy: Cache-first for app shell, network-only for Firebase
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CACHE_VERSION = '2026.02.25.7';
+const CACHE_VERSION = '2026.02.26.13';
 const CACHE_NAME    = `hillfred-golf-${CACHE_VERSION}`;
 
 // App shell files to cache on install

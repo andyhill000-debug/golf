@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.26.13"/>
+<meta name="app-version" content="2026.02.26.14"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -660,7 +660,7 @@
           style="width:100%;padding:12px 44px 12px 14px;background:#111;border:1.5px solid #2a2a2a;border-radius:11px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;box-sizing:border-box;letter-spacing:.5px"
           oninput="document.getElementById('admin-pw-error').textContent=''"
           onkeydown="if(event.key==='Enter')_pinSubmit()"/>
-        <button onclick="togglePinVisibility()" id="pin-vis-btn"
+        <button onclick="togglePinVisibility()" id="pin-vis-btn" aria-label="Toggle passphrase visibility"
           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer;padding:4px;line-height:1">👁</button>
       </div>
       <div id="admin-pw-error" style="color:#ff5a5a;font-size:12px;font-weight:700;text-align:center;min-height:18px;letter-spacing:.3px;margin-bottom:8px"></div>
@@ -675,7 +675,7 @@
     <div id="admin-view-sq" style="display:none;margin-top:8px">
       <div style="margin-bottom:10px">
         <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#ccc;text-transform:uppercase;display:block;margin-bottom:6px">Security Question</label>
-        <select id="sq-question" style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box">
+        <select id="sq-question" style="width:100%;padding:10px 12px;background:#111;border:1.5px solid #2a2a2a;border-radius:10px;color:#f0f0f0;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;box-sizing:border-box">
           <option value="pet">What was the name of your first pet?</option>
           <option value="school">What primary school did you attend?</option>
           <option value="town">What town were you born in?</option>
@@ -714,7 +714,7 @@
 </div>
 
 <!-- ── Admin floating action button ────────────────────────────────────────── -->
-<div id="admin-fab" onclick="openAdminPortal()" title="Admin">
+<div id="admin-fab" onclick="openAdminPortal()" title="Admin" role="button" aria-label="Open admin portal">
   <span style="font-size:18px">⚙️</span>
   <div class="fab-badge" id="admin-fab-badge"></div>
 </div>
@@ -727,7 +727,7 @@
       <div class="ap-title">
         <span>⚙️</span> Admin Portal
       </div>
-      <button class="ap-close" onclick="closeAdminPortal()">✕</button>
+      <button class="ap-close" onclick="closeAdminPortal()" aria-label="Close admin portal">✕</button>
     </div>
 
     <!-- ── Firebase Management ──────────────────────────────────────────────── -->
@@ -814,10 +814,10 @@
   <button class="nav-btn"        id="navbtn-history"    onclick="showTab('history')">
     <span class="nav-icon">📋</span><span class="nav-label">History</span>
   </button>
-  <button class="nav-btn nav-live" id="navbtn-live"     onclick="openLeaderboard()">
+  <button class="nav-btn nav-live" id="navbtn-live"     onclick="openLeaderboard()" aria-label="Open live leaderboard">
     <span class="nav-icon">📡</span><span class="nav-label">Leaderboard</span>
   </button>
-  <button class="nav-btn nav-live" id="navbtn-graph"    onclick="openMatchGraph()">
+  <button class="nav-btn nav-live" id="navbtn-graph"    onclick="openMatchGraph()" aria-label="Open match graph">
     <span class="nav-icon">📈</span><span class="nav-label">Match Graph</span>
   </button>
 </div>
@@ -1230,7 +1230,7 @@
       <!-- Singles roster -->
       <div id="wiz-singles-roster">
         <div style="font-size:11px;color:#ccc;margin-bottom:8px;line-height:1.5">One player name per line</div>
-        <textarea class="input" id="wiz-singles-players" rows="10" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Eve" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
+        <textarea class="input" id="wiz-singles-players" rows="10" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave&#10;Eve" style="resize:none;font-size:16px;line-height:1.7;padding:12px 14px"></textarea>
       </div>
 
       <!-- Teams rosters -->
@@ -1239,13 +1239,13 @@
           <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Name</div>
           <input class="input" id="wiz-team1-name" type="text" placeholder="e.g. Home" style="margin-bottom:10px"/>
           <div class="field-label" style="margin-top:0;color:var(--teal)">Team 1 Players <span style="color:#ccc;font-weight:400;font-size:10px">— one per line</span></div>
-          <textarea class="input" id="wiz-team1-players" rows="5" placeholder="Alice&#10;Bob&#10;Charlie" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
+          <textarea class="input" id="wiz-team1-players" rows="5" placeholder="Alice&#10;Bob&#10;Charlie" style="resize:none;font-size:16px;line-height:1.7;padding:12px 14px"></textarea>
         </div>
         <div style="margin-top:4px">
           <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Name</div>
           <input class="input" id="wiz-team2-name" type="text" placeholder="e.g. Away" style="margin-bottom:10px"/>
           <div class="field-label" style="margin-top:0;color:var(--red)">Team 2 Players <span style="color:#ccc;font-weight:400;font-size:10px">— one per line</span></div>
-          <textarea class="input" id="wiz-team2-players" rows="5" placeholder="Dave&#10;Eve&#10;Frank" style="resize:none;font-size:14px;line-height:1.7;padding:12px 14px"></textarea>
+          <textarea class="input" id="wiz-team2-players" rows="5" placeholder="Dave&#10;Eve&#10;Frank" style="resize:none;font-size:16px;line-height:1.7;padding:12px 14px"></textarea>
         </div>
       </div>
     </div>
@@ -2770,7 +2770,14 @@ function editActiveTournament() {
 }
 
 function deleteTournament(key) {
-  if (!confirm(`Delete tournament "${TOURNAMENT[key]?.label}"? This cannot be undone.`)) return;
+  // Warn if an active game references this tournament
+  let savedGame;
+  try { savedGame = JSON.parse(localStorage.getItem(LS_AUTOSAVE)); } catch(e) {}
+  if (savedGame?.game?.tournament?.key === key) {
+    if (!confirm(`A game using "${TOURNAMENT[key]?.label}" is currently in progress.\n\nDeleting this tournament will orphan that game — it will still be resumable but won't sync to Firebase.\n\nDelete anyway?`)) return;
+  } else {
+    if (!confirm(`Delete tournament "${TOURNAMENT[key]?.label}"? This cannot be undone.`)) return;
+  }
   delete TOURNAMENT[key];
   if (activeTournament === key) {
     activeTournament = null;
@@ -3576,7 +3583,13 @@ function confirmShareCourse() {
 function autosave(){
   if(!game) return;
   const payload = {game, activeHole, savedAt: new Date().toISOString()};
-  try{ localStorage.setItem(LS_AUTOSAVE, JSON.stringify(payload)); }catch(e){}
+  try{
+    localStorage.setItem(LS_AUTOSAVE, JSON.stringify(payload));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      showToast('⚠️ Storage full — old history may need clearing');
+    }
+  }
   // Mirror to Firebase so game survives hard reloads and cache wipes
   if(game.tournament && window._fbSaveGameState){
     window._fbSaveGameState(DEVICE_ID, game.tournament.key, payload);
@@ -4100,6 +4113,19 @@ function _buildAndStoreResults(tournamentKey) {
 
 const LS_ADMIN_HASH = 'hf_admin_pin_hash';
 const LS_ADMIN_SQ   = 'hf_admin_sq';
+const LS_ADMIN_SALT = 'hf_admin_salt';
+
+function _getOrCreateSalt() {
+  try {
+    let salt = localStorage.getItem(LS_ADMIN_SALT);
+    if (!salt) {
+      salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(16).padStart(2,'0')).join('');
+      localStorage.setItem(LS_ADMIN_SALT, salt);
+    }
+    return salt;
+  } catch(e) { return 'hf-static-salt-fallback'; }
+}
 
 let _pinMode     = 'verify';
 let _pinFirst    = '';
@@ -4400,7 +4426,8 @@ function _pinError(msg) {
 async function _pinSubmit() {
   const val = _getPinInput();
   if (!val) { _pinError('Please enter a passphrase.'); return; }
-  const hash = await sha256(val);
+  const salt = _getOrCreateSalt();
+  const hash = await sha256(salt + val);
 
   if (_pinMode === 'set') {
     if (val.length < 6) { _pinError('Passphrase must be at least 6 characters.'); return; }
@@ -4457,7 +4484,8 @@ async function submitSqSetup() {
   const q   = document.getElementById('sq-question').value;
   const ans = document.getElementById('sq-answer').value.trim().toLowerCase();
   if (!ans) { document.getElementById('sq-error').textContent = 'Please enter an answer.'; return; }
-  const hash = await sha256(ans);
+  const salt = _getOrCreateSalt();
+  const hash = await sha256(salt + ans);
   try { localStorage.setItem(LS_ADMIN_SQ, JSON.stringify({ q, a: hash })); } catch(e) {}
   closeAdminModal();
   if (_pinOnSuccess) { const fn = _pinOnSuccess; _pinOnSuccess = null; fn(); }
@@ -4467,7 +4495,8 @@ async function submitForgotAnswer() {
   const sq  = _getAdminSq();
   if (!sq) return;
   const ans  = document.getElementById('forgot-answer').value.trim().toLowerCase();
-  const hash = await sha256(ans);
+  const salt = _getOrCreateSalt();
+  const hash = await sha256(salt + ans);
   if (hash !== sq.a) {
     document.getElementById('forgot-error').textContent = '✕ Incorrect answer.';
     document.getElementById('forgot-answer').value = '';
@@ -5630,7 +5659,13 @@ function finishGame(){
   if(game.tournament && window._fbFinishGame) _fbFinishGame(game.tournament.key, String(game.id), durationMinutes);
   const _tKeyForResults = game.tournament ? game.tournament.key : null;
   history.unshift({...game,endTime:new Date().toISOString(),durationMinutes,status,standings});
-  try{localStorage.setItem(LS_HISTORY,JSON.stringify(history));}catch(e){}
+  try{
+    localStorage.setItem(LS_HISTORY,JSON.stringify(history));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      showToast('⚠️ Storage full — clear some history to free space');
+    }
+  }
   if(_tKeyForResults) setTimeout(()=>_buildAndStoreResults(_tKeyForResults), 200);
   clearAutosave();
   setTimeout(renderTournamentTab, 200);
@@ -5643,15 +5678,26 @@ function finishGame(){
 // ═══════════════════════════════════════════
 // HISTORY
 // ═══════════════════════════════════════════
+const HISTORY_PAGE_SIZE = 20;
+let _historyPage = 1;
+
 function renderHistory(){
   renderSGGScoreboard();
+  _historyPage = 1; // reset to first page on each fresh render
+  _renderHistoryPage();
+}
+
+function _renderHistoryPage(){
   const list=document.getElementById('history-list');
   const empty=document.getElementById('history-empty');
   const clrBtn=document.getElementById('history-clear-btn');
   if(!history.length){empty.style.display='block';list.innerHTML='';clrBtn.style.display='none';return;}
   empty.style.display='none'; clrBtn.style.display='block';
 
-  list.innerHTML=history.map((g,idx)=>{
+  const pageItems = history.slice(0, _historyPage * HISTORY_PAGE_SIZE);
+  const hasMore   = history.length > pageItems.length;
+
+  list.innerHTML=pageItems.map((g,idx)=>{
     const {p1,p2,p3,p4}=g.players;
     const date=new Date(g.startTime).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
     const played=g.holes.filter(h=>h.p1!=null).length;
@@ -5802,6 +5848,18 @@ function renderHistory(){
       </div>
     </div>`;
   }).join('');
+
+  // Append load more button if there are more items
+  if (hasMore) {
+    list.innerHTML += `<button onclick="_loadMoreHistory()" style="width:100%;padding:13px;background:#141414;border:1.5px solid #2a2a2a;border-radius:12px;color:#ccc;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:.3px">
+      ↓ Load more (${history.length - pageItems.length} remaining)
+    </button>`;
+  }
+}
+
+function _loadMoreHistory() {
+  _historyPage++;
+  _renderHistoryPage();
 }
 
 function toggleHistory(idx){
@@ -6045,6 +6103,16 @@ try { localStorage.removeItem('hf_return_to_play'); } catch(e) {}
 renderMatchBanner();
 checkCanStart();
 
+// ── Back gesture guard — prevents iOS PWA left-edge swipe from exiting the app
+// Push a state so there's always something to pop back to internally
+if (!window.history.state || !window.history.state.hfApp) {
+  window.history.pushState({ hfApp: true }, '');
+}
+window.addEventListener('popstate', () => {
+  // User swiped back — push state again to keep them in the app
+  window.history.pushState({ hfApp: true }, '');
+});
+
 if (_returnToPlay) {
   // Returning from leaderboard/graph — restore game silently and go to scorecard
   let _rSaved;
@@ -6252,8 +6320,27 @@ function renderTeamsResults(t, rounds) {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/Hillfred_Golf/sw.js')
-      .then(reg => console.log('[HF] Service worker registered, scope:', reg.scope))
+      .then(reg => {
+        console.log('[HF] Service worker registered, scope:', reg.scope);
+        // When a new SW is found, tell it to skip waiting immediately
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New SW is ready — send SKIP_WAITING so it activates immediately
+              newWorker.postMessage('SKIP_WAITING');
+            }
+          });
+        });
+      })
       .catch(err => console.warn('[HF] Service worker registration failed:', err));
+
+    // When the SW controller changes (new SW took over), reload to get fresh files
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
   });
 }
 </script>
