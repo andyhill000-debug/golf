@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Hillfred Golf — Service Worker
-// Version: 2026.02.27.16
+// Version: 2026.02.27.18
 // Cache strategy: Network-first for HTML, cache-first for static assets
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CACHE_VERSION = '2026.02.27.16';
+const CACHE_VERSION = '2026.02.27.18';
 const CACHE_NAME    = `hillfred-golf-${CACHE_VERSION}`;
 
 // HTML pages — always try network first so updates are instant
