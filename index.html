@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.27.12"/>
+<meta name="app-version" content="2026.02.27.16"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -154,8 +154,55 @@
   .empty{padding:48px 24px;text-align:center;color:#ccc}
   .empty-icon{font-size:56px;margin-bottom:14px}
   .empty p{font-size:15px;line-height:1.6;font-weight:600}
-  .finish-bar{background:#141414;border-top:2px solid var(--border);padding:14px 16px;padding-bottom:calc(14px + env(safe-area-inset-bottom));position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;display:none;z-index:200}
-  .finish-bar.visible{display:block}
+  @keyframes bannerSlideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes bannerPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,170,.5),0 0 60px rgba(0,212,170,.3)}50%{box-shadow:0 0 0 10px rgba(0,212,170,0),0 0 80px rgba(0,212,170,.4)}}
+  @keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,97,.6),0 0 60px rgba(201,169,97,.3)}50%{box-shadow:0 0 0 10px rgba(201,169,97,0),0 0 80px rgba(201,169,97,.4)}}
+  @keyframes overlayFadeIn{from{opacity:0}to{opacity:1}}
+
+  /* ── Finish bar — full-screen teal overlay ── */
+  .finish-bar{
+    position:fixed;inset:0;max-width:480px;margin:0 auto;
+    display:none;z-index:200;align-items:flex-end;
+    background:rgba(0,0,0,.82);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .finish-bar.visible{display:flex;animation:overlayFadeIn .25s ease}
+  .finish-bar-card{
+    width:100%;
+    background:linear-gradient(160deg,#071a10,#0d1f17,#0a0a0a);
+    border:2.5px solid var(--teal);
+    border-bottom:none;
+    border-radius:24px 24px 0 0;
+    padding:28px 22px calc(28px + env(safe-area-inset-bottom));
+    animation:bannerSlideUp .35s cubic-bezier(.22,.68,0,1.2);
+    animation:bannerPulse 2s ease-in-out 0s 3, bannerSlideUp .35s cubic-bezier(.22,.68,0,1.2);
+  }
+  .finish-bar-title{
+    font-size:12px;font-weight:800;letter-spacing:3px;color:var(--teal);
+    text-transform:uppercase;text-align:center;margin-bottom:6px;
+  }
+  .finish-bar-headline{
+    font-size:26px;font-weight:900;color:#fff;text-align:center;
+    margin-bottom:20px;letter-spacing:-.5px;line-height:1.1;
+  }
+
+  /* ── Mid-round match-win banner — full-screen gold overlay ── */
+  .match-win-banner{
+    position:fixed;inset:0;max-width:480px;margin:0 auto;
+    display:none;z-index:201;align-items:flex-end;
+    background:rgba(0,0,0,.85);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .match-win-banner.visible{display:flex;animation:overlayFadeIn .25s ease}
+  .match-win-card{
+    width:100%;
+    background:linear-gradient(160deg,#1a0f00,#1a1200,#0a0a0a);
+    border:2.5px solid var(--gold);
+    border-bottom:none;
+    border-radius:24px 24px 0 0;
+    padding:28px 22px calc(28px + env(safe-area-inset-bottom));
+    animation:goldPulse 2s ease-in-out 0s 3, bannerSlideUp .35s cubic-bezier(.22,.68,0,1.2);
+  }
   .par-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;margin-top:10px}
   .par-hole-cell{text-align:center}
   .par-hole-num{font-size:10px;color:#ccc;font-weight:700;margin-bottom:3px}
@@ -1318,6 +1365,10 @@
       <span class="autosave-dot"></span>AUTO-SAVING &nbsp;·&nbsp; <span id="fb-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:3px;vertical-align:middle"></span><span id="fb-status-lbl" style="color:#ccc;font-size:9px;letter-spacing:1px">CONNECTING</span>
     </div>
     <div class="score-banner" id="score-banner"></div>
+    <!-- Mid-round match-win banner (4-player singles only) -->
+    <div class="match-win-banner" id="match-win-banner">
+      <div class="match-win-card" id="match-win-card"></div>
+    </div>
     <div class="hole-selector"><div class="hole-dots" id="hole-dots"></div></div>
     <div id="hole-entry"></div>
     <div class="card">
@@ -1334,7 +1385,11 @@
 
   </div>
   <div class="finish-bar" id="finish-bar">
-    <div id="finish-bar-inner"></div>
+    <div class="finish-bar-card">
+      <div class="finish-bar-title">⛳ Scorecard Complete</div>
+      <div class="finish-bar-headline" id="finish-bar-headline"></div>
+      <div id="finish-bar-inner"></div>
+    </div>
   </div>
 </div>
 
@@ -3714,6 +3769,36 @@ function clearAutosave(){
 // ── Changelog ────────────────────────────────────────────────────────────────
 const CHANGELOG = [
   {
+    version: '2026.02.27.16',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'improve', text: 'Match complete banners now full-screen overlays with blur backdrop and pulse animation — impossible to miss' },
+    ]
+  },
+  {
+    version: '2026.02.27.15',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'fix', text: '4-player singles: each match now has its own gold Save banner when it concludes — scoring continues for all players' },
+      { type: 'fix', text: 'Final Save & Close only appears once both match results have been saved' },
+    ]
+  },
+  {
+    version: '2026.02.27.14',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'fix', text: '4-player singles: Save prompt now appears as soon as either match concludes — no longer waits for both' },
+      { type: 'improve', text: 'Finish card shows both match statuses clearly — which is done, which is still playing' },
+    ]
+  },
+  {
+    version: '2026.02.27.13',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'improve', text: 'Save & Close Scorecard prompt is now a large prominent card — much harder to miss at game end' },
+    ]
+  },
+  {
     version: '2026.02.27.12',
     date: '27 Feb 2026',
     entries: [
@@ -4125,7 +4210,7 @@ function _syncHoleToFirebase(holeNum) {
   }
 
   const tKey = game.tournament.key;
-  const gameId = String(game.id);
+  const gameId  = String(game.id);
   const h = game.holes[holeNum - 1];
   const {p1, p2, p3, p4} = game.players;
   const pc = game.playerCount || 2;
@@ -4162,7 +4247,7 @@ function _syncHoleToFirebase(holeNum) {
     }
     // Match 2: p3 vs p4 independent status (fourPlayer non-team only)
     if (!team && pc >= 4) {
-      const res2 = game.holes.map(hh => matchHole1v1(hh.p3, hh.p4, p3.hcp, p4.hcp, _hsi(hh), _hsi2(hh), null));
+      const res2 = game.holes.map(hh => matchHole1v1(hh.p3, hh.p4, p3.hcp, p4.hcp, _hsi(hh), _hsi2(hh), _hsi3(hh)));
       _mpSt2 = matchStatus(res2);
       // Same posterity check for match 2
       if (_mpSt2 && _mpSt2.closed && _mpSt2.closingHole && holeNum > _mpSt2.closingHole) {
@@ -4271,6 +4356,7 @@ function _startFirebaseGame() {
     playerCount: pc,
     matchWeight: _matchWeight
   });
+
 }
 
 
@@ -5049,30 +5135,54 @@ function renderPlay(){
       if(window.scrollY !== _sy) window.scrollTo({ top: _sy, behavior: 'instant' });
     }
   }
-  // Show finish bar if: all 18 played, OR matchplay game is closed (won)
-  let _mpStatus=game.mode==='matchplay'?matchStatus(results):null;
-  // For fourPlayer matchplay: game is "won" when BOTH matches are closed
-  let _mpStatus2=null;
-  if(game.mode==='matchplay'&&game.fourPlayer&&(game.playerCount||2)>=4){
-    const {p1,p2,p3,p4}=game.players;
-    const res2=game.holes.map(h=>matchHole1v1(h.p3,h.p4,p3.hcp,p4.hcp,_hsi(h),_hsi2(h),null));
-    _mpStatus2=matchStatus(res2);
+  // ── Finish bar / match-win banner logic ──────────────────────────────────
+  const isFourSingles = game.fourPlayer && !game.team && game.mode === 'matchplay';
+  let _mpStatus  = game.mode === 'matchplay' ? matchStatus(results) : null;
+  let _mpStatus2 = null;
+  if (isFourSingles) {
+    const {p3,p4} = game.players;
+    const res2 = game.holes.map(h => matchHole1v1(h.p3,h.p4,p3.hcp,p4.hcp,_hsi(h),_hsi2(h),_hsi3(h)));
+    _mpStatus2 = matchStatus(res2);
   }
-  const _gameWon=_mpStatus&&_mpStatus.closed&&(!_mpStatus2||_mpStatus2.closed);
-  // For stroke/stableford AND matchplay: all 18 holes need ALL active players scored
-  const _pc=game.playerCount||2;
-  const _activeFields=['p1','p2',...(_pc>=3?['p3']:[]),...(_pc>=4?['p4']:[])];
-  const _all18 = game.holes.every(h=>_activeFields.every(f=>h[f]!=null));
-  // Current hole must be fully complete before showing finish bar — guards both paths
+  const _pc = game.playerCount || 2;
+  const _activeFields = ['p1','p2',...(_pc>=3?['p3']:[]),...(_pc>=4?['p4']:[])];
+  const _all18 = game.holes.every(h => _activeFields.every(f => h[f] != null));
   const _curH = game.holes[activeHole-1];
   const _curHoleComplete = game.team
     ? (_curH.p1!=null && _curH.p2!=null && _curH.p3!=null && _curH.p4!=null)
     : game.fourPlayer
       ? (_curH.p1!=null && _curH.p2!=null && (_pc<3||_curH.p3!=null) && (_pc<4||_curH.p4!=null))
       : (_curH.p1!=null && _curH.p2!=null);
-  const _showFinish = _curHoleComplete && (_gameWon || _all18);
-  document.getElementById('finish-bar').classList.toggle('visible',_showFinish);
-  if(_showFinish) renderFinishBar(_mpStatus,_all18);
+
+  if (isFourSingles) {
+    // ── 4-player singles: independent match banners + final close ────────────
+    const m1done = _mpStatus  && _mpStatus.closed;
+    const m2done = _mpStatus2 && _mpStatus2.closed;
+    const m1saved = !!game._m1saved;
+    const m2saved = !!game._m2saved;
+
+    // Show mid-round match-win banner when a match first closes (not yet saved)
+    const showM1Banner = _curHoleComplete && m1done && !m1saved;
+    const showM2Banner = _curHoleComplete && m2done && !m2saved;
+    const showMatchBanner = showM1Banner || showM2Banner;
+    const bannerEl = document.getElementById('match-win-banner');
+    if (bannerEl) bannerEl.classList.toggle('visible', showMatchBanner);
+    if (showMatchBanner) renderMatchWinBanner(_mpStatus, _mpStatus2, showM1Banner, showM2Banner);
+
+    // Show final Save & Close only once BOTH matches saved (or all-18)
+    const bothSaved = m1saved && m2saved;
+    const _showFinish = _curHoleComplete && (bothSaved || _all18);
+    document.getElementById('finish-bar').classList.toggle('visible', _showFinish && !showMatchBanner);
+    if (_showFinish && !showMatchBanner) renderFinishBar(_mpStatus, _all18, _mpStatus2);
+
+  } else {
+    // ── Standard: single match or 4BBB ───────────────────────────────────────
+    const _gameWon = _mpStatus && _mpStatus.closed;
+    const _showFinish = _curHoleComplete && (_gameWon || _all18);
+    document.getElementById('finish-bar').classList.toggle('visible', _showFinish);
+    if (document.getElementById('match-win-banner')) document.getElementById('match-win-banner').classList.remove('visible');
+    if (_showFinish) renderFinishBar(_mpStatus, _all18, null);
+  }
 }
 
 // ── Banner ─────────────────────────────────
@@ -6045,30 +6155,113 @@ function computeStandings() {
   return standings;
 }
 
-function renderFinishBar(mpStatus, all18){
-  const el = document.getElementById('finish-bar-inner');
-  if (!el) return;
-  if (mpStatus && mpStatus.closed && !all18) {
-    // Match won before 18 — offer finish early or keep playing
-    const {p1,p2} = game.players;
-    const winnerName = mpStatus.winner===1?(game.team?(game.tournament&&game.tournament.team1name||'Team 1'):p1.name):mpStatus.winner===2?(game.team?(game.tournament&&game.tournament.team2name||'Team 2'):p2.name):'';
-    el.innerHTML = `
-      <div style="font-size:12px;color:var(--gold);font-weight:700;text-align:center;margin-bottom:10px;letter-spacing:.5px">
-        🏆 ${winnerName} wins ${mpStatus.label} — match complete
+// ── Mid-round match-win banner (4-player singles) ────────────────────────────
+function renderMatchWinBanner(mpStatus, mpStatus2, showM1, showM2) {
+  const card = document.getElementById('match-win-card');
+  if (!card || !game) return;
+  const {p1,p2,p3,p4} = game.players;
+
+  const matchBlock = (st, pA, pB, mNum, show) => {
+    if (!show || !st || !st.closed) return '';
+    const winner      = st.winner === 1 ? pA.name : st.winner === 2 ? pB.name : null;
+    const loser       = st.winner === 1 ? pB.name : st.winner === 2 ? pA.name : null;
+    const winnerColor = st.winner === 1 ? 'var(--teal)' : 'var(--red)';
+    return `
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:48px;margin-bottom:8px">🏆</div>
+        <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Match ${mNum} Complete</div>
+        <div style="font-size:32px;font-weight:900;color:${winnerColor};line-height:1;margin-bottom:4px">${winner || 'Halved'}</div>
+        <div style="font-size:16px;color:#aaa;font-weight:700;margin-bottom:6px">${winner ? 'wins' : ''} ${st.label}</div>
+        ${loser ? `<div style="font-size:13px;color:#555">def. ${loser}</div>` : ''}
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="flex:2;font-size:14px" onclick="finishGame()">💾 Save &amp; Close</button>
-        <button class="btn btn-ghost" style="flex:1;font-size:13px" onclick="dismissFinishBar()">▶ Play for Posterity</button>
-      </div>`;
+      <button class="btn btn-full"
+        style="font-size:18px;font-weight:900;padding:18px;border-radius:14px;background:linear-gradient(135deg,#c9a961,#e2b84a);border:none;color:#000;letter-spacing:.3px;margin-bottom:12px;box-shadow:0 4px 24px rgba(201,169,97,.5)"
+        onclick="saveMatchResult(${mNum})">
+        💾 Save Match ${mNum} &amp; Keep Playing
+      </button>
+      <div style="font-size:12px;color:#666;text-align:center">Tap to save this result — all players continue scoring</div>`;
+  };
+
+  card.innerHTML = `
+    ${matchBlock(mpStatus,  p1, p2, 1, showM1)}
+    ${matchBlock(mpStatus2, p3, p4, 2, showM2)}`;
+}
+
+function saveMatchResult(matchNum) {
+  if (!game) return;
+  // Mark match as saved — scoring continues uninterrupted
+  if (matchNum === 1) game._m1saved = true;
+  if (matchNum === 2) game._m2saved = true;
+  // Persist flag to autosave so it survives page refresh
+  try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify({ game, activeHole })); } catch(e) {}
+  // Hide the banner
+  const bannerEl = document.getElementById('match-win-banner');
+  if (bannerEl) bannerEl.classList.remove('visible');
+  showToast(`✅ Match ${matchNum} result saved — keep playing!`);
+  // Re-run updateScoring to check if finish bar should now show
+  updateScoring();
+}
+
+function renderFinishBar(mpStatus, all18, mpStatus2){
+  const el = document.getElementById('finish-bar-inner');
+  const hl = document.getElementById('finish-bar-headline');
+  if (!el) return;
+
+  const isFourSingles = game && game.fourPlayer && !game.team && game.mode === 'matchplay';
+
+  // ── 4-player singles: both matches saved, show final summary ─────────────
+  if (isFourSingles && mpStatus2) {
+    const {p1,p2,p3,p4} = game.players;
+    if (hl) hl.textContent = 'Both Matches Complete';
+
+    const resultLine = (st, pA, pB) => {
+      if (!st || !st.closed) return `<span style="color:#888">Result pending</span>`;
+      const winner = st.winner === 1 ? pA.name : st.winner === 2 ? pB.name : null;
+      const col    = st.winner === 1 ? 'var(--teal)' : st.winner === 2 ? 'var(--red)' : 'var(--gold)';
+      return `<span style="color:${col};font-weight:800">${winner ? winner + ' wins' : 'Halved'}</span> <span style="color:#888">${st.label}</span>`;
+    };
+
+    el.innerHTML = `
+      <div style="margin-bottom:14px;background:#0a0a0a;border-radius:12px;padding:12px 14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1e1e1e">
+          <span style="font-size:12px;color:#888;font-weight:700">Match 1</span>
+          <span style="font-size:13px">${resultLine(mpStatus, p1, p2)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0">
+          <span style="font-size:12px;color:#888;font-weight:700">Match 2</span>
+          <span style="font-size:13px">${resultLine(mpStatus2, p3, p4)}</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" style="font-size:20px;font-weight:900;padding:20px;letter-spacing:.3px;border-radius:14px;box-shadow:0 4px 28px rgba(0,212,170,.5)" onclick="finishGame()">
+        💾 Save &amp; Close Scorecard
+      </button>`;
+    return;
+  }
+
+  // ── Standard: single match or 4BBB ───────────────────────────────────────
+  if (mpStatus && mpStatus.closed && !all18) {
+    const {p1,p2} = game.players;
+    const winnerName = mpStatus.winner===1
+      ? (game.team ? (game.tournament&&game.tournament.team1name||'Team 1') : p1.name)
+      : mpStatus.winner===2
+        ? (game.team ? (game.tournament&&game.tournament.team2name||'Team 2') : p2.name)
+        : '';
+    if (hl) hl.textContent = `🏆 ${winnerName} wins ${mpStatus.label}`;
+    el.innerHTML = `
+      <button class="btn btn-primary btn-full" style="font-size:20px;font-weight:900;padding:20px;letter-spacing:.3px;margin-bottom:12px;border-radius:14px;box-shadow:0 4px 28px rgba(0,212,170,.5)" onclick="finishGame()">
+        💾 Save &amp; Close Scorecard
+      </button>
+      <button class="btn btn-ghost btn-full" style="font-size:13px;opacity:.7" onclick="dismissFinishBar()">
+        ▶ Continue Playing for Posterity
+      </button>`;
   } else {
-    // All 18 played — compute standings with countback for stroke/stableford
     const standings = computeStandings();
     let standingsHtml = '';
     if (standings && standings.length > 1) {
       const rankEmoji = ['🥇','🥈','🥉','4️⃣'];
-      const colors = ['var(--gold)','#aaa','#cd7f32','#888'];
+      const colors    = ['var(--gold)','#aaa','#cd7f32','#888'];
       const modeLabel = game.mode === 'stableford' ? 'pts' : 'net';
-      const rows = standings.map((p, idx) => {
+      const rows = standings.map((p) => {
         const cbNote = p.countback && !p.countback.loser && p.countback.winner
           ? `<span style="font-size:10px;color:#ccc"> · Won ${p.countback.method} countback</span>`
           : p.countback && p.countback.winner === null
@@ -6077,18 +6270,25 @@ function renderFinishBar(mpStatus, all18){
         const cbDetail = p.countback && !p.countback.loser && p.countback.winner
           ? `<div style="font-size:10px;color:#ccc;margin-top:1px;padding-left:22px">${p.countback.detail}</div>`
           : '';
-        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1e1e1e">
-          <span style="font-size:16px;width:22px;text-align:center">${rankEmoji[p.rank-1]||p.rank}</span>
-          <span style="flex:1;font-size:13px;font-weight:600;color:${colors[p.rank-1]||'#888'}">${p.name}${cbNote}</span>
-          <span style="font-size:14px;font-weight:700;color:${colors[p.rank-1]||'#888'}">${p.total} ${modeLabel}</span>
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #1e2e24">
+          <span style="font-size:18px;width:24px;text-align:center">${rankEmoji[p.rank-1]||p.rank}</span>
+          <span style="flex:1;font-size:14px;font-weight:700;color:${colors[p.rank-1]||'#888'}">${p.name}${cbNote}</span>
+          <span style="font-size:15px;font-weight:800;color:${colors[p.rank-1]||'#888'}">${p.total} ${modeLabel}</span>
         </div>${cbDetail}`;
       }).join('');
-      standingsHtml = `<div style="margin-bottom:10px">
-        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;font-weight:700;margin-bottom:6px">🏆 FINAL STANDINGS</div>
+      standingsHtml = `<div style="margin-bottom:14px;background:#0a1a10;border-radius:10px;padding:10px 12px">
+        <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;font-weight:800;margin-bottom:8px">🏆 FINAL STANDINGS</div>
         ${rows}
       </div>`;
+      if (hl) hl.textContent = '18 Holes Complete';
+    } else {
+      if (hl) hl.textContent = '18 Holes Complete';
     }
-    el.innerHTML = `${standingsHtml}<button class="btn btn-primary btn-full" onclick="finishGame()">✅ Finish &amp; Save to History</button>`;
+    el.innerHTML = `
+      ${standingsHtml}
+      <button class="btn btn-primary btn-full" style="font-size:20px;font-weight:900;padding:20px;letter-spacing:.3px;border-radius:14px;box-shadow:0 4px 28px rgba(0,212,170,.5)" onclick="finishGame()">
+        💾 Save &amp; Close Scorecard
+      </button>`;
   }
 }
 
