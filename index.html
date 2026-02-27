@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png"/>
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png"/>
 <title>Hillfred Golf Scorecard</title>
-<meta name="app-version" content="2026.02.27.08"/>
+<meta name="app-version" content="2026.02.27.11"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   /* ── OUTDOOR OPTIMISED — Hillfred Golf ─────────────────────────────────────
@@ -1451,8 +1451,14 @@ const PRESET_TOURNAMENTS = {
     label: 'SGG International 2026 — Day 2',
     type: 'teams', matchFmt: 'singles', preset: true,
     sgg: true, sggDay: 2, sggCourse: 'Stonecutters Ridge',
-    sggTotalPoints: 15, sggPointsToWin: 11.5, sggPointsToRetain: 11,
+    sggTotalPoints: 13.5, sggPointsToWin: 10.75, sggPointsToRetain: 10.25,
     sggDefender: 'AUS',
+    // Lerchie plays 3 AUS players — each match worth 0.5 pts
+    sggHalfPointMatches: [
+      ['VC Lerchie', 'Wes'],
+      ['VC Lerchie', 'Clarkey'],
+      ['VC Lerchie', 'Scotty']
+    ],
     team1: { name: 'ROW', players: ['AB','Bede','Benny','Donal','Capt Hilly','Jacob','Justin','Kate','VC Lerchie','Posh','Stan','Tubby','David Freeman','Marinko Tulich','Bucko'] },
     team2: { name: 'AUS', players: ['Belly','Cam','Clarkey','Dermott','Doyley','Fred V','Freddie','VC Josko','Overs','Pokee','Scotty','Sharpie','Capt Dame Edna Beverage',"SGG Captain Clown",'Wes'] }
   }
@@ -1505,7 +1511,8 @@ function msi(h){ return DEFAULT_SI1[h.hole] || h.hole; }
  * Falls back to msi() for all standard matchplay games.
  */
 function _hsi(h){ return (game && game.rules && game.rules.scratchBase) ? gsi1(h) : msi(h); }
-function _hsi2(h){ return (game && game.rules && game.rules.scratchBase) ? gsi2(h) : null; }
+function _hsi2(h){ return (game && game.rules && game.rules.scratchBase) ? gsi2(h) : gsi2(h); }
+function _hsi3(h){ return (game && game.rules && game.rules.scratchBase) ? gsi3(h) : gsi3(h); }
 
 /**
  * strokesOnHole(hcp, baseHcp, si1, si2, si3)
@@ -1599,8 +1606,8 @@ function skinsCalc(holes, players, mode) {
     // Calculate per-player "value" (lower=better for net, higher=better for stableford)
     // Use correct SI for each mode: matchplay uses msi (DEFAULT_SI1), others use course SI
     const _si  = mode==='matchplay' ? _hsi(h) : (h.si1||h.si||DEFAULT_SI1[h.hole]||h.hole);
-    const _si2 = mode==='matchplay' ? null : (h.si2!=null?h.si2:null);
-    const _si3 = mode==='matchplay' ? null : (h.si3!=null?h.si3:null);
+    const _si2 = mode==='matchplay' ? _hsi2(h) : (h.si2!=null?h.si2:null);
+    const _si3 = mode==='matchplay' ? _hsi3(h) : (h.si3!=null?h.si3:null);
     const base = mode==='matchplay' ? Math.min(...players.map(p=>p.hcp)) : 0;
 
     let values;
@@ -1747,9 +1754,9 @@ function getHoleResults() {
     if (game.team) {
       // Use course SI (gsi1) if scratchBase rule is on, otherwise matchplay SI (msi)
       const si = scratchBase ? gsi1(h) : msi(h);
-      return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),null,scratchBase,h.par);
+      return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),gsi3(h),scratchBase,h.par);
     }
-    return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,_hsi(h),_hsi2(h),null);
+    return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,_hsi(h),_hsi2(h),_hsi3(h));
   });
 }
 
@@ -2528,9 +2535,10 @@ function _sggTallyFirebase(scores) {
     });
     const anyStatus = allStatuses.join(' ');
     const halved = (anyStatus.includes('All Square') || anyStatus.includes('Halved')) && leading === 0;
-    if (halved)           { row += 0.5; aus += 0.5; played++; }
-    else if (leading === 1) { row += 1; played++; }
-    else if (leading === 2) { aus += 1; played++; }
+    const mw = (meta.matchWeight != null) ? meta.matchWeight : 1;
+    if (halved)           { row += 0.5 * mw; aus += 0.5 * mw; played++; }
+    else if (leading === 1) { row += mw; played++; }
+    else if (leading === 2) { aus += mw; played++; }
     else if (players.some(([, pd]) => (pd.holesPlayed || 0) > 0)) played++;
   });
   return { row, aus, played };
@@ -2539,19 +2547,26 @@ function _sggTallyFirebase(scores) {
 // Format points cleanly: 2 → "2", 2.5 → "2.5"
 function _sggPts(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
 
+// ── Day 1 final result override ─────────────────────────────────────────────
+// Day 1 (Bonnie Doon 4BBB) scores were not fully recorded due to a handicap
+// stroke index bug. The known final result is hardcoded here.
+// Day 2 continues to calculate live from Firebase as normal.
+const SGG_DAY1_OVERRIDE = { row: 2.5, aus: 4.5, played: 7 };
+
 function _sggRenderScores() {
   const el = document.getElementById('sgg-scoreboard');
   if (!el) return;
-  const d1t = _sggTallyFirebase(_sggScores1);
+  const d1t = SGG_DAY1_OVERRIDE;
   const d2t = _sggTallyFirebase(_sggScores2);
   const rowTotal = d1t.row + d2t.row;
   const ausTotal = d1t.aus + d2t.aus;
   const totalPlayed = d1t.played + d2t.played;
-  const totalMatches = 22;
+  const totalMatches = 15; // Day 2: 15 matches (12×1pt singles + 3×0.5pt Lerchie)
 
-  // Determine status
+  // Determine status — total 20.5 pts (Day 1: 7pts + Day 2: 13.5pts)
+  // AUS defending: need 10.25 to retain, ROW need 10.75 to win outright
   let statusHtml = '';
-  const pToWin = 11.5, pToRetain = 11;
+  const pToWin = 10.75, pToRetain = 10.25;
   if (totalPlayed === totalMatches || rowTotal >= pToWin || ausTotal >= pToWin || ausTotal >= pToRetain) {
     if (rowTotal >= pToWin) {
       statusHtml = `<div style="margin-top:14px;padding:14px;background:rgba(0,232,187,.1);border:2px solid var(--teal);border-radius:14px;text-align:center">
@@ -2600,7 +2615,7 @@ function _sggRenderScores() {
         <span style="font-size:18px">🏆</span>
         <div>
           <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#ccc">SGG INTERNATIONAL 2026</div>
-          <div style="font-size:10px;color:#ccc;margin-top:1px">${totalPlayed} of ${totalMatches} matches complete · AUS defending</div>
+          <div style="font-size:10px;color:#ccc;margin-top:1px">${d2t.played} of ${totalMatches} Day 2 matches · 20.5 pts total · AUS defending</div>
         </div>
       </div>
 
@@ -2638,7 +2653,7 @@ function _sggRenderScores() {
           <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;color:#ccc;margin-bottom:6px">DAY 2 · STONECUTTERS · SINGLES</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span style="color:var(--teal);font-weight:800;font-size:18px">${_sggPts(d2t.row)}</span>
-            <span style="color:#ccc;font-size:11px">${d2t.played}/15</span>
+            <span style="color:#ccc;font-size:11px">${d2t.played}/15 · 13.5pts</span>
             <span style="color:var(--red);font-weight:800;font-size:18px">${_sggPts(d2t.aus)}</span>
           </div>
         </div>
@@ -3693,6 +3708,31 @@ function clearAutosave(){
 // ── Changelog ────────────────────────────────────────────────────────────────
 const CHANGELOG = [
   {
+    version: '2026.02.27.11',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'update', text: 'Day 2 format updated — VC Lerchie vs Wes, Clarkey & Scotty each worth 0.5 pts' },
+      { type: 'update', text: 'Tournament totals corrected — 20.5 pts available, win threshold 10.75, retain 10.25' },
+      { type: 'fix', text: 'Half-point matches automatically detected and tallied correctly in live scoreboard' },
+    ]
+  },
+  {
+    version: '2026.02.27.10',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'fix', text: 'Day 1 scoreboard corrected to final result: AUS 4.5 — ROW 2.5' },
+      { type: 'fix', text: 'Day 2 live scoring unaffected — tournament total will update correctly as Day 2 plays out' },
+    ]
+  },
+  {
+    version: '2026.02.27.09',
+    date: '27 Feb 2026',
+    entries: [
+      { type: 'fix', text: 'Critical fix — handicap strokes now correctly calculated for handicaps above 18 in matchplay' },
+      { type: 'fix', text: 'SI2 and SI3 stroke index now applied in singles matchplay, 4BBB, and skins' },
+    ]
+  },
+  {
     version: '2026.02.27.08',
     date: '27 Feb 2026',
     entries: [
@@ -4192,6 +4232,13 @@ function _startFirebaseGame() {
        ...(pc >= 4 ? [p4.name] : [])];
   // Guarantee mode is never null — preset tournaments are always matchplay
   const gameMode = game.mode || (game.tournament ? 'matchplay' : 'stroke');
+  // Check if this is a half-point match (e.g. Lerchie 1-vs-3 group on Day 2)
+  const _t = TOURNAMENT[game.tournament.key];
+  const _halfMatches = (_t && _t.sggHalfPointMatches) || [];
+  const _playerSet = new Set(players);
+  const _isHalf = _halfMatches.some(pair => pair.every(name => _playerSet.has(name)));
+  const _matchWeight = _isHalf ? 0.5 : 1;
+
   window._fbStartGame(game.tournament.key, String(game.id), {
     tournamentLabel: game.tournament.label,
     course: game.courseName || '—',
@@ -4200,7 +4247,8 @@ function _startFirebaseGame() {
     team1name: game.tournament.team1name || null,
     team2name: game.tournament.team2name || null,
     players,
-    playerCount: pc
+    playerCount: pc,
+    matchWeight: _matchWeight
   });
 }
 
@@ -4284,7 +4332,7 @@ function _buildAndStoreResults(tournamentKey) {
           const res = g.holes.map(h => {
             if (g.team) {
               const si = scratchBase ? gsi1(h) : msi(h);
-              return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),null,scratchBase,h.par);
+              return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),gsi3(h),scratchBase,h.par);
             }
             return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
           });
@@ -6089,7 +6137,7 @@ function _renderHistoryPage(){
     const results=g.holes.map(h=>{
       if(!isMatch)return null;
       if(g.team)return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,_hsi(h),_hsi2(h),null,!!(g.rules&&g.rules.scratchBase),h.par);
-      return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,_hsi(h),_hsi2(h),null);
+      return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,_hsi(h),_hsi2(h),_hsi3(h));
     });
     const st=isMatch?matchStatus(results):null;
     let sp1=0,sp2=0;
@@ -6645,7 +6693,7 @@ function renderTeamsResults(t, rounds) {
         const res = g.holes.map(h => {
           if (g.team) {
             const si = scratchBase ? gsi1(h) : msi(h);
-            return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),null,scratchBase,h.par);
+            return matchHole4BBB(h.p1,h.p3,h.p2,h.p4,p1.hcp,p3.hcp,p2.hcp,p4.hcp,si,gsi2(h),gsi3(h),scratchBase,h.par);
           }
           return matchHole1v1(h.p1,h.p2,p1.hcp,p2.hcp,msi(h),null,null);
         });
